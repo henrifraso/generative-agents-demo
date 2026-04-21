@@ -262,62 +262,54 @@
 	  var _touches = {};
 	  var _lastPinchDist = null;
 
-	  function _touchDist(t1, t2) {
-	    var dx = t1.clientX - t2.clientX, dy = t1.clientY - t2.clientY;
+	  function _touchDist(a, b) {
+	    var dx = a.x - b.x, dy = a.y - b.y;
 	    return Math.sqrt(dx*dx + dy*dy);
 	  }
 
-	  game.canvas.addEventListener('touchstart', function(e) {
+	  document.addEventListener('touchstart', function(e) {
 	    e.preventDefault();
 	    for (var i = 0; i < e.changedTouches.length; i++) {
 	      var t = e.changedTouches[i];
 	      _touches[t.identifier] = { x: t.clientX, y: t.clientY };
 	    }
 	    var ids = Object.keys(_touches);
-	    if (ids.length === 2) {
+	    if (ids.length === 2)
 	      _lastPinchDist = _touchDist(_touches[ids[0]], _touches[ids[1]]);
-	    }
 	  }, { passive: false });
 
-	  game.canvas.addEventListener('touchmove', function(e) {
+	  document.addEventListener('touchmove', function(e) {
 	    e.preventDefault();
+	    for (var i = 0; i < e.changedTouches.length; i++) {
+	      var t = e.changedTouches[i];
+	      if (_touches[t.identifier] !== undefined)
+	        _touches[t.identifier] = { x: t.clientX, y: t.clientY };
+	    }
 	    var ids = Object.keys(_touches);
-
-	    if (ids.length === 2) {
-	      // Pinch zoom
-	      var t0 = null, t1 = null;
-	      for (var i = 0; i < e.changedTouches.length; i++) {
-	        var t = e.changedTouches[i];
-	        if (_touches[t.identifier]) _touches[t.identifier] = { x: t.clientX, y: t.clientY };
-	      }
-	      var k = Object.keys(_touches);
-	      var dist = _touchDist(_touches[k[0]], _touches[k[1]]);
+	    if (ids.length >= 2) {
+	      var dist = _touchDist(_touches[ids[0]], _touches[ids[1]]);
 	      if (_lastPinchDist) {
-	        var delta = dist - _lastPinchDist;
-	        var newZoom = camera.zoom + delta * 0.01;
+	        var newZoom = camera.zoom + (dist - _lastPinchDist) * 0.01;
 	        camera.setZoom(Math.max(1, Math.min(4, newZoom)));
 	      }
 	      _lastPinchDist = dist;
 	    } else if (ids.length === 1) {
-	      // Arrasto pan
 	      var id = ids[0];
 	      for (var i = 0; i < e.changedTouches.length; i++) {
 	        var t = e.changedTouches[i];
 	        if (String(t.identifier) === id) {
-	          var dx = (_touches[id].x - t.clientX) / camera.zoom;
-	          var dy = (_touches[id].y - t.clientY) / camera.zoom;
-	          player.x += dx;
-	          player.y += dy;
+	          var s = window._canvasScale || 1;
+	          player.x += (t.clientX - _touches[id].x) / (s * camera.zoom) * -1;
+	          player.y += (t.clientY - _touches[id].y) / (s * camera.zoom) * -1;
 	          _touches[id] = { x: t.clientX, y: t.clientY };
 	        }
 	      }
 	    }
 	  }, { passive: false });
 
-	  game.canvas.addEventListener('touchend', function(e) {
-	    for (var i = 0; i < e.changedTouches.length; i++) {
+	  document.addEventListener('touchend', function(e) {
+	    for (var i = 0; i < e.changedTouches.length; i++)
 	      delete _touches[e.changedTouches[i].identifier];
-	    }
 	    if (Object.keys(_touches).length < 2) _lastPinchDist = null;
 	  }, { passive: false });
 
