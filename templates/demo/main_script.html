@@ -349,6 +349,7 @@
 	    }
 	  }
 	  window._walkable = _walkable;
+	  window._cloneEmojis = ['💬','🎵','☕','🌸','👋','😊','🍕','📱','🌟','💭','🤔','😄','🎶','🌼','🍦','📚','🎨','🛒','🐈','🌻'];
 
 	  // *** CLONES — 48 NPCs com destino, caminhada e espera natural ***
 	  var _pKeys = Object.keys(spawn_tile_loc);
@@ -372,6 +373,9 @@
 	    var _px = _vp.tx*32+16, _py = _vp.ty*32+16;
 	    var _cs = this.add.sprite(_px, _py, _pk, 'down').setDepth(1);
 	    _cs.displayWidth = 40; _cs.scaleY = _cs.scaleX;
+	    var _cb = this.add.image(_px+50, _py-30, 'speech_bubble').setDepth(4).setAlpha(0);
+	    _cb.displayWidth = 100; _cb.displayHeight = 46;
+	    var _ct = this.add.text(_px+12, _py-50, '', {font:'16px monospace', fill:'#000000', padding:{x:4,y:4}}).setDepth(4).setAlpha(0);
 	    var _dest = _validTiles[Math.floor(Math.random() * _validTiles.length)];
 	    _clones.push({
 	      s:_cs, key:_pk,
@@ -379,7 +383,8 @@
 	      prevX:_vp.tx, prevY:_vp.ty,
 	      tx:_px, ty:_py,
 	      dtx:_dest.tx, dty:_dest.ty,
-	      moving:false, wait:Math.floor(Math.random()*180), stuck:0
+	      moving:false, wait:Math.floor(Math.random()*180), stuck:0,
+	      bubble:_cb, btext:_ct, bubbleTimer:0
 	    });
 	  }
 	  window._clones = _clones;
@@ -429,10 +434,20 @@
 	          _cl.moving = false; _cl.stuck = 0;
 	          if (_cl.tileX === _cl.dtx && _cl.tileY === _cl.dty) {
 	            _cl.s.anims.stop();
-	            _cl.wait = 180 + Math.floor(Math.random() * 420); // 3-10s no destino
+	            _cl.wait = 180 + Math.floor(Math.random() * 420);
+	            if (Math.random() < 0.4 && !_cl.bubbleTimer) {
+	              var _e = window._cloneEmojis[Math.floor(Math.random()*window._cloneEmojis.length)];
+	              _cl.btext.setText(_e); _cl.bubble.setAlpha(1); _cl.btext.setAlpha(1);
+	              _cl.bubbleTimer = 150 + Math.floor(Math.random() * 150);
+	            }
 	          } else if (Math.random() < 0.15) {
 	            _cl.s.anims.stop();
-	            _cl.wait = 60 + Math.floor(Math.random() * 120); // 1-3s pausa aleatória
+	            _cl.wait = 60 + Math.floor(Math.random() * 120);
+	            if (Math.random() < 0.25 && !_cl.bubbleTimer) {
+	              var _e = window._cloneEmojis[Math.floor(Math.random()*window._cloneEmojis.length)];
+	              _cl.btext.setText(_e); _cl.bubble.setAlpha(1); _cl.btext.setAlpha(1);
+	              _cl.bubbleTimer = 90 + Math.floor(Math.random() * 90);
+	            }
 	          }
 	        } else if (Math.abs(_cdx) > Math.abs(_cdy)) {
 	          _cl.s.x += _cdx > 0 ? _cspd : -_cspd;
@@ -476,6 +491,13 @@
 	          }
 	        }
 	        if (!_moved) { _cl.stuck++; _cl.wait=20; }
+	      }
+	      // Atualizar balão de fala
+	      if (_cl.bubbleTimer > 0) {
+	        _cl.bubbleTimer--;
+	        _cl.bubble.x = _cl.s.x + 50; _cl.bubble.y = _cl.s.y - 30;
+	        _cl.btext.x = _cl.s.x + 12; _cl.btext.y = _cl.s.y - 50;
+	        if (_cl.bubbleTimer === 0) { _cl.bubble.setAlpha(0); _cl.btext.setAlpha(0); }
 	      }
 	    }
 	  }
