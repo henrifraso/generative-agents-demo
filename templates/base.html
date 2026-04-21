@@ -49,16 +49,33 @@ Author: Joon Sung Park (joonspk@stanford.edu)
 	{% endblock js_content %}
 
   <script>
-    window._canvasScale = 1;
+    var _baseScale = 1;
+    var _zoom = 1;
+    var _panX = 0;
+    var _panY = 0;
+
+    function _applyTransform() {
+      var c = document.querySelector('#game-container canvas');
+      if (!c) return;
+      var total = _baseScale * _zoom;
+      var maxX = Math.max(0, (c.offsetWidth  * total - window.innerWidth)  / 2);
+      var maxY = Math.max(0, (c.offsetHeight * total - window.innerHeight) / 2);
+      _panX = Math.max(-maxX, Math.min(maxX, _panX));
+      _panY = Math.max(-maxY, Math.min(maxY, _panY));
+      c.style.transform = 'translate(calc(-50% + ' + _panX + 'px), calc(-50% + ' + _panY + 'px)) scale(' + total + ')';
+    }
+
     function fitCanvas() {
       var c = document.querySelector('#game-container canvas');
       if (!c) { setTimeout(fitCanvas, 300); return; }
-      var sx = window.innerWidth  / c.offsetWidth;
-      var sy = window.innerHeight / c.offsetHeight;
-      var s  = Math.max(sx, sy);
-      window._canvasScale = s;
-      c.style.transform = 'translate(-50%,-50%) scale(' + s + ')';
+      _baseScale = Math.max(window.innerWidth / c.offsetWidth, window.innerHeight / c.offsetHeight);
+      _applyTransform();
     }
+
+    window.mapZoom  = function(dz) { _zoom = Math.max(1, Math.min(5, _zoom + dz)); _applyTransform(); };
+    window.mapPan   = function(dx, dy) { _panX += dx; _panY += dy; _applyTransform(); };
+    window.mapZoomTo = function(z)  { _zoom = Math.max(1, Math.min(5, z)); _applyTransform(); };
+
     window.addEventListener('resize', fitCanvas);
     setTimeout(fitCanvas, 500);
     setTimeout(fitCanvas, 1500);

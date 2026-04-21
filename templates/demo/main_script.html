@@ -244,25 +244,25 @@
 	  camera.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
 	  cursors = this.input.keyboard.createCursorKeys();
 
-	  // Zoom com scroll do mouse
-	  this.input.on('wheel', function(pointer, gameObjects, deltaX, deltaY) {
-	    var newZoom = camera.zoom - deltaY * 0.005;
-	    camera.setZoom(Math.max(1, Math.min(4, newZoom)));
-	    game.canvas.focus();
-	  });
-	  game.canvas.setAttribute('tabindex', '0');
-	  game.canvas.focus();
+	  // Zoom com scroll do mouse (CSS)
+	  document.addEventListener('wheel', function(e) {
+	    e.preventDefault();
+	    window.mapZoom(-e.deltaY * 0.005);
+	  }, { passive: false });
 
-	  // Garante que setas sempre movem a câmera, mesmo sem foco no canvas
+	  // Setas movem o mapa via pan CSS
+	  var _keys = {};
 	  window.addEventListener('keydown', function(e) {
+	    _keys[e.keyCode] = true;
 	    if ([37,38,39,40].indexOf(e.keyCode) >= 0) e.preventDefault();
-	  }, false);
+	  });
+	  window.addEventListener('keyup', function(e) { _keys[e.keyCode] = false; });
 
-	  // Touch: pinch para zoom + arrasto para mover
+	  // Touch: pinch zoom + arrasto (CSS)
 	  var _touches = {};
 	  var _lastPinchDist = null;
 
-	  function _touchDist(a, b) {
+	  function _td(a, b) {
 	    var dx = a.x - b.x, dy = a.y - b.y;
 	    return Math.sqrt(dx*dx + dy*dy);
 	  }
@@ -274,12 +274,14 @@
 	      _touches[t.identifier] = { x: t.clientX, y: t.clientY };
 	    }
 	    var ids = Object.keys(_touches);
-	    if (ids.length === 2)
-	      _lastPinchDist = _touchDist(_touches[ids[0]], _touches[ids[1]]);
+	    if (ids.length >= 2)
+	      _lastPinchDist = _td(_touches[ids[0]], _touches[ids[1]]);
 	  }, { passive: false });
 
 	  document.addEventListener('touchmove', function(e) {
 	    e.preventDefault();
+	    var prev = {};
+	    for (var k in _touches) prev[k] = { x: _touches[k].x, y: _touches[k].y };
 	    for (var i = 0; i < e.changedTouches.length; i++) {
 	      var t = e.changedTouches[i];
 	      if (_touches[t.identifier] !== undefined)
@@ -287,23 +289,14 @@
 	    }
 	    var ids = Object.keys(_touches);
 	    if (ids.length >= 2) {
-	      var dist = _touchDist(_touches[ids[0]], _touches[ids[1]]);
-	      if (_lastPinchDist) {
-	        var newZoom = camera.zoom + (dist - _lastPinchDist) * 0.01;
-	        camera.setZoom(Math.max(1, Math.min(4, newZoom)));
-	      }
+	      var dist = _td(_touches[ids[0]], _touches[ids[1]]);
+	      if (_lastPinchDist) window.mapZoom((dist - _lastPinchDist) * 0.01);
 	      _lastPinchDist = dist;
 	    } else if (ids.length === 1) {
 	      var id = ids[0];
-	      for (var i = 0; i < e.changedTouches.length; i++) {
-	        var t = e.changedTouches[i];
-	        if (String(t.identifier) === id) {
-	          var s = window._canvasScale || 1;
-	          player.x += (t.clientX - _touches[id].x) / (s * camera.zoom) * -1;
-	          player.y += (t.clientY - _touches[id].y) / (s * camera.zoom) * -1;
-	          _touches[id] = { x: t.clientX, y: t.clientY };
-	        }
-	      }
+	      var dx = _touches[id].x - prev[id].x;
+	      var dy = _touches[id].y - prev[id].y;
+	      window.mapPan(dx, dy);
 	    }
 	  }, { passive: false });
 
@@ -400,25 +393,13 @@
 			game_pause();
 		};
 
-	  // *** MOVE CAMERA *** 
-	  // This is where we finish up the camera setting we started in the create() 
-	  // function. We set the movement speed of the camera and wire up the keys to
-	  // map to the actual movement.
-	  const camera_speed = 400;
-	  // Stop any previous movement from the last frame
+	  // *** MOVE CAMERA via CSS pan ***
+	  var pan_speed = 8;
+	  if (_keys && _keys[37]) window.mapPan( pan_speed, 0);
+	  if (_keys && _keys[39]) window.mapPan(-pan_speed, 0);
+	  if (_keys && _keys[38]) window.mapPan(0,  pan_speed);
+	  if (_keys && _keys[40]) window.mapPan(0, -pan_speed);
 	  player.body.setVelocity(0);
-	  if (cursors.left.isDown) {
-	    player.body.setVelocityX(-camera_speed);
-	  } 
-	  if (cursors.right.isDown) {
-	    player.body.setVelocityX(camera_speed);
-	  } 
-	  if (cursors.up.isDown) {
-	    player.body.setVelocityY(-camera_speed);
-	  } 
-	  if (cursors.down.isDown) {
-	    player.body.setVelocityY(camera_speed);
-	  }
 
 	  
 	  let curr_focused_persona = document.getElementById("temp_focus").textContent;
