@@ -337,25 +337,24 @@
 		    repeat: -1 });
 	  }
 
-	  // *** CLONES — 48 NPCs extras que vagam pelo mapa ***
+	  // *** CLONES — 48 NPCs extras (sprites simples, sem physics) ***
 	  var _pKeys = Object.keys(spawn_tile_loc);
 	  var _validTiles = [];
-	  for (var _vy = 1; _vy < 99; _vy++) {
-	    for (var _vx = 1; _vx < 139; _vx++) {
+	  for (var _vy = 2; _vy < 98; _vy += 2) {
+	    for (var _vx = 2; _vx < 138; _vx += 2) {
 	      if (!collisionsLayer.getTileAt(_vx, _vy)) _validTiles.push({x:_vx*32+16, y:_vy*32+16});
 	    }
 	  }
-	  var _clones = [], _cTargets = [];
+	  var _clones = [];
 	  for (var _ci = 0; _ci < 48; _ci++) {
 	    var _pk = _pKeys[_ci % _pKeys.length];
 	    var _vp = _validTiles[Math.floor(Math.random() * _validTiles.length)];
-	    var _cs = this.physics.add.sprite(_vp.x, _vp.y, _pk, 'down').setDepth(1).setSize(30,40);
+	    var _cs = this.add.sprite(_vp.x, _vp.y, _pk, 'down').setDepth(1);
 	    _cs.displayWidth = 40; _cs.scaleY = _cs.scaleX;
-	    _clones.push({sprite:_cs, key:_pk});
-	    _cTargets.push({x:_vp.x, y:_vp.y, timer:Math.floor(Math.random()*120)});
+	    var _tvp = _validTiles[Math.floor(Math.random() * _validTiles.length)];
+	    _clones.push({s:_cs, key:_pk, tx:_tvp.x, ty:_tvp.y, wait:Math.floor(Math.random()*120)});
 	  }
 	  window._clones = _clones;
-	  window._cTargets = _cTargets;
 	  window._validTiles = _validTiles;
 	}
 
@@ -387,29 +386,26 @@
 	  if (cursors.up.isDown)    player.body.setVelocityY(-camera_speed);
 	  if (cursors.down.isDown)  player.body.setVelocityY(camera_speed);
 
-	  // Mover clones
+	  // Mover clones (sem physics — direto na posição)
 	  if (window._clones) {
-	    var _cspd = movement_speed * 60;
+	    var _cspd = movement_speed * 1.5;
 	    for (var _ci = 0; _ci < window._clones.length; _ci++) {
 	      var _cl = window._clones[_ci];
-	      var _ct = window._cTargets[_ci];
-	      var _cdx = _ct.x - _cl.sprite.x;
-	      var _cdy = _ct.y - _cl.sprite.y;
-	      var _cdist = Math.sqrt(_cdx*_cdx + _cdy*_cdy);
-	      _ct.timer--;
-	      if (_ct.timer <= 0 || _cdist < 8) {
+	      if (_cl.wait > 0) { _cl.wait--; continue; }
+	      var _cdx = _cl.tx - _cl.s.x;
+	      var _cdy = _cl.ty - _cl.s.y;
+	      var _cd2 = _cdx*_cdx + _cdy*_cdy;
+	      if (_cd2 < 64) {
 	        var _np = window._validTiles[Math.floor(Math.random() * window._validTiles.length)];
-	        _ct.x = _np.x; _ct.y = _np.y;
-	        _ct.timer = 200 + Math.floor(Math.random() * 400);
-	      }
-	      if (_cdist > 8) {
-	        _cl.sprite.body.setVelocityX(_cdx/_cdist * _cspd);
-	        _cl.sprite.body.setVelocityY(_cdy/_cdist * _cspd);
-	        var _cdir = Math.abs(_cdx) > Math.abs(_cdy) ? (_cdx>0?'right':'left') : (_cdy>0?'down':'up');
-	        _cl.sprite.anims.play(_cl.key+'-'+_cdir+'-walk', true);
+	        _cl.tx = _np.x; _cl.ty = _np.y;
+	        _cl.wait = 120 + Math.floor(Math.random() * 300);
+	        _cl.s.anims.stop();
 	      } else {
-	        _cl.sprite.body.setVelocity(0);
-	        _cl.sprite.anims.stop();
+	        var _cdist = Math.sqrt(_cd2);
+	        _cl.s.x += _cdx/_cdist * _cspd;
+	        _cl.s.y += _cdy/_cdist * _cspd;
+	        var _cdir = Math.abs(_cdx) > Math.abs(_cdy) ? (_cdx>0?'right':'left') : (_cdy>0?'down':'up');
+	        _cl.s.anims.play(_cl.key+'-'+_cdir+'-walk', true);
 	      }
 	    }
 	  }
