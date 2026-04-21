@@ -51,7 +51,7 @@ Author: Joon Sung Park (joonspk@stanford.edu)
       if (!c) { setTimeout(fitCanvas, 300); return; }
       var sx = window.innerWidth  / c.offsetWidth;
       var sy = window.innerHeight / c.offsetHeight;
-      _cssScale = Math.max(sx, sy);
+      _cssScale = Math.min(sx, sy);
       c.style.transform = 'translate(-50%,-50%) scale(' + _cssScale + ')';
     }
     window.addEventListener('resize', fitCanvas);
