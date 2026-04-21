@@ -19,14 +19,6 @@ from .models import *
 
 _BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-def debug_files(request):
-  cs = os.path.join(_BASE, "compressed_storage")
-  dirs = os.listdir(cs)
-  name = dirs[0] if dirs else "vazio"
-  k_char = name[31] if len(name) > 31 else "?"
-  k_ord = ord(k_char)
-  meta = os.path.join(cs, name, "meta.json")
-  return HttpResponse(f"dir={repr(name)}<br>char31={repr(k_char)} ord={k_ord}<br>meta_exists={os.path.exists(meta)}")
 
 def landing(request):
   context = {}
