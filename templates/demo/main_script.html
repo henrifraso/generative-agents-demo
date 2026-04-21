@@ -357,10 +357,18 @@
 	    for (var _vx = 1; _vx < 139; _vx++)
 	      if (_walkable[_vy][_vx]) _validTiles.push({tx:_vx, ty:_vy});
 	  }
+	  var _occupied = {};
 	  var _clones = [];
 	  for (var _ci = 0; _ci < 48; _ci++) {
 	    var _pk = _pKeys[_ci % _pKeys.length];
 	    var _vp = _validTiles[Math.floor(Math.random() * _validTiles.length)];
+	    // Garantir tile inicial livre
+	    var _vkey = _vp.ty * 140 + _vp.tx;
+	    while (_occupied[_vkey]) {
+	      _vp = _validTiles[Math.floor(Math.random() * _validTiles.length)];
+	      _vkey = _vp.ty * 140 + _vp.tx;
+	    }
+	    _occupied[_vkey] = true;
 	    var _px = _vp.tx*32+16, _py = _vp.ty*32+16;
 	    var _cs = this.add.sprite(_px, _py, _pk, 'down').setDepth(1);
 	    _cs.displayWidth = 40; _cs.scaleY = _cs.scaleX;
@@ -368,6 +376,7 @@
 	    _clones.push({
 	      s:_cs, key:_pk,
 	      tileX:_vp.tx, tileY:_vp.ty,
+	      prevX:_vp.tx, prevY:_vp.ty,
 	      tx:_px, ty:_py,
 	      dtx:_dest.tx, dty:_dest.ty,
 	      moving:false, wait:Math.floor(Math.random()*180), stuck:0
@@ -375,6 +384,7 @@
 	  }
 	  window._clones = _clones;
 	  window._validTiles = _validTiles;
+	  window._occupied = _occupied;
 	}
 
 
@@ -406,8 +416,10 @@
 	  if (cursors.down.isDown)  player.body.setVelocityY(camera_speed);
 
 	  // Clones: destino → caminhar → esperar (3-10s) → novo destino
-	  if (window._clones && window._walkable) {
+	  if (window._clones && window._walkable && window._occupied) {
 	    var _cspd = movement_speed;
+	    var _occ = window._occupied;
+	    var _vt = window._validTiles;
 	    for (var _ci = 0; _ci < window._clones.length; _ci++) {
 	      var _cl = window._clones[_ci];
 	      if (_cl.moving) {
@@ -427,8 +439,8 @@
 	      } else if (_cl.wait > 0) {
 	        _cl.wait--;
 	      } else {
-	        if (_cl.tileX === _cl.dtx && _cl.tileY === _cl.dty || _cl.stuck >= 4) {
-	          var _nd = _validTiles[Math.floor(Math.random() * _validTiles.length)];
+	        if (_cl.tileX === _cl.dtx && _cl.tileY === _cl.dty || _cl.stuck >= 5) {
+	          var _nd = _vt[Math.floor(Math.random() * _vt.length)];
 	          _cl.dtx = _nd.tx; _cl.dty = _nd.ty; _cl.stuck = 0;
 	        }
 	        var _ddx = _cl.dtx - _cl.tileX, _ddy = _cl.dty - _cl.tileY;
@@ -442,8 +454,17 @@
 	          var _d = _opts[_di];
 	          if (_d.dx === 0 && _d.dy === 0) continue;
 	          var _ntx = _cl.tileX + _d.dx, _nty = _cl.tileY + _d.dy;
+	          // Anti-oscilação: não voltar ao tile anterior
+	          if (_ntx === _cl.prevX && _nty === _cl.prevY) continue;
+	          // Colisão entre clones: tile já ocupado
+	          if (_occ[_nty * 140 + _ntx]) continue;
 	          if (_ntx>=1&&_ntx<=138&&_nty>=1&&_nty<=98&&window._walkable[_nty][_ntx]) {
 	            var _an = _d.dx>0?'right':_d.dx<0?'left':_d.dy>0?'down':'up';
+	            // Atualizar occupied
+	            delete _occ[_cl.tileY * 140 + _cl.tileX];
+	            _occ[_nty * 140 + _ntx] = true;
+	            // Atualizar prev
+	            _cl.prevX = _cl.tileX; _cl.prevY = _cl.tileY;
 	            _cl.tileX=_ntx; _cl.tileY=_nty;
 	            _cl.tx=_ntx*32+16; _cl.ty=_nty*32+16;
 	            _cl.moving=true;
@@ -451,7 +472,7 @@
 	            _moved=true; break;
 	          }
 	        }
-	        if (!_moved) { _cl.stuck++; _cl.wait=15; }
+	        if (!_moved) { _cl.stuck++; _cl.wait=20; }
 	      }
 	    }
 	  }
