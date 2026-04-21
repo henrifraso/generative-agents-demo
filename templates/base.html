@@ -28,10 +28,8 @@ Author: Joon Sung Park (joonspk@stanford.edu)
       position:fixed; top:0; left:0; width:100vw; height:100vh;
       text-align:center; background:#000;
     }
-    #game-container canvas {
-      position:absolute;
-      image-rendering:pixelated;
-    }
+    #game-container canvas { image-rendering:pixelated; }
+    #canvas-wrapper { position:absolute; transform-origin:0 0; }
   </style>
 </head>
 
@@ -55,28 +53,30 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     var _CW = 4480, _CH = 3200;
 
     function _applyTransform() {
-      var c = document.querySelector('#game-container canvas');
-      if (!c) return;
+      var w = document.getElementById('canvas-wrapper');
+      if (!w) return;
       var total = _baseScale * _zoom;
       var dw = _CW * total, dh = _CH * total;
       var maxX = Math.max(0, (dw - window.innerWidth)  / 2);
       var maxY = Math.max(0, (dh - window.innerHeight) / 2);
       _panX = Math.max(-maxX, Math.min(maxX, _panX));
       _panY = Math.max(-maxY, Math.min(maxY, _panY));
-      // Sem transform — CSS width/height fazem o scaling
-      c.style.transform = 'none';
-      c.style.left   = ((window.innerWidth  - dw) / 2 + _panX) + 'px';
-      c.style.top    = ((window.innerHeight - dh) / 2 + _panY) + 'px';
-      c.style.width  = dw + 'px';
-      c.style.height = dh + 'px';
+      w.style.left      = ((window.innerWidth  - dw) / 2 + _panX) + 'px';
+      w.style.top       = ((window.innerHeight - dh) / 2 + _panY) + 'px';
+      w.style.transform = 'scale(' + total + ')';
     }
 
     function fitCanvas() {
       var c = document.querySelector('#game-container canvas');
-      if (!c) { setTimeout(fitCanvas, 300); return; }
-      var cw = c.width || _CW;
-      var ch = c.height || _CH;
-      _baseScale = Math.max(window.innerWidth / cw, window.innerHeight / ch);
+      if (!c) { setTimeout(fitCanvas, 200); return; }
+      // Envolver canvas em wrapper se ainda não feito
+      if (!document.getElementById('canvas-wrapper')) {
+        var w = document.createElement('div');
+        w.id = 'canvas-wrapper';
+        c.parentNode.insertBefore(w, c);
+        w.appendChild(c);
+      }
+      _baseScale = Math.max(window.innerWidth / _CW, window.innerHeight / _CH);
       _applyTransform();
     }
 
@@ -85,9 +85,9 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     window.mapZoomTo = function(z)  { _zoom = Math.max(1, Math.min(5, z)); _applyTransform(); };
 
     window.addEventListener('resize', fitCanvas);
-    setTimeout(fitCanvas, 500);
-    setTimeout(fitCanvas, 1500);
-    setTimeout(fitCanvas, 3000);
+    setTimeout(fitCanvas, 200);
+    setTimeout(fitCanvas, 800);
+    setTimeout(fitCanvas, 2000);
   </script>
 </body>
 </html>
