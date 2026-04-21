@@ -23,9 +23,10 @@ def debug_files(request):
   cs = os.path.join(_BASE, "compressed_storage")
   try:
     dirs = os.listdir(cs)
+    dirs_repr = [repr(d) for d in dirs]
   except Exception as e:
-    dirs = [f"ERRO: {e}"]
-  return HttpResponse(f"BASE={_BASE}<br>compressed_storage={cs}<br>dirs={dirs}")
+    dirs_repr = [f"ERRO: {e}"]
+  return HttpResponse(f"BASE={_BASE}<br>dirs={dirs_repr}")
 
 def landing(request):
   context = {}
