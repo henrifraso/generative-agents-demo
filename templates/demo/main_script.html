@@ -417,7 +417,7 @@
 
 	  // Clones: destino → caminhar → esperar (3-10s) → novo destino
 	  if (window._clones && window._walkable && window._occupied) {
-	    var _cspd = movement_speed;
+	    var _cspd = Math.max(1, movement_speed >> 1); // metade da velocidade
 	    var _occ = window._occupied;
 	    var _vt = window._validTiles;
 	    for (var _ci = 0; _ci < window._clones.length; _ci++) {
