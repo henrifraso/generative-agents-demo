@@ -26,10 +26,13 @@
 
 	// Phaser 3.0 global settings. 
 	// Configuration meant to be passed to the main Phaser game instance. 
+	var _MAP_W = 4480, _MAP_H = 3200;
+	var _cam; // referência global para a câmera Phaser
+
 	const config = {
 	  type: Phaser.AUTO,
-	  width: 4480,
-	  height: 3200,
+	  width: window.innerWidth,
+	  height: window.innerHeight,
 	  parent: "game-container",
 	  pixelArt: true,
 	  physics: {
@@ -39,8 +42,7 @@
 	  scene: {
 	    preload: preload,
 	    create: create,
-	    update: update },
-	  scale: { zoom: 1 } };
+	    update: update } };
 
 
 	// Creating the game instance and setting up the main Phaser variables that  
@@ -238,19 +240,24 @@
 	                setSize(30, 40).
 	                setOffset(0, 0);
 	  player.setDepth(-1);
-	  // Setting up the camera.
-	  const camera = this.cameras.main;
-	  camera.startFollow(player);
-	  camera.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
+
+	  // Câmera Phaser — zoom inicial para caber o mapa inteiro
+	  var camera = this.cameras.main;
+	  _cam = camera;
+	  var _minZoom = Math.min(window.innerWidth / _MAP_W, window.innerHeight / _MAP_H);
+	  camera.setZoom(_minZoom);
+	  camera.setBounds(0, 0, _MAP_W, _MAP_H);
+	  camera.centerOn(2240, 1600);
 	  cursors = this.input.keyboard.createCursorKeys();
 
-	  // Zoom com scroll do mouse (CSS)
+	  // Scroll: zoom via câmera
 	  document.addEventListener('wheel', function(e) {
 	    e.preventDefault();
-	    window.mapZoom(-e.deltaY * 0.005);
+	    var z = Math.max(_minZoom, Math.min(_minZoom * 5, _cam.zoom * (1 - e.deltaY * 0.002)));
+	    _cam.setZoom(z);
 	  }, { passive: false });
 
-	  // Setas movem o mapa via pan CSS
+	  // Setas: pan via câmera
 	  var _keys = {};
 	  window.addEventListener('keydown', function(e) {
 	    _keys[e.keyCode] = true;
@@ -258,7 +265,7 @@
 	  });
 	  window.addEventListener('keyup', function(e) { _keys[e.keyCode] = false; });
 
-	  // Touch: pinch zoom + arrasto (CSS)
+	  // Touch: pinch zoom + arrasto via câmera
 	  var _touches = {};
 	  var _lastPinchDist = null;
 
@@ -290,13 +297,17 @@
 	    var ids = Object.keys(_touches);
 	    if (ids.length >= 2) {
 	      var dist = _td(_touches[ids[0]], _touches[ids[1]]);
-	      if (_lastPinchDist) window.mapZoom((dist - _lastPinchDist) * 0.01);
+	      if (_lastPinchDist) {
+	        var dz = (dist - _lastPinchDist) * 0.005 * _minZoom;
+	        _cam.setZoom(Math.max(_minZoom, Math.min(_minZoom * 5, _cam.zoom + dz)));
+	      }
 	      _lastPinchDist = dist;
 	    } else if (ids.length === 1) {
 	      var id = ids[0];
 	      var dx = _touches[id].x - prev[id].x;
 	      var dy = _touches[id].y - prev[id].y;
-	      window.mapPan(dx, dy);
+	      _cam.scrollX -= dx / _cam.zoom;
+	      _cam.scrollY -= dy / _cam.zoom;
 	    }
 	  }, { passive: false });
 
@@ -393,12 +404,12 @@
 			game_pause();
 		};
 
-	  // *** MOVE CAMERA via CSS pan ***
-	  var pan_speed = 8;
-	  if (_keys && _keys[37]) window.mapPan( pan_speed, 0);
-	  if (_keys && _keys[39]) window.mapPan(-pan_speed, 0);
-	  if (_keys && _keys[38]) window.mapPan(0,  pan_speed);
-	  if (_keys && _keys[40]) window.mapPan(0, -pan_speed);
+	  // *** MOVE CAMERA via Phaser scroll ***
+	  var pan_speed = 6 / (_cam ? _cam.zoom : 1);
+	  if (_keys && _keys[37]) _cam.scrollX -= pan_speed;
+	  if (_keys && _keys[39]) _cam.scrollX += pan_speed;
+	  if (_keys && _keys[38]) _cam.scrollY -= pan_speed;
+	  if (_keys && _keys[40]) _cam.scrollY += pan_speed;
 	  player.body.setVelocity(0);
 
 	  
