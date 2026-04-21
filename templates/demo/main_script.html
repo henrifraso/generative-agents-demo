@@ -246,7 +246,7 @@
 
 	  // Zoom com scroll do mouse
 	  this.input.on('wheel', function(pointer, gameObjects, deltaX, deltaY) {
-	    var newZoom = camera.zoom - deltaY * 0.001;
+	    var newZoom = camera.zoom - deltaY * 0.005;
 	    camera.setZoom(Math.max(1, Math.min(4, newZoom)));
 	    game.canvas.focus();
 	  });
