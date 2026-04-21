@@ -27,29 +27,41 @@
 	// Phaser 3.0 global settings. 
 	// Configuration meant to be passed to the main Phaser game instance. 
 	var _MAP_W = 4480, _MAP_H = 3200;
-	var _cam; // referência global para a câmera Phaser
+	var _cam;
+	var _keys = {};
+	var _touches = {};
+	var _lastPinchDist = null;
+	var _minZoom = 1;
 
-	const config = {
-	  type: Phaser.AUTO,
-	  width: window.innerWidth,
-	  height: window.innerHeight,
-	  parent: "game-container",
-	  pixelArt: true,
-	  physics: {
-	    default: "arcade",
-	    arcade: {
-	      gravity: { y: 0 } } },
-	  scene: {
-	    preload: preload,
-	    create: create,
-	    update: update } };
+	var cursors;
+	var player;
 
+	function _startGame() {
+	  var W = window.innerWidth  || document.documentElement.clientWidth  || 800;
+	  var H = window.innerHeight || document.documentElement.clientHeight || 600;
 
-	// Creating the game instance and setting up the main Phaser variables that  
-	// will be used in it. 
-	const game = new Phaser.Game(config);
-	let cursors;
-	let player;
+	  var config = {
+	    type: Phaser.AUTO,
+	    width: W,
+	    height: H,
+	    parent: "game-container",
+	    pixelArt: true,
+	    physics: {
+	      default: "arcade",
+	      arcade: { gravity: { y: 0 } } },
+	    scene: {
+	      preload: preload,
+	      create: create,
+	      update: update } };
+
+	  new Phaser.Game(config);
+	}
+
+	if (document.readyState === 'loading') {
+	  document.addEventListener('DOMContentLoaded', _startGame);
+	} else {
+	  _startGame();
+	}
 
 	// Persona related variables. This should have the name of the persona as its 
 	// keys, and the instances of the Persona class as the values.
@@ -244,10 +256,14 @@
 	  // Câmera Phaser — zoom inicial para caber o mapa inteiro
 	  var camera = this.cameras.main;
 	  _cam = camera;
-	  var _minZoom = Math.min(window.innerWidth / _MAP_W, window.innerHeight / _MAP_H);
+	  var W = this.scale.width, H = this.scale.height;
+	  _minZoom = Math.min(W / _MAP_W, H / _MAP_H);
+	  if (!_minZoom || !isFinite(_minZoom) || _minZoom <= 0) _minZoom = 0.25;
 	  camera.setZoom(_minZoom);
 	  camera.setBounds(0, 0, _MAP_W, _MAP_H);
-	  camera.centerOn(2240, 1600);
+	  // centerOn correto respeitando o zoom
+	  camera.scrollX = _MAP_W / 2 - W / (2 * _minZoom);
+	  camera.scrollY = _MAP_H / 2 - H / (2 * _minZoom);
 	  cursors = this.input.keyboard.createCursorKeys();
 
 	  // Scroll: zoom via câmera
@@ -257,18 +273,14 @@
 	    _cam.setZoom(z);
 	  }, { passive: false });
 
-	  // Setas: pan via câmera
-	  var _keys = {};
+	  // Setas: pan via câmera (usa _keys global)
 	  window.addEventListener('keydown', function(e) {
 	    _keys[e.keyCode] = true;
 	    if ([37,38,39,40].indexOf(e.keyCode) >= 0) e.preventDefault();
 	  });
 	  window.addEventListener('keyup', function(e) { _keys[e.keyCode] = false; });
 
-	  // Touch: pinch zoom + arrasto via câmera
-	  var _touches = {};
-	  var _lastPinchDist = null;
-
+	  // Touch: pinch zoom + arrasto via câmera (usa _touches/_lastPinchDist global)
 	  function _td(a, b) {
 	    var dx = a.x - b.x, dy = a.y - b.y;
 	    return Math.sqrt(dx*dx + dy*dy);
@@ -405,12 +417,14 @@
 		};
 
 	  // *** MOVE CAMERA via Phaser scroll ***
-	  var pan_speed = 6 / (_cam ? _cam.zoom : 1);
-	  if (_keys && _keys[37]) _cam.scrollX -= pan_speed;
-	  if (_keys && _keys[39]) _cam.scrollX += pan_speed;
-	  if (_keys && _keys[38]) _cam.scrollY -= pan_speed;
-	  if (_keys && _keys[40]) _cam.scrollY += pan_speed;
-	  player.body.setVelocity(0);
+	  if (_cam) {
+	    var pan_speed = 6 / _cam.zoom;
+	    if (_keys[37]) _cam.scrollX -= pan_speed;
+	    if (_keys[39]) _cam.scrollX += pan_speed;
+	    if (_keys[38]) _cam.scrollY -= pan_speed;
+	    if (_keys[40]) _cam.scrollY += pan_speed;
+	  }
+	  if (player && player.body) player.body.setVelocity(0);
 
 	  
 	  let curr_focused_persona = document.getElementById("temp_focus").textContent;
