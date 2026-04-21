@@ -54,17 +54,22 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     var _panX = 0;
     var _panY = 0;
 
-    var _CW = 4480, _CH = 3200; // dimensões fixas do canvas Phaser
+    var _CW = 4480, _CH = 3200;
 
     function _applyTransform() {
       var c = document.querySelector('#game-container canvas');
       if (!c) return;
       var total = _baseScale * _zoom;
-      var maxX = Math.max(0, (_CW * total - window.innerWidth)  / 2);
-      var maxY = Math.max(0, (_CH * total - window.innerHeight) / 2);
+      var dispW = _CW * total, dispH = _CH * total;
+      var maxX = Math.max(0, (dispW - window.innerWidth)  / 2);
+      var maxY = Math.max(0, (dispH - window.innerHeight) / 2);
       _panX = Math.max(-maxX, Math.min(maxX, _panX));
       _panY = Math.max(-maxY, Math.min(maxY, _panY));
-      c.style.transform = 'translate(calc(-50% + ' + _panX + 'px), calc(-50% + ' + _panY + 'px)) scale(' + total + ')';
+      // Phaser define transform-origin:0 0 — centralizar via left/top
+      c.style.transformOrigin = '0 0';
+      c.style.left      = ((window.innerWidth  - dispW) / 2 + _panX) + 'px';
+      c.style.top       = ((window.innerHeight - dispH) / 2 + _panY) + 'px';
+      c.style.transform = 'scale(' + total + ')';
     }
 
     function fitCanvas() {
@@ -72,7 +77,7 @@ Author: Joon Sung Park (joonspk@stanford.edu)
       if (!c) { setTimeout(fitCanvas, 300); return; }
       var cw = c.width || c.offsetWidth || _CW;
       var ch = c.height || c.offsetHeight || _CH;
-      if (cw === 0 || ch === 0) { setTimeout(fitCanvas, 300); return; }
+      if (!cw || !ch) { setTimeout(fitCanvas, 300); return; }
       _baseScale = Math.max(window.innerWidth / cw, window.innerHeight / ch);
       _applyTransform();
     }
