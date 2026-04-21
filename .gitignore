@@ -10,3 +10,4 @@ static_root/
 .env
 venv/
 *.egg-info/
+.vercel
