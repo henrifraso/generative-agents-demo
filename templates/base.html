@@ -30,8 +30,6 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     }
     #game-container canvas {
       position:absolute;
-      top:50%; left:50%;
-      transform-origin:center center;
       image-rendering:pixelated;
     }
   </style>
@@ -60,24 +58,24 @@ Author: Joon Sung Park (joonspk@stanford.edu)
       var c = document.querySelector('#game-container canvas');
       if (!c) return;
       var total = _baseScale * _zoom;
-      var dispW = _CW * total, dispH = _CH * total;
-      var maxX = Math.max(0, (dispW - window.innerWidth)  / 2);
-      var maxY = Math.max(0, (dispH - window.innerHeight) / 2);
+      var dw = _CW * total, dh = _CH * total;
+      var maxX = Math.max(0, (dw - window.innerWidth)  / 2);
+      var maxY = Math.max(0, (dh - window.innerHeight) / 2);
       _panX = Math.max(-maxX, Math.min(maxX, _panX));
       _panY = Math.max(-maxY, Math.min(maxY, _panY));
-      // Phaser define transform-origin:0 0 — centralizar via left/top
-      c.style.transformOrigin = '0 0';
-      c.style.left      = ((window.innerWidth  - dispW) / 2 + _panX) + 'px';
-      c.style.top       = ((window.innerHeight - dispH) / 2 + _panY) + 'px';
-      c.style.transform = 'scale(' + total + ')';
+      // Sem transform — CSS width/height fazem o scaling
+      c.style.transform = 'none';
+      c.style.left   = ((window.innerWidth  - dw) / 2 + _panX) + 'px';
+      c.style.top    = ((window.innerHeight - dh) / 2 + _panY) + 'px';
+      c.style.width  = dw + 'px';
+      c.style.height = dh + 'px';
     }
 
     function fitCanvas() {
       var c = document.querySelector('#game-container canvas');
       if (!c) { setTimeout(fitCanvas, 300); return; }
-      var cw = c.width || c.offsetWidth || _CW;
-      var ch = c.height || c.offsetHeight || _CH;
-      if (!cw || !ch) { setTimeout(fitCanvas, 300); return; }
+      var cw = c.width || _CW;
+      var ch = c.height || _CH;
       _baseScale = Math.max(window.innerWidth / cw, window.innerHeight / ch);
       _applyTransform();
     }
