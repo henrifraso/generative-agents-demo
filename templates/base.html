@@ -49,14 +49,68 @@ Author: Joon Sung Park (joonspk@stanford.edu)
 	{% endblock js_content %}
 
   <script>
+    var _s = 1, _sMin = 1;
+    var _ox = 0, _oy = 0;
+    var _CW = 4480, _CH = 3200;
+
+    function _apply() {
+      var c = document.querySelector('#game-container canvas');
+      if (!c) return;
+      var maxX = Math.max(0, (_CW * _s - window.innerWidth)  / 2);
+      var maxY = Math.max(0, (_CH * _s - window.innerHeight) / 2);
+      _ox = Math.max(-maxX, Math.min(maxX, _ox));
+      _oy = Math.max(-maxY, Math.min(maxY, _oy));
+      c.style.transform = 'translate(calc(-50% + ' + _ox + 'px), calc(-50% + ' + _oy + 'px)) scale(' + _s + ')';
+    }
+
     function fitCanvas() {
       var c = document.querySelector('#game-container canvas');
       if (!c) { setTimeout(fitCanvas, 300); return; }
-      var sx = window.innerWidth  / c.offsetWidth;
-      var sy = window.innerHeight / c.offsetHeight;
-      var s  = Math.max(sx, sy);
-      c.style.transform = 'translate(-50%,-50%) scale(' + s + ')';
+      _sMin = Math.max(window.innerWidth / c.offsetWidth, window.innerHeight / c.offsetHeight);
+      if (_s < _sMin) _s = _sMin;
+      _apply();
     }
+
+    // Touch: 1 dedo = pan, 2 dedos = zoom
+    var _pt = {}, _pd = null;
+    document.addEventListener('touchstart', function(e) {
+      e.preventDefault();
+      for (var i = 0; i < e.changedTouches.length; i++) {
+        var t = e.changedTouches[i];
+        _pt[t.identifier] = { x: t.clientX, y: t.clientY };
+      }
+      var ids = Object.keys(_pt);
+      if (ids.length === 2)
+        _pd = Math.hypot(_pt[ids[0]].x - _pt[ids[1]].x, _pt[ids[0]].y - _pt[ids[1]].y);
+    }, { passive: false });
+
+    document.addEventListener('touchmove', function(e) {
+      e.preventDefault();
+      var prev = {};
+      for (var k in _pt) prev[k] = { x: _pt[k].x, y: _pt[k].y };
+      for (var i = 0; i < e.changedTouches.length; i++) {
+        var t = e.changedTouches[i];
+        if (_pt[t.identifier]) _pt[t.identifier] = { x: t.clientX, y: t.clientY };
+      }
+      var ids = Object.keys(_pt);
+      if (ids.length >= 2) {
+        var d = Math.hypot(_pt[ids[0]].x - _pt[ids[1]].x, _pt[ids[0]].y - _pt[ids[1]].y);
+        if (_pd) _s = Math.max(_sMin, Math.min(_sMin * 5, _s * d / _pd));
+        _pd = d;
+      } else if (ids.length === 1) {
+        var id = ids[0];
+        _ox += _pt[id].x - prev[id].x;
+        _oy += _pt[id].y - prev[id].y;
+      }
+      _apply();
+    }, { passive: false });
+
+    document.addEventListener('touchend', function(e) {
+      for (var i = 0; i < e.changedTouches.length; i++)
+        delete _pt[e.changedTouches[i].identifier];
+      if (Object.keys(_pt).length < 2) _pd = null;
+    }, { passive: false });
+
     window.addEventListener('resize', fitCanvas);
     setTimeout(fitCanvas, 500);
     setTimeout(fitCanvas, 1500);
