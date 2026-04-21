@@ -133,6 +133,7 @@ Author: Joon Sung Park (joonspk@stanford.edu)
       if (window._forceNight) { if (window._nightRT) window._nightRT.setAlpha(0.52); }
       else updateDayNight();
     }, 60000);
+    history.replaceState(null, '', '/');
     // Polling: aplica noite assim que _nightRT estiver pronto (sem depender de timeout fixo)
     (function _waitNight() {
       if (!window._nightRT) { setTimeout(_waitNight, 400); return; }
