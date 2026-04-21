@@ -26,16 +26,10 @@
 
 	// Phaser 3.0 global settings. 
 	// Configuration meant to be passed to the main Phaser game instance. 
-	var _MAP_W = 4480, _MAP_H = 3200;
-	var _cam, _minZoom = 1;
-
-	var _W = window.innerWidth  || 800;
-	var _H = window.innerHeight || 600;
-
 	const config = {
 	  type: Phaser.AUTO,
-	  width: _W,
-	  height: _H,
+	  width: 4480,
+	  height: 3200,
 	  parent: "game-container",
 	  pixelArt: true,
 	  physics: {
@@ -45,8 +39,12 @@
 	  scene: {
 	    preload: preload,
 	    create: create,
-	    update: update } };
+	    update: update },
+	  scale: { zoom: 1 } };
 
+
+	// Creating the game instance and setting up the main Phaser variables that  
+	// will be used in it. 
 	const game = new Phaser.Game(config);
 	let cursors;
 	let player;
@@ -240,77 +238,13 @@
 	                setSize(30, 40).
 	                setOffset(0, 0);
 	  player.setDepth(-1);
-	  // Câmera: zoom mínimo = cover (sem bordas pretas), pan direto via scroll
-	  this.physics.world.setBounds(0, 0, _MAP_W, _MAP_H);
-	  var camera = this.cameras.main;
-	  _cam = camera;
-	  _minZoom = Math.max(_W / _MAP_W, _H / _MAP_H);
-	  camera.setZoom(_minZoom);
-	  camera.setBounds(0, 0, _MAP_W, _MAP_H);
-	  camera.scrollX = _MAP_W / 2 - _W / (2 * _minZoom);
-	  camera.scrollY = _MAP_H / 2 - _H / (2 * _minZoom);
+	  // Setting up the camera.
+	  const camera = this.cameras.main;
+	  camera.startFollow(player);
+	  camera.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
 	  cursors = this.input.keyboard.createCursorKeys();
 
-	  // Scroll do mouse: zoom
-	  document.addEventListener('wheel', function(e) {
-	    e.preventDefault();
-	    var z = _cam.zoom * (1 - e.deltaY * 0.002);
-	    _cam.setZoom(Math.max(_minZoom, Math.min(_minZoom * 5, z)));
-	  }, { passive: false });
-
-	  // Setas: pan direto
-	  var _keys = {};
-	  window.addEventListener('keydown', function(e) {
-	    _keys[e.keyCode] = true;
-	    if ([37,38,39,40].indexOf(e.keyCode) >= 0) e.preventDefault();
-	  });
-	  window.addEventListener('keyup', function(e) { _keys[e.keyCode] = false; });
-
-	  // Touch: pinch zoom + arrasto
-	  var _touches = {};
-	  var _lastPinchDist = null;
-
-	  function _td(a, b) {
-	    var dx = a.clientX - b.clientX, dy = a.clientY - b.clientY;
-	    return Math.sqrt(dx*dx + dy*dy);
-	  }
-
-	  document.addEventListener('touchstart', function(e) {
-	    e.preventDefault();
-	    for (var i = 0; i < e.changedTouches.length; i++)
-	      _touches[e.changedTouches[i].identifier] = e.changedTouches[i];
-	    var ids = Object.keys(_touches);
-	    if (ids.length >= 2) _lastPinchDist = _td(_touches[ids[0]], _touches[ids[1]]);
-	  }, { passive: false });
-
-	  document.addEventListener('touchmove', function(e) {
-	    e.preventDefault();
-	    var prev = {};
-	    for (var k in _touches) prev[k] = { clientX: _touches[k].clientX, clientY: _touches[k].clientY };
-	    for (var i = 0; i < e.changedTouches.length; i++) {
-	      var t = e.changedTouches[i];
-	      if (_touches[t.identifier] !== undefined) _touches[t.identifier] = t;
-	    }
-	    var ids = Object.keys(_touches);
-	    if (ids.length >= 2) {
-	      var dist = _td(_touches[ids[0]], _touches[ids[1]]);
-	      if (_lastPinchDist !== null) {
-	        var z = _cam.zoom + (dist - _lastPinchDist) * 0.005 * _minZoom;
-	        _cam.setZoom(Math.max(_minZoom, Math.min(_minZoom * 5, z)));
-	      }
-	      _lastPinchDist = dist;
-	    } else if (ids.length === 1) {
-	      var id = ids[0];
-	      _cam.scrollX -= (_touches[id].clientX - prev[id].clientX) / _cam.zoom;
-	      _cam.scrollY -= (_touches[id].clientY - prev[id].clientY) / _cam.zoom;
-	    }
-	  }, { passive: false });
-
-	  document.addEventListener('touchend', function(e) {
-	    for (var i = 0; i < e.changedTouches.length; i++)
-	      delete _touches[e.changedTouches[i].identifier];
-	    if (Object.keys(_touches).length < 2) _lastPinchDist = null;
-	  }, { passive: false });
+	  // Zoom e pan: tratados por CSS no base.html
 
 	  // *** SET UP PERSONAS *** 
 	  // We start by creating the game sprite objects. 
@@ -399,15 +333,11 @@
 			game_pause();
 		};
 
-	  // *** MOVE CAMERA ***
-	  if (_cam) {
-	    var spd = 6 / _cam.zoom;
-	    if (_keys && _keys[37]) _cam.scrollX -= spd;
-	    if (_keys && _keys[39]) _cam.scrollX += spd;
-	    if (_keys && _keys[38]) _cam.scrollY -= spd;
-	    if (_keys && _keys[40]) _cam.scrollY += spd;
-	  }
-	  if (player && player.body) player.body.setVelocity(0);
+	  // *** MOVE CAMERA *** 
+	  // This is where we finish up the camera setting we started in the create() 
+	  // function. We set the movement speed of the camera and wire up the keys to
+	  // map to the actual movement.
+	  player.body.setVelocity(0);
 
 	  
 	  let curr_focused_persona = document.getElementById("temp_focus").textContent;

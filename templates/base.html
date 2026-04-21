@@ -23,7 +23,11 @@ Author: Joon Sung Park (joonspk@stanford.edu)
       position:fixed; top:0; left:0; width:100vw; height:100vh;
       background:#000;
     }
-    #game-container canvas { display:block; image-rendering:pixelated; }
+    #game-container canvas {
+      position:absolute; top:50%; left:50%;
+      transform-origin: center center;
+      image-rendering: pixelated;
+    }
   </style>
 </head>
 
@@ -36,5 +40,108 @@ Author: Joon Sung Park (joonspk@stanford.edu)
 
 	{% block js_content %}
 	{% endblock js_content %}
+
+  <script>
+    var _scale = 1, _minScale = 1;
+    var _offX = 0, _offY = 0;
+    var _CW = 4480, _CH = 3200;
+
+    function _applyTransform() {
+      var c = document.querySelector('#game-container canvas');
+      if (!c) return;
+      var dw = _CW * _scale, dh = _CH * _scale;
+      var maxX = Math.max(0, (dw - window.innerWidth)  / 2);
+      var maxY = Math.max(0, (dh - window.innerHeight) / 2);
+      _offX = Math.max(-maxX, Math.min(maxX, _offX));
+      _offY = Math.max(-maxY, Math.min(maxY, _offY));
+      c.style.transform = 'translate(calc(-50% + ' + _offX + 'px), calc(-50% + ' + _offY + 'px)) scale(' + _scale + ')';
+    }
+
+    function fitCanvas() {
+      var c = document.querySelector('#game-container canvas');
+      if (!c) { setTimeout(fitCanvas, 300); return; }
+      var sx = window.innerWidth  / c.offsetWidth;
+      var sy = window.innerHeight / c.offsetHeight;
+      _minScale = Math.max(sx, sy);
+      if (_scale < _minScale) _scale = _minScale;
+      _applyTransform();
+    }
+
+    // Scroll do mouse: zoom CSS
+    window.addEventListener('wheel', function(e) {
+      e.preventDefault();
+      _scale = Math.max(_minScale, Math.min(_minScale * 5, _scale * (1 - e.deltaY * 0.002)));
+      _applyTransform();
+    }, { passive: false });
+
+    // Setas: pan CSS
+    var _arrowKeys = {};
+    window.addEventListener('keydown', function(e) {
+      _arrowKeys[e.keyCode] = true;
+      if ([37,38,39,40].indexOf(e.keyCode) >= 0) e.preventDefault();
+    });
+    window.addEventListener('keyup', function(e) { _arrowKeys[e.keyCode] = false; });
+    setInterval(function() {
+      var spd = 6, moved = false;
+      if (_arrowKeys[37]) { _offX += spd; moved = true; }
+      if (_arrowKeys[39]) { _offX -= spd; moved = true; }
+      if (_arrowKeys[38]) { _offY += spd; moved = true; }
+      if (_arrowKeys[40]) { _offY -= spd; moved = true; }
+      if (moved) _applyTransform();
+    }, 16);
+
+    // Touch: 1 dedo = pan, 2 dedos = zoom
+    var _touches = {};
+    var _lastPinchDist = null;
+
+    document.addEventListener('touchstart', function(e) {
+      e.preventDefault();
+      for (var i = 0; i < e.changedTouches.length; i++) {
+        var t = e.changedTouches[i];
+        _touches[t.identifier] = { x: t.clientX, y: t.clientY };
+      }
+      var ids = Object.keys(_touches);
+      if (ids.length >= 2) {
+        var a = _touches[ids[0]], b = _touches[ids[1]];
+        _lastPinchDist = Math.hypot(a.x - b.x, a.y - b.y);
+      }
+    }, { passive: false });
+
+    document.addEventListener('touchmove', function(e) {
+      e.preventDefault();
+      var prev = {};
+      for (var k in _touches) prev[k] = { x: _touches[k].x, y: _touches[k].y };
+      for (var i = 0; i < e.changedTouches.length; i++) {
+        var t = e.changedTouches[i];
+        if (_touches[t.identifier]) _touches[t.identifier] = { x: t.clientX, y: t.clientY };
+      }
+      var ids = Object.keys(_touches);
+      if (ids.length >= 2) {
+        var a = _touches[ids[0]], b = _touches[ids[1]];
+        var dist = Math.hypot(a.x - b.x, a.y - b.y);
+        if (_lastPinchDist) {
+          _scale = Math.max(_minScale, Math.min(_minScale * 5, _scale * (dist / _lastPinchDist)));
+        }
+        _lastPinchDist = dist;
+        _applyTransform();
+      } else if (ids.length === 1) {
+        var id = ids[0];
+        _offX += _touches[id].x - prev[id].x;
+        _offY += _touches[id].y - prev[id].y;
+        _applyTransform();
+      }
+    }, { passive: false });
+
+    document.addEventListener('touchend', function(e) {
+      for (var i = 0; i < e.changedTouches.length; i++)
+        delete _touches[e.changedTouches[i].identifier];
+      if (Object.keys(_touches).length < 2) _lastPinchDist = null;
+    }, { passive: false });
+
+    window.addEventListener('resize', fitCanvas);
+    setTimeout(fitCanvas, 500);
+    setTimeout(fitCanvas, 1500);
+    setTimeout(fitCanvas, 3000);
+  </script>
 </body>
 </html>
