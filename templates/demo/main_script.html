@@ -224,6 +224,27 @@
 	  foregroundL1Layer.setDepth(2);
 	  foregroundL2Layer.setDepth(2);
 
+	  // *** NIGHT OVERLAY — cobre exterior, respeita interiores ***
+	  var _nightRT = this.add.renderTexture(0, 0, 4480, 3200).setDepth(3).setAlpha(0);
+	  var _ng = this.make.graphics({ add: false });
+	  _ng.fillStyle(0x000a3c, 1);
+	  _ng.fillRect(0, 0, 4480, 3200);
+	  _nightRT.draw(_ng);
+	  _ng.destroy();
+
+	  // Apaga pixels das áreas internas
+	  var _ig = this.make.graphics({ add: false });
+	  _ig.fillStyle(0xffffff, 1);
+	  interiorGroundLayer.forEachTile(function(t) {
+	    if (t.index > -1) _ig.fillRect(t.pixelX, t.pixelY, t.width, t.height);
+	  });
+	  interiorFurnitureL1Layer.forEachTile(function(t) {
+	    if (t.index > -1) _ig.fillRect(t.pixelX, t.pixelY, t.width, t.height);
+	  });
+	  _nightRT.erase(_ig);
+	  _ig.destroy();
+	  window._nightRT = _nightRT;
+
 	  // *** SET UP CAMERA *** 
 	  // "player" is to be set as the center of mass for our "camera." We 
 	  // basically create a game character sprite as we would for our personas 
