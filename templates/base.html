@@ -126,11 +126,11 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     function updateDayNight() {
       var h = new Date().getHours() + new Date().getMinutes() / 60;
       var color, alpha;
-      if      (h >= 6  && h < 8)  { color='255,140,50';  alpha=(8-h)/2*0.35; }   // amanhecer
+      if      (h >= 6  && h < 8)  { color='255,140,50';  alpha=(8-h)/2*0.15; }   // amanhecer
       else if (h >= 8  && h < 17) { color='0,0,0';       alpha=0; }               // dia
-      else if (h >= 17 && h < 19) { color='255,100,30';  alpha=(h-17)/2*0.35; }   // pôr do sol
-      else if (h >= 19 && h < 21) { color='80,0,120';    alpha=0.15+(h-19)/2*0.2;}// crepúsculo
-      else                        { color='0,10,60';     alpha=0.55; }             // noite
+      else if (h >= 17 && h < 19) { color='255,100,30';  alpha=(h-17)/2*0.15; }   // pôr do sol
+      else if (h >= 19 && h < 21) { color='80,0,120';    alpha=0.08+(h-19)/2*0.1;}// crepúsculo
+      else                        { color='0,10,60';     alpha=0.25; }             // noite
       document.getElementById('day-night-overlay').style.backgroundColor =
         'rgba(' + color + ',' + alpha + ')';
     }
