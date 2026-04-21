@@ -1,4 +1,4 @@
-{% load static %}
+{% load staticfiles %}
 
 <script type="text/javascript">
 	/*
@@ -248,7 +248,15 @@
 	  this.input.on('wheel', function(pointer, gameObjects, deltaX, deltaY) {
 	    var newZoom = camera.zoom - deltaY * 0.001;
 	    camera.setZoom(Math.max(1, Math.min(4, newZoom)));
+	    game.canvas.focus();
 	  });
+	  game.canvas.setAttribute('tabindex', '0');
+	  game.canvas.focus();
+
+	  // Garante que setas sempre movem a câmera, mesmo sem foco no canvas
+	  window.addEventListener('keydown', function(e) {
+	    if ([37,38,39,40].indexOf(e.keyCode) >= 0) e.preventDefault();
+	  }, false);
 
 	  // *** SET UP PERSONAS *** 
 	  // We start by creating the game sprite objects. 
