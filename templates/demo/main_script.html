@@ -224,26 +224,17 @@
 	  foregroundL1Layer.setDepth(2);
 	  foregroundL2Layer.setDepth(2);
 
-	  // *** NIGHT OVERLAY — cobre exterior, respeita interiores ***
-	  var _nightRT = this.add.renderTexture(0, 0, 4480, 3200).setDepth(3).setAlpha(0);
-	  var _ng = this.make.graphics({ add: false });
-	  _ng.fillStyle(0x000a3c, 1);
-	  _ng.fillRect(0, 0, 4480, 3200);
-	  _nightRT.draw(_ng);
-	  _ng.destroy();
-
-	  // Apaga pixels das áreas internas
-	  var _ig = this.make.graphics({ add: false });
-	  _ig.fillStyle(0xffffff, 1);
-	  interiorGroundLayer.forEachTile(function(t) {
-	    if (t.index > -1) _ig.fillRect(t.pixelX, t.pixelY, t.width, t.height);
-	  });
-	  interiorFurnitureL1Layer.forEachTile(function(t) {
-	    if (t.index > -1) _ig.fillRect(t.pixelX, t.pixelY, t.width, t.height);
-	  });
-	  _nightRT.erase(_ig);
-	  _ig.destroy();
-	  window._nightRT = _nightRT;
+	  // *** NIGHT OVERLAY — só tiles externos (sem RenderTexture) ***
+	  var _nightG = this.add.graphics().setDepth(3).setAlpha(0);
+	  _nightG.fillStyle(0x000a3c, 1);
+	  for (var _ty = 0; _ty < 100; _ty++) {
+	    for (var _tx = 0; _tx < 140; _tx++) {
+	      var _ti = interiorGroundLayer.getTileAt(_tx, _ty);
+	      var _tf = interiorFurnitureL1Layer.getTileAt(_tx, _ty);
+	      if (!_ti && !_tf) _nightG.fillRect(_tx*32, _ty*32, 32, 32);
+	    }
+	  }
+	  window._nightRT = _nightG;
 
 	  // *** SET UP CAMERA *** 
 	  // "player" is to be set as the center of mass for our "camera." We 
