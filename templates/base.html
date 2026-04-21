@@ -12,7 +12,8 @@ Author: Joon Sung Park (joonspk@stanford.edu)
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/css/bootstrap-theme.min.css" integrity="sha384-6pzBo3FDv/PJ8r2KRkGHifhEocL+1X2rVCTTkUfGk7/0pbek5mMa1upzvWbrUbOZ" crossorigin="anonymous">
   <style>
     body > div > div:not(#game-container),
-    body > div > br, body > div > h3,
+    body > div > br,
+    body > div > h3,
     .row:not(#game-container .row),
     hr, .media, h2, h3, p,
     [style*="margin-top:10em"] { display: none !important; }
@@ -21,9 +22,14 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     body > div { margin:0 !important; padding:0 !important; }
     #game-container {
       position:fixed; top:0; left:0; width:100vw; height:100vh;
-      background:#000;
+      text-align:center; background:#000;
     }
-    #game-container canvas { display:block; image-rendering:pixelated; }
+    #game-container canvas {
+      position:absolute;
+      top:50%; left:50%;
+      transform-origin:center center;
+      image-rendering:pixelated;
+    }
   </style>
 </head>
 
@@ -36,5 +42,22 @@ Author: Joon Sung Park (joonspk@stanford.edu)
 
 	{% block js_content %}
 	{% endblock js_content %}
+
+  <script>
+    var _cssScale = 1;
+
+    function fitCanvas() {
+      var c = document.querySelector('#game-container canvas');
+      if (!c) { setTimeout(fitCanvas, 300); return; }
+      var sx = window.innerWidth  / c.offsetWidth;
+      var sy = window.innerHeight / c.offsetHeight;
+      _cssScale = Math.max(sx, sy);
+      c.style.transform = 'translate(-50%,-50%) scale(' + _cssScale + ')';
+    }
+    window.addEventListener('resize', fitCanvas);
+    setTimeout(fitCanvas, 500);
+    setTimeout(fitCanvas, 1500);
+    setTimeout(fitCanvas, 3000);
+  </script>
 </body>
 </html>
