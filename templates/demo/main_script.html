@@ -429,7 +429,10 @@
 	          _cl.moving = false; _cl.stuck = 0;
 	          if (_cl.tileX === _cl.dtx && _cl.tileY === _cl.dty) {
 	            _cl.s.anims.stop();
-	            _cl.wait = 180 + Math.floor(Math.random() * 420); // 3-10s
+	            _cl.wait = 180 + Math.floor(Math.random() * 420); // 3-10s no destino
+	          } else if (Math.random() < 0.15) {
+	            _cl.s.anims.stop();
+	            _cl.wait = 60 + Math.floor(Math.random() * 120); // 1-3s pausa aleatória
 	          }
 	        } else if (Math.abs(_cdx) > Math.abs(_cdy)) {
 	          _cl.s.x += _cdx > 0 ? _cspd : -_cspd;
