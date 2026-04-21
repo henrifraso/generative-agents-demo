@@ -229,9 +229,7 @@
 	  _nightG.fillStyle(0x000d47, 1);
 	  for (var _ty = 0; _ty < 100; _ty++) {
 	    for (var _tx = 0; _tx < 140; _tx++) {
-	      var _ti = interiorGroundLayer.getTileAt(_tx, _ty);
-	      var _tf = interiorFurnitureL1Layer.getTileAt(_tx, _ty);
-	      if (!_ti && !_tf) _nightG.fillRect(_tx*32, _ty*32, 32, 32);
+	      if (!interiorGroundLayer.getTileAt(_tx, _ty)) _nightG.fillRect(_tx*32, _ty*32, 32, 32);
 	    }
 	  }
 	  window._nightRT = _nightG;
