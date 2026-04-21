@@ -241,6 +241,7 @@
 	                setOffset(0, 0);
 	  player.setDepth(-1);
 	  // Câmera: zoom mínimo = cover (sem bordas pretas), pan direto via scroll
+	  this.physics.world.setBounds(0, 0, _MAP_W, _MAP_H);
 	  var camera = this.cameras.main;
 	  _cam = camera;
 	  _minZoom = Math.max(_W / _MAP_W, _H / _MAP_H);
