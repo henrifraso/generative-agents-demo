@@ -20,13 +20,15 @@ from .models import *
 _BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 def debug_files(request):
-  cs = os.path.join(_BASE, "compressed_storage")
+  sim = "July1_the_ville_isabella_maria_Klaus-step-3-20"
+  meta = os.path.join(_BASE, "compressed_storage", sim, "meta.json")
+  exists = os.path.exists(meta)
+  cs_dir = os.path.join(_BASE, "compressed_storage", sim)
   try:
-    dirs = os.listdir(cs)
-    dirs_repr = [repr(d) for d in dirs]
+    files = os.listdir(cs_dir)[:5]
   except Exception as e:
-    dirs_repr = [f"ERRO: {e}"]
-  return HttpResponse(f"BASE={_BASE}<br>dirs={dirs_repr}")
+    files = [str(e)]
+  return HttpResponse(f"meta={meta}<br>exists={exists}<br>files={files}")
 
 def landing(request):
   context = {}
