@@ -19,6 +19,14 @@ from .models import *
 
 _BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+def debug_files(request):
+  cs = os.path.join(_BASE, "compressed_storage")
+  try:
+    dirs = os.listdir(cs)
+  except Exception as e:
+    dirs = [f"ERRO: {e}"]
+  return HttpResponse(f"BASE={_BASE}<br>compressed_storage={cs}<br>dirs={dirs}")
+
 def landing(request):
   context = {}
   template = "landing/landing.html"
