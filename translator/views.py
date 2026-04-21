@@ -34,7 +34,17 @@ def landing(request):
   return render(request, template, context)
 
 
+def _resolve_sim_code(sim_code):
+  cs = os.path.join(_BASE, "compressed_storage")
+  if os.path.isdir(os.path.join(cs, sim_code)):
+    return sim_code
+  for name in os.listdir(cs):
+    if name.lower() == sim_code.lower():
+      return name
+  return sim_code
+
 def demo(request, sim_code, step, play_speed="2"):
+  sim_code = _resolve_sim_code(sim_code)
   move_file = os.path.join(_BASE, "compressed_storage", sim_code, "master_movement.json")
   meta_file = os.path.join(_BASE, "compressed_storage", sim_code, "meta.json")
   step = int(step)
