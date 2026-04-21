@@ -17,15 +17,17 @@ from global_methods import *
 from django.templatetags.static import static
 from .models import *
 
-def landing(request): 
+_BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+def landing(request):
   context = {}
   template = "landing/landing.html"
   return render(request, template, context)
 
 
-def demo(request, sim_code, step, play_speed="2"): 
-  move_file = f"compressed_storage/{sim_code}/master_movement.json"
-  meta_file = f"compressed_storage/{sim_code}/meta.json"
+def demo(request, sim_code, step, play_speed="2"):
+  move_file = os.path.join(_BASE, "compressed_storage", sim_code, "master_movement.json")
+  meta_file = os.path.join(_BASE, "compressed_storage", sim_code, "meta.json")
   step = int(step)
   play_speed_opt = {"1": 1, "2": 2, "3": 4,
                     "4": 8, "5": 16, "6": 32}
@@ -189,9 +191,9 @@ def replay_persona_state(request, sim_code, step, persona_name):
 
   persona_name_underscore = persona_name
   persona_name = " ".join(persona_name.split("_"))
-  memory = f"storage/{sim_code}/personas/{persona_name}/bootstrap_memory"
-  if not os.path.exists(memory): 
-    memory = f"compressed_storage/{sim_code}/personas/{persona_name}/bootstrap_memory"
+  memory = os.path.join(_BASE, "storage", sim_code, "personas", persona_name, "bootstrap_memory")
+  if not os.path.exists(memory):
+    memory = os.path.join(_BASE, "compressed_storage", sim_code, "personas", persona_name, "bootstrap_memory")
 
   with open(memory + "/scratch.json") as json_file:  
     scratch = json.load(json_file)
