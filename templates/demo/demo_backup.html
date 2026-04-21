@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block content %}
+<div id="game-container"></div>
+
+<!-- Elementos ocultos que o JS precisa -->
+<span id="game-time-content" style="display:none"></span>
+<div id="temp_focus" style="display:none"></div>
+
+<!-- UI original oculta (necessária para o JS não quebrar) -->
+<div style="display:none">
+  {% for p in persona_names %}
+    <div id="on_screen_det_content-{{p.underscore}}"></div>
+    <div id="quick_emoji-{{p.underscore}}"></div>
+    <div id="name__{{p.underscore}}"></div>
+    <div id="current_action__{{p.underscore}}"></div>
+    <div id="target_address__{{p.underscore}}"></div>
+    <div id="chat__{{p.underscore}}"></div>
+  {% endfor %}
+</div>
+{% endblock content %}
+
+{% block js_content %}
+<script src='https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js'></script>
+{% include 'demo/main_script.html' %}
+{% endblock js_content %}
