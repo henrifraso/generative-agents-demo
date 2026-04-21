@@ -128,16 +128,8 @@ Author: Joon Sung Park (joonspk@stanford.edu)
       else                        alpha = 0.52;
       window._nightRT.setAlpha(alpha);
     }
-    // FORÇAR NOITE para teste — remover depois
-    window._forceNight = true;
-    setInterval(function() {
-      if (window._forceNight) { if (window._nightRT) window._nightRT.setAlpha(0.52); }
-      else updateDayNight();
-    }, 60000);
-    setTimeout(function() {
-      if (window._forceNight && window._nightRT) window._nightRT.setAlpha(0.52);
-      else updateDayNight();
-    }, 3000);
+    setTimeout(updateDayNight, 3000);
+    setInterval(updateDayNight, 60000);
   </script>
 </body>
 </html>
