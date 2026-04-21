@@ -337,16 +337,20 @@
 		    repeat: -1 });
 	  }
 
-	  // Grid de colisão acessível no update()
+	  // Grid de colisão — colisões + decorações externas (árvores, arbustos)
 	  var _walkable = [];
 	  for (var _wy = 0; _wy < 100; _wy++) {
 	    _walkable.push([]);
-	    for (var _wx = 0; _wx < 140; _wx++)
-	      _walkable[_wy].push(!collisionsLayer.getTileAt(_wx, _wy));
+	    for (var _wx = 0; _wx < 140; _wx++) {
+	      var _blocked = collisionsLayer.getTileAt(_wx, _wy) ||
+	                     exteriorDecorationL1Layer.getTileAt(_wx, _wy) ||
+	                     exteriorDecorationL2Layer.getTileAt(_wx, _wy);
+	      _walkable[_wy].push(!_blocked);
+	    }
 	  }
 	  window._walkable = _walkable;
 
-	  // *** CLONES — 48 NPCs que caminham tile a tile respeitando paredes ***
+	  // *** CLONES — 48 NPCs com destino, caminhada e espera natural ***
 	  var _pKeys = Object.keys(spawn_tile_loc);
 	  var _validTiles = [];
 	  for (var _vy = 1; _vy < 99; _vy++) {
@@ -360,7 +364,14 @@
 	    var _px = _vp.tx*32+16, _py = _vp.ty*32+16;
 	    var _cs = this.add.sprite(_px, _py, _pk, 'down').setDepth(1);
 	    _cs.displayWidth = 40; _cs.scaleY = _cs.scaleX;
-	    _clones.push({s:_cs, key:_pk, tileX:_vp.tx, tileY:_vp.ty, tx:_px, ty:_py, moving:false, wait:Math.floor(Math.random()*120)});
+	    var _dest = _validTiles[Math.floor(Math.random() * _validTiles.length)];
+	    _clones.push({
+	      s:_cs, key:_pk,
+	      tileX:_vp.tx, tileY:_vp.ty,
+	      tx:_px, ty:_py,
+	      dtx:_dest.tx, dty:_dest.ty,
+	      moving:false, wait:Math.floor(Math.random()*180), stuck:0
+	    });
 	  }
 	  window._clones = _clones;
 	  window._validTiles = _validTiles;
@@ -394,38 +405,53 @@
 	  if (cursors.up.isDown)    player.body.setVelocityY(-camera_speed);
 	  if (cursors.down.isDown)  player.body.setVelocityY(camera_speed);
 
-	  // Mover clones tile a tile (respeita paredes)
+	  // Clones: destino → caminhar → esperar (3-10s) → novo destino
 	  if (window._clones && window._walkable) {
 	    var _cspd = movement_speed;
-	    var _CDIRS = [{dx:0,dy:-1,a:'up'},{dx:0,dy:1,a:'down'},{dx:-1,dy:0,a:'left'},{dx:1,dy:0,a:'right'}];
 	    for (var _ci = 0; _ci < window._clones.length; _ci++) {
 	      var _cl = window._clones[_ci];
 	      if (_cl.moving) {
 	        var _cdx = _cl.tx - _cl.s.x, _cdy = _cl.ty - _cl.s.y;
 	        if (Math.abs(_cdx) <= _cspd && Math.abs(_cdy) <= _cspd) {
 	          _cl.s.x = _cl.tx; _cl.s.y = _cl.ty;
-	          _cl.moving = false;
-	          _cl.wait = 20 + Math.floor(Math.random() * 60);
-	          _cl.s.anims.stop();
+	          _cl.moving = false; _cl.stuck = 0;
+	          if (_cl.tileX === _cl.dtx && _cl.tileY === _cl.dty) {
+	            _cl.s.anims.stop();
+	            _cl.wait = 180 + Math.floor(Math.random() * 420); // 3-10s
+	          }
 	        } else if (Math.abs(_cdx) > Math.abs(_cdy)) {
 	          _cl.s.x += _cdx > 0 ? _cspd : -_cspd;
 	        } else {
 	          _cl.s.y += _cdy > 0 ? _cspd : -_cspd;
 	        }
-	      } else if (--_cl.wait <= 0) {
-	        var _dirs = _CDIRS.slice().sort(function(){return Math.random()-0.5;});
-	        for (var _di = 0; _di < _dirs.length; _di++) {
-	          var _d = _dirs[_di];
+	      } else if (_cl.wait > 0) {
+	        _cl.wait--;
+	      } else {
+	        if (_cl.tileX === _cl.dtx && _cl.tileY === _cl.dty || _cl.stuck >= 4) {
+	          var _nd = _validTiles[Math.floor(Math.random() * _validTiles.length)];
+	          _cl.dtx = _nd.tx; _cl.dty = _nd.ty; _cl.stuck = 0;
+	        }
+	        var _ddx = _cl.dtx - _cl.tileX, _ddy = _cl.dty - _cl.tileY;
+	        var _sx = _ddx > 0 ? 1 : _ddx < 0 ? -1 : 0;
+	        var _sy = _ddy > 0 ? 1 : _ddy < 0 ? -1 : 0;
+	        var _opts = Math.abs(_ddx) >= Math.abs(_ddy)
+	          ? [{dx:_sx,dy:0},{dx:0,dy:_sy},{dx:0,dy:-_sy},{dx:-_sx,dy:0}]
+	          : [{dx:0,dy:_sy},{dx:_sx,dy:0},{dx:-_sx,dy:0},{dx:0,dy:-_sy}];
+	        var _moved = false;
+	        for (var _di = 0; _di < _opts.length; _di++) {
+	          var _d = _opts[_di];
+	          if (_d.dx === 0 && _d.dy === 0) continue;
 	          var _ntx = _cl.tileX + _d.dx, _nty = _cl.tileY + _d.dy;
-	          if (_ntx>=1 && _ntx<=138 && _nty>=1 && _nty<=98 && window._walkable[_nty][_ntx]) {
-	            _cl.tileX = _ntx; _cl.tileY = _nty;
-	            _cl.tx = _ntx*32+16; _cl.ty = _nty*32+16;
-	            _cl.moving = true;
-	            _cl.s.anims.play(_cl.key+'-'+_d.a+'-walk', true);
-	            break;
+	          if (_ntx>=1&&_ntx<=138&&_nty>=1&&_nty<=98&&window._walkable[_nty][_ntx]) {
+	            var _an = _d.dx>0?'right':_d.dx<0?'left':_d.dy>0?'down':'up';
+	            _cl.tileX=_ntx; _cl.tileY=_nty;
+	            _cl.tx=_ntx*32+16; _cl.ty=_nty*32+16;
+	            _cl.moving=true;
+	            _cl.s.anims.play(_cl.key+'-'+_an+'-walk', true);
+	            _moved=true; break;
 	          }
 	        }
-	        if (!_cl.moving) _cl.wait = 30;
+	        if (!_moved) { _cl.stuck++; _cl.wait=15; }
 	      }
 	    }
 	  }
