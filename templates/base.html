@@ -34,10 +34,16 @@ Author: Joon Sung Park (joonspk@stanford.edu)
       transform-origin:center center;
       image-rendering:pixelated;
     }
+    #day-night-overlay {
+      position:fixed; top:0; left:0; width:100%; height:100%;
+      pointer-events:none; z-index:999;
+      transition: background-color 60s linear;
+    }
   </style>
 </head>
 
 <body class="top-navigation" style="background-color: black">
+  <div id="day-night-overlay"></div>
   {% block content %}
 	{% endblock content %}
 
@@ -115,6 +121,21 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     setTimeout(fitCanvas, 500);
     setTimeout(fitCanvas, 1500);
     setTimeout(fitCanvas, 3000);
+
+    // Ciclo dia/noite baseado no relógio local
+    function updateDayNight() {
+      var h = new Date().getHours() + new Date().getMinutes() / 60;
+      var color, alpha;
+      if      (h >= 6  && h < 8)  { color='255,140,50';  alpha=(8-h)/2*0.35; }   // amanhecer
+      else if (h >= 8  && h < 17) { color='0,0,0';       alpha=0; }               // dia
+      else if (h >= 17 && h < 19) { color='255,100,30';  alpha=(h-17)/2*0.35; }   // pôr do sol
+      else if (h >= 19 && h < 21) { color='80,0,120';    alpha=0.15+(h-19)/2*0.2;}// crepúsculo
+      else                        { color='0,10,60';     alpha=0.55; }             // noite
+      document.getElementById('day-night-overlay').style.backgroundColor =
+        'rgba(' + color + ',' + alpha + ')';
+    }
+    updateDayNight();
+    setInterval(updateDayNight, 60000);
   </script>
 </body>
 </html>
