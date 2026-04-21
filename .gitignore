@@ -4,7 +4,6 @@ __pycache__/
 db.sqlite3
 storage/
 temp_storage/
-staticfiles/
 media_root/
 static_root/
 .env
