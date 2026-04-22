@@ -152,22 +152,7 @@ Author: Joon Sung Park (joonspk@stanford.edu)
       var leafWrap = document.createElement('div');
       leafWrap.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:998;overflow:hidden;';
       document.documentElement.appendChild(leafWrap);
-      var leafChars = ['🍃','🍂','🍁'];
-      for (var li = 0; li < 30; li++) {
-        var lf = document.createElement('div');
-        var ldur = (3.5 + Math.random() * 4).toFixed(1);
-        var ldel = (Math.random() * 8).toFixed(1);
-        var lsz  = (7 + Math.random() * 6).toFixed(0);
-        var ltop = (Math.random() * 90).toFixed(0);
-        lf.textContent = leafChars[li % leafChars.length];
-        lf.style.cssText = 'position:absolute;font-size:'+lsz+'px;'
-          +'left:110%;top:'+ltop+'%;opacity:0.7;'
-          +'will-change:transform;'
-          +'animation:_wl '+ldur+'s '+ldel+'s linear infinite;';
-        leafWrap.appendChild(lf);
-      }
-
-      // *** PÁSSAROS ***
+// *** PÁSSAROS ***
       var birdWrap = document.createElement('div');
       birdWrap.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:997;overflow:hidden;';
       document.documentElement.appendChild(birdWrap);
