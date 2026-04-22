@@ -158,7 +158,8 @@ Author: Joon Sung Park (joonspk@stanford.edu)
       document.documentElement.appendChild(birdWrap);
       var bSt = document.createElement('style');
       bSt.textContent = [
-        '@keyframes _bd{0%{transform:translate(0,0)}25%{transform:translate(28vw,-3vh)}50%{transform:translate(55vw,2vh)}75%{transform:translate(80vw,-2vh)}100%{transform:translate(115vw,1vh)}}',
+        '@keyframes _bdu{from{transform:translateY(0)}to{transform:translateY(-115vh)}}',
+        '@keyframes _bdd{from{transform:translateY(0)}to{transform:translateY(115vh)}}',
         '@keyframes _bfL{from{transform:rotate(-30deg)}to{transform:rotate(8deg)}}',
         '@keyframes _bfR{from{transform:rotate(30deg)}to{transform:rotate(-8deg)}}',
         '.brd{position:absolute;will-change:transform;}',
@@ -169,14 +170,15 @@ Author: Joon Sung Park (joonspk@stanford.edu)
       document.head.appendChild(bSt);
       for (var bi = 0; bi < 6; bi++) {
         var bd = document.createElement('div');
-        var bdur = (6 + Math.random() * 7).toFixed(1);
+        var bdur = (5 + Math.random() * 6).toFixed(1);
         var bdel = (Math.random() * 12).toFixed(1);
         var bsc  = (0.6 + Math.random() * 0.7).toFixed(2);
-        var btop = (5 + Math.random() * 35).toFixed(0);
+        var bleft = (5 + Math.random() * 88).toFixed(0);
+        var goUp  = bi % 2 === 0;
         bd.className = 'brd';
-        bd.style.cssText = 'left:-5%;top:'+btop+'%;width:14px;height:6px;'
+        bd.style.cssText = 'left:'+bleft+'%;'+(goUp?'top:105%':'top:-10%')+';width:14px;height:6px;'
           +'transform:scale('+bsc+');'
-          +'animation:_bd '+bdur+'s '+bdel+'s linear infinite;';
+          +'animation:'+(goUp?'_bdu':'_bdd')+' '+bdur+'s '+bdel+'s linear infinite;';
         birdWrap.appendChild(bd);
       }
       var wrap = document.createElement('div');
