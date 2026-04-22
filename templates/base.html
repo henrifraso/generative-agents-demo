@@ -128,7 +128,7 @@ Author: Joon Sung Park (joonspk@stanford.edu)
       else                        alpha = 0.52;
       window._nightRT.setAlpha(alpha);
     }
-    window._forceNight = true;
+    window._forceNight = false;
     setInterval(function() {
       if (window._forceNight) { if (window._nightRT) window._nightRT.setAlpha(0.52); }
       else updateDayNight();
