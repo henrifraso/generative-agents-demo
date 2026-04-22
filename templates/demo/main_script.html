@@ -391,8 +391,8 @@
 	  window._validTiles = _validTiles;
 	  window._occupied = _occupied;
 
-	  // *** ANIMAIS — baked em texture (desenha 1x, sprite leve no update) ***
-	  function _drawAnimal(g, type) {
+	  // *** ANIMAIS — DESATIVADO TEMPORARIAMENTE ***
+	  if (false) { function _drawAnimal(g, type) {
 	    if (type==='cat') {
 	      var c=[0xf4a460,0x999999,0xffffff,0x333333][Math.floor(Math.random()*4)];
 	      g.fillStyle(c,1); g.fillEllipse(16,20,14,9); g.fillCircle(16,10,6);
@@ -502,6 +502,7 @@
 	      _sceneRef.time.delayedCall(Math.random() * 3000, function() { _anMove(an); });
 	    })(_animals[_ami]);
 	  }
+	  } // fim if(false)
 	}
 
 
