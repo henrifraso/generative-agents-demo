@@ -158,8 +158,9 @@ Author: Joon Sung Park (joonspk@stanford.edu)
       document.documentElement.appendChild(birdWrap);
       var bSt = document.createElement('style');
       bSt.textContent = [
-        '@keyframes _bdu{from{transform:translateY(0)}to{transform:translateY(-115vh)}}',
-        '@keyframes _bdd{from{transform:translateY(0)}to{transform:translateY(115vh)}}',
+        '@keyframes _bdH{from{transform:translateX(0)}to{transform:translateX(120vw)}}',
+        '@keyframes _bdU{from{transform:translateY(0)}to{transform:translateY(-120vh)}}',
+        '@keyframes _bdD{from{transform:translateY(0)}to{transform:translateY(120vh)}}',
         '@keyframes _bfL{from{transform:rotate(-30deg)}to{transform:rotate(8deg)}}',
         '@keyframes _bfR{from{transform:rotate(30deg)}to{transform:rotate(-8deg)}}',
         '.brd{position:absolute;will-change:transform;}',
@@ -168,17 +169,23 @@ Author: Joon Sung Park (joonspk@stanford.edu)
         '.brd::after{right:0;transform-origin:0 1px;animation:_bfR 0.32s ease-in-out infinite alternate;}'
       ].join('');
       document.head.appendChild(bSt);
-      for (var bi = 0; bi < 6; bi++) {
+      // 2 horizontal, 1 sobe, 1 desce — leve
+      var _bconfigs = [
+        {anim:'_bdH', left:'-5%',  top:(10+Math.random()*20).toFixed(0)+'%'},
+        {anim:'_bdH', left:'-5%',  top:(35+Math.random()*20).toFixed(0)+'%'},
+        {anim:'_bdU', left:(20+Math.random()*60).toFixed(0)+'%', top:'105%'},
+        {anim:'_bdD', left:(20+Math.random()*60).toFixed(0)+'%', top:'-8%'}
+      ];
+      for (var bi = 0; bi < _bconfigs.length; bi++) {
+        var bc = _bconfigs[bi];
         var bd = document.createElement('div');
-        var bdur = (5 + Math.random() * 6).toFixed(1);
-        var bdel = (Math.random() * 12).toFixed(1);
-        var bsc  = (0.6 + Math.random() * 0.7).toFixed(2);
-        var bleft = (5 + Math.random() * 88).toFixed(0);
-        var goUp  = bi % 2 === 0;
+        var bdur = (7 + Math.random() * 6).toFixed(1);
+        var bdel = (Math.random() * 10).toFixed(1);
+        var bsc  = (0.55 + Math.random() * 0.5).toFixed(2);
         bd.className = 'brd';
-        bd.style.cssText = 'left:'+bleft+'%;'+(goUp?'top:105%':'top:-10%')+';width:14px;height:6px;'
+        bd.style.cssText = 'left:'+bc.left+';top:'+bc.top+';width:14px;height:6px;'
           +'transform:scale('+bsc+');'
-          +'animation:'+(goUp?'_bdu':'_bdd')+' '+bdur+'s '+bdel+'s linear infinite;';
+          +'animation:'+bc.anim+' '+bdur+'s '+bdel+'s linear infinite;';
         birdWrap.appendChild(bd);
       }
       var wrap = document.createElement('div');
