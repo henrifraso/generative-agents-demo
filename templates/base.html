@@ -172,18 +172,25 @@ Author: Joon Sung Park (joonspk@stanford.edu)
       birdWrap.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:997;overflow:hidden;';
       document.documentElement.appendChild(birdWrap);
       var bSt = document.createElement('style');
-      bSt.textContent = '@keyframes _bd{0%{transform:translate(0,0)}25%{transform:translate(28vw,-3vh)}50%{transform:translate(55vw,2vh)}75%{transform:translate(80vw,-2vh)}100%{transform:translate(115vw,1vh)}}';
+      bSt.textContent = [
+        '@keyframes _bd{0%{transform:translate(0,0)}25%{transform:translate(28vw,-3vh)}50%{transform:translate(55vw,2vh)}75%{transform:translate(80vw,-2vh)}100%{transform:translate(115vw,1vh)}}',
+        '@keyframes _bfL{from{transform:rotate(-30deg)}to{transform:rotate(8deg)}}',
+        '@keyframes _bfR{from{transform:rotate(30deg)}to{transform:rotate(-8deg)}}',
+        '.brd{position:absolute;will-change:transform;}',
+        '.brd::before,.brd::after{content:"";position:absolute;top:0;width:7px;height:5px;border-top:1.5px solid rgba(30,30,30,0.85);border-radius:50% 50% 0 0;}',
+        '.brd::before{left:0;transform-origin:7px 1px;animation:_bfL 0.32s ease-in-out infinite alternate;}',
+        '.brd::after{right:0;transform-origin:0 1px;animation:_bfR 0.32s ease-in-out infinite alternate;}'
+      ].join('');
       document.head.appendChild(bSt);
       for (var bi = 0; bi < 6; bi++) {
         var bd = document.createElement('div');
         var bdur = (6 + Math.random() * 7).toFixed(1);
         var bdel = (Math.random() * 12).toFixed(1);
-        var bsz  = (10 + Math.random() * 8).toFixed(0);
+        var bsc  = (0.6 + Math.random() * 0.7).toFixed(2);
         var btop = (5 + Math.random() * 35).toFixed(0);
-        bd.textContent = '🐦';
-        bd.style.cssText = 'position:absolute;font-size:'+bsz+'px;'
-          +'left:-5%;top:'+btop+'%;opacity:0.9;'
-          +'will-change:transform;'
+        bd.className = 'brd';
+        bd.style.cssText = 'left:-5%;top:'+btop+'%;width:14px;height:6px;'
+          +'transform:scale('+bsc+');'
           +'animation:_bd '+bdur+'s '+bdel+'s linear infinite;';
         birdWrap.appendChild(bd);
       }
