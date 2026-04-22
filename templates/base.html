@@ -140,8 +140,32 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     window._rainLevel = 3;
     (function() {
       var st = document.createElement('style');
-      st.textContent = '@keyframes _rf{from{transform:translateY(-20px) rotate(-6deg)}to{transform:translateY(110vh) rotate(-6deg)}}';
+      st.textContent = [
+        // Chuva inclinada pelo vento (diagonal acentuada)
+        '@keyframes _rf{from{transform:translate(0,-20px) rotate(-28deg)}to{transform:translate(-22vw,110vh) rotate(-28deg)}}',
+        // Folhas voando da direita para esquerda com ondulação
+        '@keyframes _wl{0%{transform:translate(0,0) rotate(0deg)}25%{transform:translate(-28vw,6vh) rotate(60deg)}50%{transform:translate(-55vw,-4vh) rotate(120deg)}75%{transform:translate(-80vw,9vh) rotate(160deg)}100%{transform:translate(-115vw,3vh) rotate(200deg)}}'
+      ].join('');
       document.head.appendChild(st);
+
+      // *** VENTO — folhas voando ***
+      var leafWrap = document.createElement('div');
+      leafWrap.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:998;overflow:hidden;';
+      document.documentElement.appendChild(leafWrap);
+      var leafChars = ['🍃','🍂','🍁'];
+      for (var li = 0; li < 10; li++) {
+        var lf = document.createElement('div');
+        var ldur = (4 + Math.random() * 5).toFixed(1);
+        var ldel = (Math.random() * 6).toFixed(1);
+        var lsz  = (10 + Math.random() * 10).toFixed(0);
+        var ltop = (Math.random() * 85).toFixed(0);
+        lf.textContent = leafChars[li % leafChars.length];
+        lf.style.cssText = 'position:absolute;font-size:'+lsz+'px;'
+          +'left:110%;top:'+ltop+'%;opacity:0.75;'
+          +'will-change:transform;'
+          +'animation:_wl '+ldur+'s '+ldel+'s linear infinite;';
+        leafWrap.appendChild(lf);
+      }
       var wrap = document.createElement('div');
       wrap.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999;overflow:hidden;';
       document.documentElement.appendChild(wrap);
