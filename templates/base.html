@@ -34,6 +34,17 @@ Author: Joon Sung Park (joonspk@stanford.edu)
       transform-origin:center center;
       image-rendering:pixelated;
     }
+    /* Forçar cores fiéis no mobile — evita dark mode, night shift e correção automática */
+    html {
+      color-scheme: light only;
+      -webkit-color-adjust: exact;
+      color-adjust: exact;
+      forced-color-adjust: none;
+    }
+    canvas {
+      -webkit-filter: none !important;
+      filter: none !important;
+    }
   </style>
 </head>
 
