@@ -471,18 +471,37 @@
 	    _tmpG.generateTexture(_texKey, 36, 32);
 	    var _sp = this.add.image(_apx, _apy, _texKey).setDepth(1.5);
 	    var _adst = _validTiles[Math.floor(Math.random() * _validTiles.length)];
-	    _animals.push({
-	      g:_sp, type:_atype, spd:_aspds[_atype]||1,
-	      baseWait:_awaits[_atype]||200,
-	      tileX:_avp.tx, tileY:_avp.ty,
-	      prevX:_avp.tx, prevY:_avp.ty,
-	      tx:_apx, ty:_apy,
-	      dtx:_adst.tx, dty:_adst.ty,
-	      moving:false, wait:Math.floor(Math.random()*300), stuck:0
-	    });
+	    _animals.push({g:_sp, spd:_aspds[_atype]||1, baseWait:_awaits[_atype]||200});
 	  }
 	  _tmpG.destroy();
 	  window._animals = _animals;
+
+	  // Mover animais com Phaser Tweens — sem depender do loop update
+	  var _sceneRef = this;
+	  function _anMove(an) {
+	    var vt = window._validTiles;
+	    var dest = vt[Math.floor(Math.random() * vt.length)];
+	    var dist = Math.abs(dest.tx - Math.round(an.g.x/32)) + Math.abs(dest.ty - Math.round(an.g.y/32));
+	    var dur = Math.max(800, dist * Math.round(600 / an.spd));
+	    _sceneRef.tweens.add({
+	      targets: an.g,
+	      x: dest.tx*32+16,
+	      y: dest.ty*32+16,
+	      duration: dur,
+	      ease: 'Linear',
+	      onComplete: function() {
+	        _sceneRef.time.delayedCall(
+	          an.baseWait * (1000/60) * (0.5 + Math.random()),
+	          function() { _anMove(an); }
+	        );
+	      }
+	    });
+	  }
+	  for (var _ami = 0; _ami < _animals.length; _ami++) {
+	    (function(an) {
+	      _sceneRef.time.delayedCall(Math.random() * 3000, function() { _anMove(an); });
+	    })(_animals[_ami]);
+	  }
 	}
 
 
@@ -595,54 +614,6 @@
 	    }
 	  }
 
-	  // *** ANIMAIS — movimento tile a tile (ignoram _occupied, passam por pessoas) ***
-	  if (window._animals && window._walkable) {
-	    var _vt2 = window._validTiles;
-	    for (var _ai = 0; _ai < window._animals.length; _ai++) {
-	      var _an = window._animals[_ai];
-	      if (_an.moving) {
-	        var _adx = _an.tx - _an.g.x, _ady = _an.ty - _an.g.y;
-	        if (Math.abs(_adx) <= _an.spd && Math.abs(_ady) <= _an.spd) {
-	          _an.g.x = _an.tx; _an.g.y = _an.ty;
-	          _an.moving = false; _an.stuck = 0;
-	          if (_an.tileX === _an.dtx && _an.tileY === _an.dty)
-	            _an.wait = _an.baseWait + Math.floor(Math.random() * _an.baseWait);
-	          else if (Math.random() < 0.08)
-	            _an.wait = 30 + Math.floor(Math.random() * 60);
-	        } else if (Math.abs(_adx) > Math.abs(_ady)) {
-	          _an.g.x += _adx > 0 ? _an.spd : -_an.spd;
-	        } else {
-	          _an.g.y += _ady > 0 ? _an.spd : -_an.spd;
-	        }
-	      } else if (_an.wait > 0) {
-	        _an.wait--;
-	      } else {
-	        if (_an.tileX === _an.dtx && _an.tileY === _an.dty || _an.stuck >= 5) {
-	          var _and = _vt2[Math.floor(Math.random() * _vt2.length)];
-	          _an.dtx = _and.tx; _an.dty = _and.ty; _an.stuck = 0;
-	        }
-	        var _addx = _an.dtx-_an.tileX, _addy = _an.dty-_an.tileY;
-	        var _asx = _addx>0?1:_addx<0?-1:0, _asy = _addy>0?1:_addy<0?-1:0;
-	        var _aopts = Math.abs(_addx)>=Math.abs(_addy)
-	          ? [{dx:_asx,dy:0},{dx:0,dy:_asy},{dx:0,dy:-_asy},{dx:-_asx,dy:0}]
-	          : [{dx:0,dy:_asy},{dx:_asx,dy:0},{dx:-_asx,dy:0},{dx:0,dy:-_asy}];
-	        var _amoved = false;
-	        for (var _adi=0; _adi<_aopts.length; _adi++) {
-	          var _ad = _aopts[_adi];
-	          if (_ad.dx===0 && _ad.dy===0) continue;
-	          var _antx = _an.tileX+_ad.dx, _anty = _an.tileY+_ad.dy;
-	          if (_antx===_an.prevX && _anty===_an.prevY) continue;
-	          if (_antx>=1&&_antx<=138&&_anty>=1&&_anty<=98&&window._walkable[_anty][_antx]) {
-	            _an.prevX=_an.tileX; _an.prevY=_an.tileY;
-	            _an.tileX=_antx; _an.tileY=_anty;
-	            _an.tx=_antx*32+16; _an.ty=_anty*32+16;
-	            _an.moving=true; _amoved=true; break;
-	          }
-	        }
-	        if (!_amoved) { _an.stuck++; _an.wait=30; }
-	      }
-	    }
-	  }
 
 	  let curr_focused_persona = document.getElementById("temp_focus").textContent;
 	  if (curr_focused_persona != "") {
