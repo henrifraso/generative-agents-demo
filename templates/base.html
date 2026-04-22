@@ -146,33 +146,33 @@ Author: Joon Sung Park (joonspk@stanford.edu)
       function resize() { rc.width = window.innerWidth; rc.height = window.innerHeight; }
       resize();
       window.addEventListener('resize', resize);
-      for (var i = 0; i < 200; i++) drops.push({
+      for (var i = 0; i < 80; i++) drops.push({
         x: Math.random() * window.innerWidth,
         y: Math.random() * window.innerHeight,
-        spd: 8 + Math.random() * 8,
-        len: 12 + Math.random() * 14,
-        op: 0.2 + Math.random() * 0.35
+        spd: 7 + Math.random() * 6,
+        len: 12 + Math.random() * 12
       });
-      function draw() {
+      var _rlast = 0;
+      function draw(ts) {
         requestAnimationFrame(draw);
+        if (ts - _rlast < 33) return; // ~30fps
+        _rlast = ts;
         ctx.clearRect(0, 0, rc.width, rc.height);
         if (!window._rainActive) return;
-        ctx.strokeStyle = 'rgba(180,210,255,1)';
+        ctx.strokeStyle = 'rgba(180,210,255,0.45)';
         ctx.lineWidth = 1;
+        ctx.beginPath();
         for (var i = 0; i < drops.length; i++) {
           var d = drops[i];
-          ctx.globalAlpha = d.op;
-          ctx.beginPath();
           ctx.moveTo(d.x, d.y);
           ctx.lineTo(d.x - d.len * 0.18, d.y + d.len);
-          ctx.stroke();
           d.y += d.spd;
           d.x -= d.spd * 0.18;
           if (d.y > rc.height) { d.y = -d.len; d.x = Math.random() * rc.width; }
         }
-        ctx.globalAlpha = 1;
+        ctx.stroke();
       }
-      draw();
+      draw(0);
     })();
     // Polling: aplica noite assim que _nightRT estiver pronto (sem depender de timeout fixo)
     (function _waitNight() {
