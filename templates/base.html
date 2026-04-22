@@ -137,7 +137,7 @@ Author: Joon Sung Park (joonspk@stanford.edu)
 
     // *** CHUVA — CSS puro, sem JS por frame ***
     // Níveis: 0=sem chuva, 1=fraca, 2=média, 3=forte
-    window._rainLevel = 3;
+    window._rainLevel = 0;
     (function() {
       var st = document.createElement('style');
       st.textContent = [
@@ -153,18 +153,39 @@ Author: Joon Sung Park (joonspk@stanford.edu)
       leafWrap.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:998;overflow:hidden;';
       document.documentElement.appendChild(leafWrap);
       var leafChars = ['🍃','🍂','🍁'];
-      for (var li = 0; li < 10; li++) {
+      for (var li = 0; li < 30; li++) {
         var lf = document.createElement('div');
-        var ldur = (4 + Math.random() * 5).toFixed(1);
-        var ldel = (Math.random() * 6).toFixed(1);
-        var lsz  = (10 + Math.random() * 10).toFixed(0);
-        var ltop = (Math.random() * 85).toFixed(0);
+        var ldur = (3.5 + Math.random() * 4).toFixed(1);
+        var ldel = (Math.random() * 8).toFixed(1);
+        var lsz  = (7 + Math.random() * 6).toFixed(0);
+        var ltop = (Math.random() * 90).toFixed(0);
         lf.textContent = leafChars[li % leafChars.length];
         lf.style.cssText = 'position:absolute;font-size:'+lsz+'px;'
-          +'left:110%;top:'+ltop+'%;opacity:0.75;'
+          +'left:110%;top:'+ltop+'%;opacity:0.7;'
           +'will-change:transform;'
           +'animation:_wl '+ldur+'s '+ldel+'s linear infinite;';
         leafWrap.appendChild(lf);
+      }
+
+      // *** PÁSSAROS ***
+      var birdWrap = document.createElement('div');
+      birdWrap.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:997;overflow:hidden;';
+      document.documentElement.appendChild(birdWrap);
+      var bSt = document.createElement('style');
+      bSt.textContent = '@keyframes _bd{0%{transform:translate(0,0)}25%{transform:translate(28vw,-3vh)}50%{transform:translate(55vw,2vh)}75%{transform:translate(80vw,-2vh)}100%{transform:translate(115vw,1vh)}}';
+      document.head.appendChild(bSt);
+      for (var bi = 0; bi < 6; bi++) {
+        var bd = document.createElement('div');
+        var bdur = (6 + Math.random() * 7).toFixed(1);
+        var bdel = (Math.random() * 12).toFixed(1);
+        var bsz  = (10 + Math.random() * 8).toFixed(0);
+        var btop = (5 + Math.random() * 35).toFixed(0);
+        bd.textContent = '🐦';
+        bd.style.cssText = 'position:absolute;font-size:'+bsz+'px;'
+          +'left:-5%;top:'+btop+'%;opacity:0.9;'
+          +'will-change:transform;'
+          +'animation:_bd '+bdur+'s '+bdel+'s linear infinite;';
+        birdWrap.appendChild(bd);
       }
       var wrap = document.createElement('div');
       wrap.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999;overflow:hidden;';
