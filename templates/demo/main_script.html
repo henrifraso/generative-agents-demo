@@ -337,18 +337,20 @@
 		    repeat: -1 });
 	  }
 
-	  // Grid de colisão — colisões + decorações externas (árvores, arbustos)
-	  var _walkable = [];
+	  // Grid de colisão + grid exterior (mesma iteração, sem custo extra)
+	  var _walkable = [], _extGrid = [];
 	  for (var _wy = 0; _wy < 100; _wy++) {
-	    _walkable.push([]);
+	    _walkable.push([]); _extGrid.push([]);
 	    for (var _wx = 0; _wx < 140; _wx++) {
 	      var _blocked = collisionsLayer.getTileAt(_wx, _wy) ||
 	                     exteriorDecorationL1Layer.getTileAt(_wx, _wy) ||
 	                     exteriorDecorationL2Layer.getTileAt(_wx, _wy);
 	      _walkable[_wy].push(!_blocked);
+	      _extGrid[_wy].push(!interiorGroundLayer.getTileAt(_wx, _wy));
 	    }
 	  }
 	  window._walkable = _walkable;
+	  window._extGrid = _extGrid;
 	  window._cloneEmojis = ['💬','🎵','☕','🌸','👋','😊','🍕','📱','🌟','💭','🤔','😄','🎶','🌼','🍦','📚','🎨','🛒','🐈','🌻'];
 
 	  // *** CLONES — 48 NPCs com destino, caminhada e espera natural ***
@@ -470,13 +472,9 @@
 	    {key:'an_frog',count:3,sc:1},{key:'an_snake',count:2,sc:1},
 	    {key:'an_butterfly',count:5,sc:1.5},{key:'an_firefly',count:6,sc:1.2}
 	  ];
-	  // Grid exterior (sem interiorGroundLayer)
-	  var _extG=[];
-	  for(var _ey=0;_ey<100;_ey++){_extG.push([]);for(var _ex=0;_ex<140;_ex++)_extG[_ey].push(!interiorGroundLayer.getTileAt(_ex,_ey));}
-	  // Tiles exteriores caminháveis para waypoints
-	  var _anVt=_validTiles.filter(function(t){return t.tx>5&&t.tx<134&&t.ty>5&&t.ty<94&&_extG[t.ty][t.tx];});
-	  // BFS exterior — retorna array de tiles {tx,ty} ou null
-	  function _bfs(sx,sy,ex,ey){
+	  var _anVt=_validTiles.filter(function(t){return t.tx>5&&t.tx<134&&t.ty>5&&t.ty<94&&_extGrid[t.ty][t.tx];});
+	  // BFS exterior — armazenado em window para uso no update()
+	  window._bfs=function(sx,sy,ex,ey){
 	    if(sx===ex&&sy===ey)return[];
 	    var par={},q=[sy*140+sx];par[sy*140+sx]=-1;
 	    var nb=[[1,0],[-1,0],[0,1],[0,-1]];
@@ -485,7 +483,7 @@
 	      for(var i=0;i<4;i++){
 	        var ntx=cx+nb[i][0],nty=cy+nb[i][1];
 	        if(ntx<0||ntx>139||nty<0||nty>99)continue;
-	        if(!window._walkable[nty][ntx]||!_extG[nty][ntx])continue;
+	        if(!window._walkable[nty][ntx]||!window._extGrid[nty][ntx])continue;
 	        var nk=nty*140+ntx;if(nk in par)continue;
 	        par[nk]=cur;
 	        if(ntx===ex&&nty===ey){
@@ -495,32 +493,20 @@
 	      }
 	    }
 	    return null;
-	  }
+	  };
 	  function _anWps(){
 	    var pts=[],used={};
 	    while(pts.length<10){var i=Math.floor(Math.random()*_anVt.length);if(!used[i]){used[i]=true;pts.push({tx:_anVt[i].tx,ty:_anVt[i].ty});}}
 	    return pts;
 	  }
-	  function _anGo(sc,sp,an){
-	    var wp=an.wps[an.wi];
-	    var path=_bfs(an.tx,an.ty,wp.tx,wp.ty);
-	    if(!path||path.length===0){an.wi=(an.wi+1)%an.wps.length;sc.time.delayedCall(50,function(){_anGo(sc,sp,an);});return;}
-	    an.path=path;an.pi=0;_anWalk(sc,sp,an);
-	  }
-	  function _anWalk(sc,sp,an){
-	    if(an.pi>=an.path.length){an.wi=(an.wi+1)%an.wps.length;_anGo(sc,sp,an);return;}
-	    var st=an.path[an.pi++];an.tx=st.tx;an.ty=st.ty;
-	    sc.tweens.add({targets:sp,x:st.tx*32+16,y:st.ty*32+16,duration:220,ease:'Linear',
-	      onComplete:function(){_anWalk(sc,sp,an);}});
-	  }
+	  window._animals=[];
 	  for(var _ai=0;_ai<_anDefs.length;_ai++){
 	    var _ad=_anDefs[_ai];
 	    for(var _aj=0;_aj<_ad.count;_aj++){
 	      var _wps=_anWps(),_avt=_wps[0];
 	      var _asp=_aScene.add.image(_avt.tx*32+16,_avt.ty*32+16,_ad.key).setDepth(1.5).setScale(_ad.sc);
-	      var _an={wps:_wps,wi:1,tx:_avt.tx,ty:_avt.ty,path:[],pi:0};
-	      (function(sc,sp,an,del){sc.time.delayedCall(del,function(){_anGo(sc,sp,an);});})(
-	        _aScene,_asp,_an,_aj*400+Math.random()*2000);
+	      // delay de arranque escalonado para não rodar BFS todos ao mesmo tempo
+	      window._animals.push({sp:_asp,wps:_wps,wi:1,tx:_avt.tx,ty:_avt.ty,path:[],pi:0,delay:_ai*8+_aj*3});
 	    }
 	  }
 
@@ -742,6 +728,32 @@
 	      if (pre_anims_direction_dict[curr_persona_name] == "d") curr_persona.setTexture(curr_persona_name, "down");
     	}
 	 	}
+
+	  // *** ANIMAIS — movimento no update(), BFS limitado a 2/frame ***
+	  if (window._animals && window._bfs) {
+	    var _aspd = 2, _bfsQ = 0;
+	    for (var _ani = 0; _ani < window._animals.length; _ani++) {
+	      var _an = window._animals[_ani];
+	      if (_an.delay > 0) { _an.delay--; continue; }
+	      if (_an.pi >= _an.path.length) {
+	        if (_bfsQ >= 2) continue; // max 2 BFS por frame
+	        _an.wi = (_an.wi + 1) % _an.wps.length;
+	        _an.path = window._bfs(_an.tx, _an.ty, _an.wps[_an.wi].tx, _an.wps[_an.wi].ty) || [];
+	        _an.pi = 0; _bfsQ++;
+	        if (_an.path.length === 0) continue;
+	      }
+	      var _tgt = _an.path[_an.pi];
+	      var _tdx = _tgt.tx*32+16 - _an.sp.x, _tdy = _tgt.ty*32+16 - _an.sp.y;
+	      if (Math.abs(_tdx) <= _aspd && Math.abs(_tdy) <= _aspd) {
+	        _an.sp.x = _tgt.tx*32+16; _an.sp.y = _tgt.ty*32+16;
+	        _an.tx = _tgt.tx; _an.ty = _tgt.ty; _an.pi++;
+	      } else if (Math.abs(_tdx) >= Math.abs(_tdy)) {
+	        _an.sp.x += _tdx > 0 ? _aspd : -_aspd;
+	      } else {
+	        _an.sp.y += _tdy > 0 ? _aspd : -_aspd;
+	      }
+	    }
+	  }
 
 	  if (execute_count == 0) {
 		  for (let i=0; i<Object.keys(personas).length; i++) {
