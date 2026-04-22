@@ -391,6 +391,104 @@
 	  window._validTiles = _validTiles;
 	  window._occupied = _occupied;
 
+	  // *** ANIMAIS — Canvas 2D (não-bloqueante) + Tweens ***
+	  var _aScene = this;
+	  function _mkC(w,h,fn){var c=document.createElement('canvas');c.width=w;c.height=h;fn(c.getContext('2d'));return c;}
+	  _aScene.textures.addCanvas('an_cat',_mkC(24,20,function(x){
+	    x.fillStyle='#c8883a';x.beginPath();x.ellipse(12,14,7,5,0,0,Math.PI*2);x.fill();
+	    x.beginPath();x.arc(12,7,5,0,Math.PI*2);x.fill();
+	    x.fillStyle='#a06020';
+	    x.beginPath();x.moveTo(8,4);x.lineTo(6,0);x.lineTo(10,3);x.fill();
+	    x.beginPath();x.moveTo(16,4);x.lineTo(18,0);x.lineTo(14,3);x.fill();
+	    x.fillStyle='#228b22';x.fillRect(10,6,2,2);x.fillRect(13,6,2,2);
+	  }));
+	  _aScene.textures.addCanvas('an_dog',_mkC(26,22,function(x){
+	    x.fillStyle='#b8834a';x.beginPath();x.ellipse(13,15,8,5,0,0,Math.PI*2);x.fill();
+	    x.beginPath();x.arc(13,8,6,0,Math.PI*2);x.fill();
+	    x.fillStyle='#8b6030';
+	    x.beginPath();x.ellipse(7,10,3,5,-0.3,0,Math.PI*2);x.fill();
+	    x.beginPath();x.ellipse(19,10,3,5,0.3,0,Math.PI*2);x.fill();
+	    x.fillStyle='#222';x.beginPath();x.arc(13,10,2,0,Math.PI*2);x.fill();
+	  }));
+	  _aScene.textures.addCanvas('an_rabbit',_mkC(20,26,function(x){
+	    x.fillStyle='#f0f0f0';x.beginPath();x.ellipse(10,18,6,7,0,0,Math.PI*2);x.fill();
+	    x.beginPath();x.arc(10,10,5,0,Math.PI*2);x.fill();
+	    x.fillStyle='#ddd';
+	    x.beginPath();x.ellipse(7,3,2,5,-0.2,0,Math.PI*2);x.fill();
+	    x.beginPath();x.ellipse(13,3,2,5,0.2,0,Math.PI*2);x.fill();
+	    x.fillStyle='#ffb0b0';
+	    x.beginPath();x.ellipse(7,3,1,3.5,-0.2,0,Math.PI*2);x.fill();
+	    x.beginPath();x.ellipse(13,3,1,3.5,0.2,0,Math.PI*2);x.fill();
+	    x.fillStyle='#ff6080';x.fillRect(8,9,2,2);x.fillRect(11,9,2,2);
+	  }));
+	  _aScene.textures.addCanvas('an_squirrel',_mkC(22,24,function(x){
+	    x.fillStyle='#c05820';x.beginPath();x.ellipse(16,10,5,9,0.8,0,Math.PI*2);x.fill();
+	    x.fillStyle='#d07030';x.beginPath();x.ellipse(10,17,5,6,0,0,Math.PI*2);x.fill();
+	    x.beginPath();x.arc(10,10,4,0,Math.PI*2);x.fill();
+	    x.beginPath();x.moveTo(7,8);x.lineTo(6,4);x.lineTo(9,7);x.fill();
+	    x.beginPath();x.moveTo(13,8);x.lineTo(14,4);x.lineTo(11,7);x.fill();
+	    x.fillStyle='#111';x.fillRect(9,9,2,2);
+	  }));
+	  _aScene.textures.addCanvas('an_frog',_mkC(20,16,function(x){
+	    x.fillStyle='#3a9a2a';x.beginPath();x.ellipse(10,10,7,5,0,0,Math.PI*2);x.fill();
+	    x.beginPath();x.arc(6,5,3,0,Math.PI*2);x.fill();
+	    x.beginPath();x.arc(14,5,3,0,Math.PI*2);x.fill();
+	    x.fillStyle='#111';x.fillRect(5,4,2,2);x.fillRect(13,4,2,2);
+	    x.fillStyle='#70d060';x.beginPath();x.ellipse(10,11,4,3,0,0,Math.PI*2);x.fill();
+	  }));
+	  _aScene.textures.addCanvas('an_snake',_mkC(32,12,function(x){
+	    x.strokeStyle='#2d8a1a';x.lineWidth=5;x.lineCap='round';
+	    x.beginPath();x.moveTo(2,6);x.bezierCurveTo(8,2,14,10,20,6);x.bezierCurveTo(26,2,28,8,30,6);x.stroke();
+	    x.strokeStyle='#50b030';x.lineWidth=3;
+	    x.beginPath();x.moveTo(2,6);x.bezierCurveTo(8,2,14,10,20,6);x.bezierCurveTo(26,2,28,8,30,6);x.stroke();
+	    x.fillStyle='#2d8a1a';x.beginPath();x.arc(3,6,3,0,Math.PI*2);x.fill();
+	    x.fillStyle='#111';x.fillRect(2,5,1,1);x.fillRect(2,7,1,1);
+	  }));
+	  _aScene.textures.addCanvas('an_butterfly',_mkC(24,20,function(x){
+	    x.fillStyle='rgba(255,140,0,0.85)';
+	    x.beginPath();x.ellipse(7,8,5,7,-0.5,0,Math.PI*2);x.fill();
+	    x.beginPath();x.ellipse(17,8,5,7,0.5,0,Math.PI*2);x.fill();
+	    x.fillStyle='rgba(255,200,0,0.75)';
+	    x.beginPath();x.ellipse(7,15,4,5,0.3,0,Math.PI*2);x.fill();
+	    x.beginPath();x.ellipse(17,15,4,5,-0.3,0,Math.PI*2);x.fill();
+	    x.fillStyle='rgba(0,0,0,0.35)';
+	    x.beginPath();x.arc(7,7,2,0,Math.PI*2);x.fill();
+	    x.beginPath();x.arc(17,7,2,0,Math.PI*2);x.fill();
+	    x.fillStyle='#222';x.fillRect(11,4,2,13);
+	  }));
+	  _aScene.textures.addCanvas('an_firefly',_mkC(10,10,function(x){
+	    var g=x.createRadialGradient(5,5,1,5,5,5);
+	    g.addColorStop(0,'rgba(255,255,100,0.95)');
+	    g.addColorStop(0.4,'rgba(180,255,50,0.6)');
+	    g.addColorStop(1,'rgba(80,200,0,0)');
+	    x.fillStyle=g;x.beginPath();x.arc(5,5,5,0,Math.PI*2);x.fill();
+	    x.fillStyle='#223';x.beginPath();x.arc(5,5,2,0,Math.PI*2);x.fill();
+	  }));
+	  var _anDefs=[
+	    {key:'an_cat',count:4,sc:1},{key:'an_dog',count:3,sc:1},
+	    {key:'an_rabbit',count:4,sc:1},{key:'an_squirrel',count:3,sc:1},
+	    {key:'an_frog',count:3,sc:1},{key:'an_snake',count:2,sc:1},
+	    {key:'an_butterfly',count:5,sc:1.5},{key:'an_firefly',count:6,sc:1.2}
+	  ];
+	  var _anVt=_validTiles.filter(function(t){return t.tx>5&&t.tx<134&&t.ty>5&&t.ty<94;});
+	  function _anMove(sc,sp,vt){
+	    var nd=vt[Math.floor(Math.random()*vt.length)];
+	    var tx=nd.tx*32+16,ty=nd.ty*32+16;
+	    var dist=Math.sqrt(Math.pow(tx-sp.x,2)+Math.pow(ty-sp.y,2));
+	    sc.tweens.add({targets:sp,x:tx,y:ty,duration:Math.max(1200,dist*10),ease:'Linear',
+	      onComplete:function(){sc.time.delayedCall(1500+Math.random()*4000,function(){_anMove(sc,sp,vt);});}
+	    });
+	  }
+	  for(var _ai=0;_ai<_anDefs.length;_ai++){
+	    var _ad=_anDefs[_ai];
+	    for(var _aj=0;_aj<_ad.count;_aj++){
+	      var _avt=_anVt[Math.floor(Math.random()*_anVt.length)];
+	      var _asp=_aScene.add.image(_avt.tx*32+16,_avt.ty*32+16,_ad.key).setDepth(1.5).setScale(_ad.sc);
+	      (function(sc,sp,vt,del){sc.time.delayedCall(del,function(){_anMove(sc,sp,vt);});})(
+	        _aScene,_asp,_anVt,Math.random()*4000);
+	    }
+	  }
+
 	}
 
 
