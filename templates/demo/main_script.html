@@ -390,6 +390,103 @@
 	  window._clones = _clones;
 	  window._validTiles = _validTiles;
 	  window._occupied = _occupied;
+
+	  // *** ANIMAIS — Phaser Graphics no mundo, escalam com zoom ***
+	  function _mkAnimal(sc, type) {
+	    var g = sc.add.graphics().setDepth(1.5);
+	    if (type==='cat') {
+	      var c=[0xf4a460,0x999999,0xffffff,0x333333][Math.floor(Math.random()*4)];
+	      g.fillStyle(c,1); g.fillEllipse(0,4,14,9); g.fillCircle(0,-3,6);
+	      g.fillTriangle(-5,-8,-2,-8,-4,-13); g.fillTriangle(2,-8,5,-8,4,-13);
+	      g.fillStyle(0x111111,1); g.fillCircle(-2,-4,1); g.fillCircle(2,-4,1);
+	      g.lineStyle(2,c,1); g.beginPath(); g.arc(9,3,7,-Math.PI*.8,-Math.PI*.1); g.strokePath();
+	    } else if (type==='dog') {
+	      var c=[0xd2691e,0xf5deb3,0x8b4513,0xc8a06e][Math.floor(Math.random()*4)];
+	      g.fillStyle(c,1); g.fillEllipse(0,5,18,11); g.fillCircle(1,-3,7);
+	      g.fillEllipse(-8,-2,5,10); g.fillEllipse(8,-2,5,10);
+	      g.fillStyle(0x111111,1); g.fillCircle(-2,-4,1.5); g.fillCircle(3,-4,1.5);
+	      g.fillStyle(0x333333,1); g.fillEllipse(1,-1,5,3);
+	      g.lineStyle(3,c,1); g.beginPath(); g.arc(-11,3,6,0,-Math.PI*.7,true); g.strokePath();
+	    } else if (type==='rabbit') {
+	      var c=[0xffffff,0xdddddd,0xf0c0c0,0x888888][Math.floor(Math.random()*4)];
+	      g.fillStyle(c,1); g.fillEllipse(0,4,13,10); g.fillCircle(0,-3,6);
+	      g.fillEllipse(-3,-10,4,10); g.fillEllipse(3,-10,4,10); // orelhas compridas
+	      g.fillStyle(0x111111,1); g.fillCircle(-2,-3,1); g.fillCircle(2,-3,1);
+	      g.fillStyle(0xffaaaa,1); g.fillCircle(0,-1,1.5); // nariz
+	      g.fillStyle(c,1); g.fillCircle(7,3,3); // rabo
+	    } else if (type==='squirrel') {
+	      g.fillStyle(0xc87941,1); g.fillEllipse(0,4,12,9); g.fillCircle(0,-3,6);
+	      g.fillTriangle(-4,-7,-2,-7,-3,-11); g.fillTriangle(2,-7,4,-7,3,-11);
+	      g.fillStyle(0x111111,1); g.fillCircle(-2,-3,1); g.fillCircle(2,-3,1);
+	      // cauda enrolada
+	      g.lineStyle(4,0xc87941,1); g.beginPath();
+	      g.arc(-2,1,9,Math.PI*.2,-Math.PI*.4,true); g.strokePath();
+	      g.lineStyle(2,0xe8a060,1); g.beginPath();
+	      g.arc(-2,1,9,Math.PI*.2,-Math.PI*.4,true); g.strokePath();
+	    } else if (type==='frog') {
+	      g.fillStyle(0x4a9e4a,1); g.fillEllipse(0,2,16,10); // corpo
+	      g.fillCircle(-4,-4,4); g.fillCircle(4,-4,4); // olhos saltados
+	      g.fillStyle(0x2d6e2d,1); g.fillEllipse(0,2,10,6);
+	      g.fillStyle(0xffff00,0.8); g.fillCircle(-4,-4,2.5); g.fillCircle(4,-4,2.5);
+	      g.fillStyle(0x111111,1); g.fillCircle(-4,-4,1.2); g.fillCircle(4,-4,1.2);
+	      // pernas abertas
+	      g.lineStyle(3,0x4a9e4a,1);
+	      g.beginPath(); g.moveTo(-7,4); g.lineTo(-12,9); g.lineTo(-8,12); g.strokePath();
+	      g.beginPath(); g.moveTo(7,4); g.lineTo(12,9); g.lineTo(8,12); g.strokePath();
+	    } else if (type==='snake') {
+	      g.lineStyle(4,0x4a7c3f,1); g.beginPath();
+	      g.moveTo(-12,0); g.bezierCurveTo(-6,-8,0,8,6,-4); g.lineTo(12,-2);
+	      g.strokePath();
+	      g.fillStyle(0xcc3333,1); g.fillTriangle(12,-2,15,0,12,2); // língua
+	      g.fillStyle(0x111111,1); g.fillCircle(11,-3,1);
+	    } else if (type==='butterfly') {
+	      var bc=[0xff6699,0x9966ff,0xff9900,0x33ccff][Math.floor(Math.random()*4)];
+	      // asas superiores
+	      g.fillStyle(bc,0.85); g.fillEllipse(-6,-5,12,8); g.fillEllipse(6,-5,12,8);
+	      // asas inferiores
+	      g.fillStyle(bc,0.7); g.fillEllipse(-5,2,9,6); g.fillEllipse(5,2,9,6);
+	      // corpo
+	      g.fillStyle(0x222222,1); g.fillEllipse(0,-1,3,12);
+	    } else if (type==='firefly') {
+	      g.fillStyle(0x333300,1); g.fillEllipse(0,0,8,5);
+	      g.fillStyle(0xccff00,0.9); g.fillEllipse(0,1,4,3); // abdômen brilhante
+	      g.fillStyle(0x111111,1); g.fillCircle(-2,-2,1); g.fillCircle(2,-2,1);
+	      g.lineStyle(1,0x333300,1);
+	      g.beginPath(); g.moveTo(-3,-1); g.lineTo(-6,-4); g.strokePath();
+	      g.beginPath(); g.moveTo(3,-1); g.lineTo(6,-4); g.strokePath();
+	    }
+	    return g;
+	  }
+
+	  var _anTypes = ['cat','cat','dog','dog','rabbit','squirrel','frog','frog','snake','snake','butterfly','butterfly','firefly','firefly'];
+	  var _animals = [];
+	  for (var _ai = 0; _ai < _anTypes.length; _ai++) {
+	    var _atype = _anTypes[_ai];
+	    var _avp = _validTiles[Math.floor(Math.random() * _validTiles.length)];
+	    var _akey = _avp.ty*140+_avp.tx, _atry = 0;
+	    while (_occupied[_akey] && _atry++ < 200) {
+	      _avp = _validTiles[Math.floor(Math.random() * _validTiles.length)];
+	      _akey = _avp.ty*140+_avp.tx;
+	    }
+	    _occupied[_akey] = true;
+	    var _apx = _avp.tx*32+16, _apy = _avp.ty*32+16;
+	    var _ag = _mkAnimal(this, _atype);
+	    _ag.x = _apx; _ag.y = _apy;
+	    var _adst = _validTiles[Math.floor(Math.random() * _validTiles.length)];
+	    // velocidade e espera por tipo
+	    var _aspds = {cat:1,dog:2,rabbit:2,squirrel:2,frog:1,snake:1,butterfly:2,firefly:1};
+	    var _awaits = {cat:300,dog:120,rabbit:180,squirrel:120,frog:600,snake:240,butterfly:60,firefly:180};
+	    _animals.push({
+	      g:_ag, type:_atype, spd:_aspds[_atype]||1,
+	      baseWait:_awaits[_atype]||200,
+	      tileX:_avp.tx, tileY:_avp.ty,
+	      prevX:_avp.tx, prevY:_avp.ty,
+	      tx:_apx, ty:_apy,
+	      dtx:_adst.tx, dty:_adst.ty,
+	      moving:false, wait:Math.floor(Math.random()*300), stuck:0
+	    });
+	  }
+	  window._animals = _animals;
 	}
 
 
@@ -502,7 +599,58 @@
 	    }
 	  }
 
-	  
+	  // *** ANIMAIS — movimento tile a tile ***
+	  if (window._animals && window._walkable) {
+	    var _occ2 = window._occupied, _vt2 = window._validTiles;
+	    for (var _ai = 0; _ai < window._animals.length; _ai++) {
+	      var _an = window._animals[_ai];
+	      if (_an.moving) {
+	        var _adx = _an.tx - _an.g.x, _ady = _an.ty - _an.g.y;
+	        if (Math.abs(_adx) <= _an.spd && Math.abs(_ady) <= _an.spd) {
+	          _an.g.x = _an.tx; _an.g.y = _an.ty;
+	          _an.moving = false; _an.stuck = 0;
+	          if (_an.tileX === _an.dtx && _an.tileY === _an.dty)
+	            _an.wait = _an.baseWait + Math.floor(Math.random() * _an.baseWait);
+	          else if (Math.random() < 0.08)
+	            _an.wait = 30 + Math.floor(Math.random() * 60);
+	        } else if (Math.abs(_adx) > Math.abs(_ady)) {
+	          _an.g.x += _adx > 0 ? _an.spd : -_an.spd;
+	        } else {
+	          _an.g.y += _ady > 0 ? _an.spd : -_an.spd;
+	        }
+	      } else if (_an.wait > 0) {
+	        _an.wait--;
+	      } else {
+	        if (_an.tileX === _an.dtx && _an.tileY === _an.dty || _an.stuck >= 5) {
+	          var _and = _vt2[Math.floor(Math.random() * _vt2.length)];
+	          _an.dtx = _and.tx; _an.dty = _and.ty; _an.stuck = 0;
+	        }
+	        var _addx = _an.dtx-_an.tileX, _addy = _an.dty-_an.tileY;
+	        var _asx = _addx>0?1:_addx<0?-1:0, _asy = _addy>0?1:_addy<0?-1:0;
+	        var _aopts = Math.abs(_addx)>=Math.abs(_addy)
+	          ? [{dx:_asx,dy:0},{dx:0,dy:_asy},{dx:0,dy:-_asy},{dx:-_asx,dy:0}]
+	          : [{dx:0,dy:_asy},{dx:_asx,dy:0},{dx:-_asx,dy:0},{dx:0,dy:-_asy}];
+	        var _amoved = false;
+	        for (var _adi=0; _adi<_aopts.length; _adi++) {
+	          var _ad = _aopts[_adi];
+	          if (_ad.dx===0 && _ad.dy===0) continue;
+	          var _antx = _an.tileX+_ad.dx, _anty = _an.tileY+_ad.dy;
+	          if (_antx===_an.prevX && _anty===_an.prevY) continue;
+	          if (_occ2[_anty*140+_antx]) continue;
+	          if (_antx>=1&&_antx<=138&&_anty>=1&&_anty<=98&&window._walkable[_anty][_antx]) {
+	            delete _occ2[_an.tileY*140+_an.tileX];
+	            _occ2[_anty*140+_antx] = true;
+	            _an.prevX=_an.tileX; _an.prevY=_an.tileY;
+	            _an.tileX=_antx; _an.tileY=_anty;
+	            _an.tx=_antx*32+16; _an.ty=_anty*32+16;
+	            _an.moving=true; _amoved=true; break;
+	          }
+	        }
+	        if (!_amoved) { _an.stuck++; _an.wait=30; }
+	      }
+	    }
+	  }
+
 	  let curr_focused_persona = document.getElementById("temp_focus").textContent;
 	  if (curr_focused_persona != "") {
 	  	player.body.x = personas[curr_focused_persona].body.x;
