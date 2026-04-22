@@ -595,9 +595,9 @@
 	    }
 	  }
 
-	  // *** ANIMAIS — movimento tile a tile ***
+	  // *** ANIMAIS — movimento tile a tile (ignoram _occupied, passam por pessoas) ***
 	  if (window._animals && window._walkable) {
-	    var _occ2 = window._occupied, _vt2 = window._validTiles;
+	    var _vt2 = window._validTiles;
 	    for (var _ai = 0; _ai < window._animals.length; _ai++) {
 	      var _an = window._animals[_ai];
 	      if (_an.moving) {
@@ -632,10 +632,7 @@
 	          if (_ad.dx===0 && _ad.dy===0) continue;
 	          var _antx = _an.tileX+_ad.dx, _anty = _an.tileY+_ad.dy;
 	          if (_antx===_an.prevX && _anty===_an.prevY) continue;
-	          if (_occ2[_anty*140+_antx]) continue;
 	          if (_antx>=1&&_antx<=138&&_anty>=1&&_anty<=98&&window._walkable[_anty][_antx]) {
-	            delete _occ2[_an.tileY*140+_an.tileX];
-	            _occ2[_anty*140+_antx] = true;
 	            _an.prevX=_an.tileX; _an.prevY=_an.tileY;
 	            _an.tileX=_antx; _an.tileY=_anty;
 	            _an.tx=_antx*32+16; _an.ty=_anty*32+16;
