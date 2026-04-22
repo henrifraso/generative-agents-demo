@@ -472,7 +472,35 @@
 	    {key:'an_frog',count:3,sc:1},{key:'an_snake',count:2,sc:1},
 	    {key:'an_butterfly',count:5,sc:1.5},{key:'an_firefly',count:6,sc:1.2}
 	  ];
-	  var _anVt=_validTiles.filter(function(t){return t.tx>5&&t.tx<134&&t.ty>5&&t.ty<94&&_extGrid[t.ty][t.tx];});
+	  var _anVtRaw=_validTiles.filter(function(t){return t.tx>5&&t.tx<134&&t.ty>5&&t.ty<94&&_extGrid[t.ty][t.tx];});
+	  // Flood-fill para encontrar a maior região exterior conectada
+	  var _ffNb=[[1,0],[-1,0],[0,1],[0,-1]];
+	  function _floodFill(seedTx,seedTy){
+	    var vis={},q=[seedTy*140+seedTx];vis[seedTy*140+seedTx]=true;
+	    while(q.length){
+	      var c=q.shift(),cx=c%140,cy=Math.floor(c/140);
+	      for(var fi=0;fi<4;fi++){
+	        var nx=cx+_ffNb[fi][0],ny=cy+_ffNb[fi][1];
+	        if(nx<0||nx>139||ny<0||ny>99)continue;
+	        if(!window._walkable[ny][nx]||!window._extGrid[ny][nx])continue;
+	        var nk=ny*140+nx;if(vis[nk])continue;
+	        vis[nk]=true;q.push(nk);
+	      }
+	    }
+	    return vis;
+	  }
+	  // Encontrar maior componente conexa entre os tiles exteriores
+	  var _visited={},_bestComp={},_bestSize=0;
+	  for(var _fvi=0;_fvi<_anVtRaw.length;_fvi++){
+	    var _ft=_anVtRaw[_fvi],_fk=_ft.ty*140+_ft.tx;
+	    if(_visited[_fk])continue;
+	    var _comp=_floodFill(_ft.tx,_ft.ty);
+	    var _sz=Object.keys(_comp).length;
+	    for(var _ck in _comp)_visited[_ck]=true;
+	    if(_sz>_bestSize){_bestSize=_sz;_bestComp=_comp;}
+	  }
+	  // Somente tiles da maior região — BFS entre eles sempre tem caminho
+	  var _anVt=_anVtRaw.filter(function(t){return _bestComp[t.ty*140+t.tx];});
 	  // BFS exterior — armazenado em window para uso no update()
 	  window._bfs=function(sx,sy,ex,ey){
 	    if(sx===ex&&sy===ey)return[];
@@ -729,18 +757,19 @@
     	}
 	 	}
 
-	  // *** ANIMAIS — movimento no update(), BFS limitado a 2/frame ***
+	  // *** ANIMAIS — movimento no update(), BFS max 4/frame ***
 	  if (window._animals && window._bfs) {
 	    var _aspd = 2, _bfsQ = 0;
 	    for (var _ani = 0; _ani < window._animals.length; _ani++) {
 	      var _an = window._animals[_ani];
 	      if (_an.delay > 0) { _an.delay--; continue; }
 	      if (_an.pi >= _an.path.length) {
-	        if (_bfsQ >= 2) continue; // max 2 BFS por frame
+	        if (_bfsQ >= 4) continue;
 	        _an.wi = (_an.wi + 1) % _an.wps.length;
 	        _an.path = window._bfs(_an.tx, _an.ty, _an.wps[_an.wi].tx, _an.wps[_an.wi].ty) || [];
 	        _an.pi = 0; _bfsQ++;
-	        if (_an.path.length === 0) continue;
+	        // null inesperado: pular para próximo waypoint no próximo frame
+	        if (_an.path.length === 0) { _an.pi = 1; continue; }
 	      }
 	      var _tgt = _an.path[_an.pi];
 	      var _tdx = _tgt.tx*32+16 - _an.sp.x, _tdy = _tgt.ty*32+16 - _an.sp.y;
