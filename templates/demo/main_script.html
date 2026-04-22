@@ -470,61 +470,57 @@
 	    {key:'an_frog',count:3,sc:1},{key:'an_snake',count:2,sc:1},
 	    {key:'an_butterfly',count:5,sc:1.5},{key:'an_firefly',count:6,sc:1.2}
 	  ];
-	  // Somente tiles externos (sem interiorGroundLayer) + caminhável + margem
-	  var _anVt=_validTiles.filter(function(t){
-	    return t.tx>5&&t.tx<134&&t.ty>5&&t.ty<94&&
-	           !interiorGroundLayer.getTileAt(t.tx,t.ty);
-	  });
-	  // Gera 10 waypoints únicos aleatórios no exterior
-	  function _anWaypoints(){
-	    var pts=[],used={};
-	    while(pts.length<10){
-	      var i=Math.floor(Math.random()*_anVt.length);
-	      if(!used[i]){used[i]=true;pts.push({tx:_anVt[i].tx,ty:_anVt[i].ty});}
+	  // Grid exterior (sem interiorGroundLayer)
+	  var _extG=[];
+	  for(var _ey=0;_ey<100;_ey++){_extG.push([]);for(var _ex=0;_ex<140;_ex++)_extG[_ey].push(!interiorGroundLayer.getTileAt(_ex,_ey));}
+	  // Tiles exteriores caminháveis para waypoints
+	  var _anVt=_validTiles.filter(function(t){return t.tx>5&&t.tx<134&&t.ty>5&&t.ty<94&&_extG[t.ty][t.tx];});
+	  // BFS exterior — retorna array de tiles {tx,ty} ou null
+	  function _bfs(sx,sy,ex,ey){
+	    if(sx===ex&&sy===ey)return[];
+	    var par={},q=[sy*140+sx];par[sy*140+sx]=-1;
+	    var nb=[[1,0],[-1,0],[0,1],[0,-1]];
+	    while(q.length){
+	      var cur=q.shift(),cx=cur%140,cy=Math.floor(cur/140);
+	      for(var i=0;i<4;i++){
+	        var ntx=cx+nb[i][0],nty=cy+nb[i][1];
+	        if(ntx<0||ntx>139||nty<0||nty>99)continue;
+	        if(!window._walkable[nty][ntx]||!_extG[nty][ntx])continue;
+	        var nk=nty*140+ntx;if(nk in par)continue;
+	        par[nk]=cur;
+	        if(ntx===ex&&nty===ey){
+	          var p=[],k=nk;while(par[k]!==-1){p.unshift({tx:k%140,ty:Math.floor(k/140)});k=par[k];}return p;
+	        }
+	        q.push(nk);
+	      }
 	    }
+	    return null;
+	  }
+	  function _anWps(){
+	    var pts=[],used={};
+	    while(pts.length<10){var i=Math.floor(Math.random()*_anVt.length);if(!used[i]){used[i]=true;pts.push({tx:_anVt[i].tx,ty:_anVt[i].ty});}}
 	    return pts;
 	  }
-	  // Looping contínuo: move tile a tile, sem parar, respeitando exterior + _walkable + _occupied
-	  function _anLoop(sc,sp,an){
+	  function _anGo(sc,sp,an){
 	    var wp=an.wps[an.wi];
-	    if(an.tx===wp.tx&&an.ty===wp.ty){
-	      an.wi=(an.wi+1)%an.wps.length;an.stuck=0;
-	      sc.time.delayedCall(30,function(){_anLoop(sc,sp,an);});return;
-	    }
-	    var ddx=wp.tx-an.tx,ddy=wp.ty-an.ty;
-	    var sx=ddx>0?1:ddx<0?-1:0,sy=ddy>0?1:ddy<0?-1:0;
-	    var opts=Math.abs(ddx)>=Math.abs(ddy)
-	      ?[{dx:sx,dy:0},{dx:0,dy:sy},{dx:0,dy:-sy},{dx:-sx,dy:0}]
-	      :[{dx:0,dy:sy},{dx:sx,dy:0},{dx:-sx,dy:0},{dx:0,dy:-sy}];
-	    var moved=false;
-	    for(var _di=0;_di<opts.length;_di++){
-	      var d=opts[_di];if(d.dx===0&&d.dy===0)continue;
-	      var ntx=an.tx+d.dx,nty=an.ty+d.dy;
-	      if(ntx<1||ntx>138||nty<1||nty>98)continue;
-	      if(!window._walkable[nty][ntx])continue;
-	      if(interiorGroundLayer.getTileAt(ntx,nty))continue; // bloqueia interior
-	      if(window._occupied[nty*140+ntx])continue;
-	      an.tx=ntx;an.ty=nty;an.stuck=0;
-	      sc.tweens.add({targets:sp,x:ntx*32+16,y:nty*32+16,duration:210,ease:'Linear',
-	        onComplete:function(){_anLoop(sc,sp,an);}
-	      });
-	      moved=true;break;
-	    }
-	    if(!moved){
-	      an.stuck++;
-	      if(an.stuck>=8){an.wi=(an.wi+1)%an.wps.length;an.stuck=0;}
-	      sc.time.delayedCall(250,function(){_anLoop(sc,sp,an);});
-	    }
+	    var path=_bfs(an.tx,an.ty,wp.tx,wp.ty);
+	    if(!path||path.length===0){an.wi=(an.wi+1)%an.wps.length;sc.time.delayedCall(50,function(){_anGo(sc,sp,an);});return;}
+	    an.path=path;an.pi=0;_anWalk(sc,sp,an);
+	  }
+	  function _anWalk(sc,sp,an){
+	    if(an.pi>=an.path.length){an.wi=(an.wi+1)%an.wps.length;_anGo(sc,sp,an);return;}
+	    var st=an.path[an.pi++];an.tx=st.tx;an.ty=st.ty;
+	    sc.tweens.add({targets:sp,x:st.tx*32+16,y:st.ty*32+16,duration:220,ease:'Linear',
+	      onComplete:function(){_anWalk(sc,sp,an);}});
 	  }
 	  for(var _ai=0;_ai<_anDefs.length;_ai++){
 	    var _ad=_anDefs[_ai];
 	    for(var _aj=0;_aj<_ad.count;_aj++){
-	      var _wps=_anWaypoints();
-	      var _avt=_wps[0];
+	      var _wps=_anWps(),_avt=_wps[0];
 	      var _asp=_aScene.add.image(_avt.tx*32+16,_avt.ty*32+16,_ad.key).setDepth(1.5).setScale(_ad.sc);
-	      var _an={wps:_wps,wi:1,tx:_avt.tx,ty:_avt.ty,stuck:0};
-	      (function(sc,sp,an,del){sc.time.delayedCall(del,function(){_anLoop(sc,sp,an);});})(
-	        _aScene,_asp,_an,Math.random()*6000);
+	      var _an={wps:_wps,wi:1,tx:_avt.tx,ty:_avt.ty,path:[],pi:0};
+	      (function(sc,sp,an,del){sc.time.delayedCall(del,function(){_anGo(sc,sp,an);});})(
+	        _aScene,_asp,_an,_aj*400+Math.random()*2000);
 	    }
 	  }
 
