@@ -37,6 +37,8 @@ Author: Joon Sung Park (joonspk@stanford.edu)
   </style>
 </head>
 
+<canvas id="rain-canvas" style="position:fixed;top:0;left:0;width:100vw;height:100vh;pointer-events:none;z-index:999;"></canvas>
+
 <body class="top-navigation" style="background-color: black">
   {% block content %}
 	{% endblock content %}
@@ -134,6 +136,44 @@ Author: Joon Sung Park (joonspk@stanford.edu)
       else updateDayNight();
     }, 60000);
     history.replaceState(null, '', '/');
+
+    // *** CHUVA ***
+    window._rainActive = true; // false = sem chuva
+    (function() {
+      var rc = document.getElementById('rain-canvas');
+      var ctx = rc.getContext('2d');
+      var drops = [];
+      function resize() { rc.width = window.innerWidth; rc.height = window.innerHeight; }
+      resize();
+      window.addEventListener('resize', resize);
+      for (var i = 0; i < 200; i++) drops.push({
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        spd: 8 + Math.random() * 8,
+        len: 12 + Math.random() * 14,
+        op: 0.2 + Math.random() * 0.35
+      });
+      function draw() {
+        requestAnimationFrame(draw);
+        ctx.clearRect(0, 0, rc.width, rc.height);
+        if (!window._rainActive) return;
+        ctx.strokeStyle = 'rgba(180,210,255,1)';
+        ctx.lineWidth = 1;
+        for (var i = 0; i < drops.length; i++) {
+          var d = drops[i];
+          ctx.globalAlpha = d.op;
+          ctx.beginPath();
+          ctx.moveTo(d.x, d.y);
+          ctx.lineTo(d.x - d.len * 0.18, d.y + d.len);
+          ctx.stroke();
+          d.y += d.spd;
+          d.x -= d.spd * 0.18;
+          if (d.y > rc.height) { d.y = -d.len; d.x = Math.random() * rc.width; }
+        }
+        ctx.globalAlpha = 1;
+      }
+      draw();
+    })();
     // Polling: aplica noite assim que _nightRT estiver pronto (sem depender de timeout fixo)
     (function _waitNight() {
       if (!window._nightRT) { setTimeout(_waitNight, 400); return; }
