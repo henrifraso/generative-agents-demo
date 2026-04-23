@@ -3,8 +3,7 @@
   "short_name": "TBG",
   "description": "A Maquina de Imprimir Dinheiro",
   "start_url": "/",
-  "display": "fullscreen",
-  "orientation": "landscape",
+  "display": "standalone",
   "background_color": "#0a1a0a",
   "theme_color": "#0a1a0a",
   "icons": [
