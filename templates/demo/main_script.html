@@ -243,15 +243,11 @@
 	  // OLD NOTE: Create a sprite with physics enabled via the physics system. 
 	  // The image  used for the sprite has a bit of whitespace, so I'm using 
 	  // setSize & setOffset to control the size of the player's body.
-	  player = this.physics.add.
-	                sprite(2240, 1600, "atlas", "down").
-	                setSize(30, 40).
-	                setOffset(0, 0);
+	  player = this.add.sprite(70*32+16, 50*32+16, "atlas", "down");
 	  player.setDepth(1.8);
-	  player.clearTint();
 	  player.displayWidth = 40;
 	  player.scaleY = player.scaleX;
-	  // sem physics collider — colisão manual via _walkable (tile-a-tile)
+	  // sprite simples (sem physics) — posição controlada diretamente
 	  window._playerLabel = this.add.text(2240, 1560, '\u2605 YOU', {
 	    font: 'bold 8px monospace', fill: '#ffffff', stroke: '#000000', strokeThickness: 4
 	  }).setDepth(1.9).setOrigin(0.5, 1);
@@ -573,8 +569,7 @@
 			game_pause();
 		};
 
-	  // *** PLAYER MOVEMENT — tile-a-tile com _walkable (igual clones) ***
-	  player.body.setVelocity(0);
+	  // *** PLAYER MOVEMENT — tile-a-tile com _walkable (sprite simples) ***
 	  if (!window._chatOpen && window._walkable) {
 	    if (!window._playerMoving) {
 	      var _pdx=0,_pdy=0,_pdir=window._playerDir;
@@ -597,12 +592,12 @@
 	      var _mspd=movement_speed;
 	      var _dx=window._playerTargPX-player.x, _dy=window._playerTargPY-player.y;
 	      if (Math.abs(_dx)<=_mspd&&Math.abs(_dy)<=_mspd) {
-	        player.body.reset(window._playerTargPX,window._playerTargPY);
+	        player.setPosition(window._playerTargPX,window._playerTargPY);
 	        window._playerMoving=false;
 	      } else if (Math.abs(_dx)>=Math.abs(_dy)) {
-	        player.body.reset(player.x+(_dx>0?_mspd:-_mspd), player.y);
+	        player.x += (_dx>0?_mspd:-_mspd);
 	      } else {
-	        player.body.reset(player.x, player.y+(_dy>0?_mspd:-_mspd));
+	        player.y += (_dy>0?_mspd:-_mspd);
 	      }
 	    }
 	  }
@@ -696,8 +691,7 @@
 
 	  let curr_focused_persona = document.getElementById("temp_focus").textContent;
 	  if (curr_focused_persona != "") {
-	  	player.body.x = personas[curr_focused_persona].body.x;
-	  	player.body.y = personas[curr_focused_persona].body.y;
+	  	player.setPosition(personas[curr_focused_persona].x, personas[curr_focused_persona].y);
 	  	document.getElementById("temp_focus").innerHTML = "";
 	  }
 
