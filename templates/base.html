@@ -246,6 +246,29 @@ Author: Joon Sung Park (joonspk@stanford.edu)
         return;
       }
 
+      // Tecla S — NPC mais próximo começa a seguir o jogador
+      if (e.key === 's' || e.key === 'S') {
+        if (window._chatOpen) return;
+        window._following = window._following || {};
+        if (typeof personas !== 'undefined') {
+          var closest2 = null, minD2 = Infinity;
+          for (var pn2 in personas) {
+            if (window._following[pn2]) continue; // já seguindo
+            var pp2 = personas[pn2];
+            var d2 = Math.hypot((player ? player.x : 0) - pp2.x, (player ? player.y : 0) - pp2.y);
+            if (d2 < minD2) { minD2 = d2; closest2 = pn2; }
+          }
+          if (closest2) window._following[closest2] = true;
+        }
+        return;
+      }
+
+      // Tecla Espaço — cancela seguir todos os NPCs
+      if (e.key === ' ') {
+        window._following = {};
+        return;
+      }
+
       if (e.key !== 'Enter') return;
       var splash = document.getElementById('splash');
       if (splash && splash.style.display !== 'none') return;
