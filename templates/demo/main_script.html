@@ -47,7 +47,7 @@
 	// will be used in it. 
 	const game = new Phaser.Game(config);
 	let cursors;
-	let player;
+	var player;
 
 	// Persona related variables. This should have the name of the persona as its 
 	// keys, and the instances of the Persona class as the values.
@@ -275,28 +275,9 @@
 	  game.canvas.setAttribute('tabindex', '0');
 	  game.canvas.focus();
 
-	  // Teclas globais — funcionam independente do foco no canvas
+	  // Prevenir scroll das setas (handlers de A/Espaço ficam no base.html)
 	  window.addEventListener('keydown', function(e) {
-	    // Prevenir scroll das setas
 	    if ([37,38,39,40].indexOf(e.keyCode) >= 0) e.preventDefault();
-
-	    // Tecla A — conversa com NPC mais próximo
-	    if (e.key === 'a' || e.key === 'A') {
-	      if (window._chatOpen) return;
-	      var closest = null, minDist = 65;
-	      for (var pn in personas) {
-	        var p = personas[pn];
-	        var dist = Math.sqrt(Math.pow(player.x - p.x, 2) + Math.pow(player.y - p.y, 2));
-	        if (dist < minDist) { minDist = dist; closest = pn; }
-	      }
-	      if (closest && window._openChat) window._openChat(closest);
-	    }
-
-	    // Espaço — fechar chat
-	    if (e.key === ' ' && window._chatOpen && window._closeChat) {
-	      e.preventDefault();
-	      window._closeChat();
-	    }
 	  }, false);
 
 	  // *** SET UP PERSONAS *** 

@@ -239,6 +239,22 @@ Author: Joon Sung Park (joonspk@stanford.edu)
         if (e.key === ' ' || e.key === 'Escape') { e.preventDefault(); window._closeChat(); }
         return;
       }
+      // Tecla A — abrir chat com NPC mais próximo
+      if (e.key === 'a' || e.key === 'A') {
+        var splash2 = document.getElementById('splash');
+        if (splash2 && splash2.style.display !== 'none') return;
+        if (typeof personas !== 'undefined' && typeof player !== 'undefined') {
+          var closest = null, minDist = 200;
+          for (var pn in personas) {
+            var pp = personas[pn];
+            var dist = Math.hypot(player.x - pp.x, player.y - pp.y);
+            if (dist < minDist) { minDist = dist; closest = pn; }
+          }
+          if (closest) window._openChat(closest);
+        }
+        return;
+      }
+
       if (e.key !== 'Enter') return;
       var splash = document.getElementById('splash');
       if (splash && splash.style.display !== 'none') return;
