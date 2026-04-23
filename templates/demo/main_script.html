@@ -248,7 +248,7 @@
 	                setSize(30, 40).
 	                setOffset(0, 0);
 	  player.setDepth(1.8);
-	  player.setTint(0x000000);
+	  player.clearTint();
 	  player.displayWidth = 40;
 	  player.scaleY = player.scaleX;
 	  // sem physics collider — colisão manual via _walkable (tile-a-tile)
@@ -362,9 +362,7 @@
 	    for (var _wx = 0; _wx < 140; _wx++) {
 	      var _blocked = collisionsLayer.getTileAt(_wx, _wy) ||
 	                     exteriorDecorationL1Layer.getTileAt(_wx, _wy) ||
-	                     exteriorDecorationL2Layer.getTileAt(_wx, _wy) ||
-	                     interiorFurnitureL1Layer.getTileAt(_wx, _wy) ||
-	                     interiorFurnitureL2Layer.getTileAt(_wx, _wy);
+	                     exteriorDecorationL2Layer.getTileAt(_wx, _wy);
 	      _walkable[_wy].push(!_blocked);
 	      _extGrid[_wy].push(!interiorGroundLayer.getTileAt(_wx, _wy));
 	    }
@@ -383,7 +381,7 @@
 	  var _occupied = {};
 	  var _clones = [];
 	  for (var _ci = 0; _ci < 48; _ci++) {
-	    var _pk = _pKeys[_ci % _pKeys.length];
+	    var _pk = _pKeys[0];
 	    var _vp = _validTiles[Math.floor(Math.random() * _validTiles.length)];
 	    // Garantir tile inicial livre
 	    var _vkey = _vp.ty * 140 + _vp.tx;
