@@ -78,54 +78,34 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     /* ── Splash base ── */
     #splash { position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;display:flex;align-items:center;justify-content:center;background:#000;transition:opacity 0.8s ease; }
 
-    /* ── Animações retro ── */
-    @keyframes sp-float   { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
-    @keyframes sp-enter   { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
-    @keyframes sp-blink   { 0%,49%{opacity:1} 50%,100%{opacity:0} }
-    @keyframes sp-scan    { 0%{background-position:0 0} 100%{background-position:0 4px} }
-    @keyframes sp-titlegl { 0%,100%{text-shadow:4px 4px 0 #1a3a00,8px 8px 0 rgba(0,0,0,0.6)} 50%{text-shadow:4px 4px 0 #1a5000,8px 8px 0 rgba(0,0,0,0.6),0 0 30px rgba(180,255,60,0.15)} }
-    @keyframes sp-pressfl { 0%,100%{opacity:1} 50%{opacity:0.35} }
+    /* ── Animações ── */
+    @keyframes sp-float  { 0%,100%{transform:translateY(0)}  50%{transform:translateY(-7px)} }
+    @keyframes sp-enter  { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes sp-glow   { 0%,100%{text-shadow:0 0 4px rgba(255,255,255,0.1);color:rgba(255,255,255,0.78)} 50%{text-shadow:0 0 12px rgba(255,255,255,0.85),0 0 28px rgba(255,255,255,0.25);color:#fff} }
+    @keyframes sp-shimmer{ 0%{background-position:200% center} 100%{background-position:-200% center} }
 
-    /* ── Scanlines overlay ── */
-    #splash::after {
-      content:'';position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;
-      background:repeating-linear-gradient(0deg,rgba(0,0,0,0.13) 0px,rgba(0,0,0,0.13) 1px,transparent 1px,transparent 4px);
-    }
-
-    /* ── Caixa RPG pixel-art (borda dupla estilo JRPG) ── */
-    .rpg-box {
-      background:#0d1117;
-      border:4px solid #ffd700;
-      box-shadow:0 0 0 8px #0d1117,0 0 0 12px #ffd700,8px 8px 0 12px rgba(0,0,0,0.8);
-      image-rendering:pixelated;
-    }
-
-    /* ── Botões do menu (estilo item de lista RPG) ── */
+    /* ── Botões principais ── */
     .sp-btn {
       font-family:'Press Start 2P',monospace;cursor:pointer;width:100%;box-sizing:border-box;
-      background:transparent;border:none;color:#e8e8e8;
-      letter-spacing:0.06em;line-height:1.8;
-      text-align:left;padding:10px 12px 10px 32px;
-      position:relative;transition:color 0.08s,background 0.08s;
-      font-size:clamp(8px,1.3vw,14px);
+      background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.22);
+      border-radius:10px;color:#fff;letter-spacing:0.07em;
+      backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+      box-shadow:0 2px 16px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.12);
+      transition:transform 0.15s,background 0.15s,border-color 0.15s,box-shadow 0.15s;
+      animation:sp-glow 3s ease-in-out infinite;
     }
-    .sp-btn::before { content:'';position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:inherit;color:#ffd700;opacity:0; }
-    .sp-btn:hover { color:#ffd700;background:rgba(255,215,0,0.08); }
-    .sp-btn:hover::before { content:'>';opacity:1; }
-    .sp-btn-primary { color:#fff; }
-    .sp-btn-primary::before { content:'>';opacity:1;animation:sp-blink 1s step-end infinite; }
-    .sp-btn-primary:hover::before { animation:none; }
-
-    /* ── Separador pixel ── */
-    .rpg-sep { height:2px;background:repeating-linear-gradient(90deg,#ffd700 0px,#ffd700 6px,transparent 6px,transparent 10px);margin:8px 0;opacity:0.4; }
+    .sp-btn-primary {
+      background:rgba(30,80,15,0.65) !important;
+      border-color:rgba(120,220,60,0.55) !important;
+      box-shadow:0 2px 20px rgba(0,0,0,0.6),0 0 18px rgba(80,180,30,0.18),inset 0 1px 0 rgba(150,255,80,0.15) !important;
+    }
+    .sp-btn:hover { transform:translateY(-3px);background:rgba(255,255,255,0.2) !important;border-color:rgba(255,255,255,0.6) !important;box-shadow:0 6px 24px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.2) !important;animation:none;text-shadow:0 0 12px rgba(255,255,255,0.8); }
 
     /* ── Modais ── */
-    #cfg-modal { display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:10000;align-items:center;justify-content:center;background:rgba(0,0,0,0.75); }
+    #cfg-modal { display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:10000;align-items:center;justify-content:center;background:rgba(0,0,0,0.65); }
     #cfg-modal.open { display:flex; }
-    .cfg-opt { font-family:'Press Start 2P',monospace;font-size:clamp(7px,1vw,12px);color:#e8e8e8;background:transparent;border:none;padding:12px 12px 12px 32px;cursor:pointer;width:100%;text-align:left;position:relative;letter-spacing:0.05em;transition:color 0.08s; }
-    .cfg-opt::before { content:'';position:absolute;left:10px;color:#ffd700;opacity:0; }
-    .cfg-opt:hover::before,.cfg-opt.active::before { content:'>';opacity:1; }
-    .cfg-opt:hover,.cfg-opt.active { color:#ffd700; }
+    .cfg-opt { font-family:'Press Start 2P',monospace;font-size:clamp(8px,1.1vw,13px);color:#fff;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.3);border-radius:10px;padding:14px 28px;cursor:pointer;min-width:220px;box-shadow:0 2px 10px rgba(0,0,0,0.4);transition:background 0.12s,border-color 0.12s,transform 0.12s; }
+    .cfg-opt:hover,.cfg-opt.active { background:rgba(255,255,255,0.24);border-color:rgba(255,255,255,0.8);transform:translateY(-2px); }
 
     /* ── Chat Box (Fase 2) ── */
     #chat-box.open { display:block !important; }
@@ -139,107 +119,90 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     .chat-line { margin-bottom:7px; line-height:1.55; font-family:monospace; font-size:13px; }
   </style>
 
-  <div id="splash" style="background:radial-gradient(ellipse at 50% 35%,rgba(0,40,0,0.18) 0%,rgba(0,0,0,0.72) 70%,rgba(0,0,0,0.97) 100%),url('/static/assets/splash_bg.jpeg') center/cover no-repeat;">
-    <div id="spl-inner" style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;padding:20px;box-sizing:border-box;position:relative;z-index:2;">
+  <div id="splash" style="background:radial-gradient(ellipse at 50% 40%,rgba(0,0,0,0) 0%,rgba(0,0,0,0.55) 60%,rgba(0,0,0,0.92) 100%),url('/static/assets/splash_bg.jpeg') center/cover no-repeat;">
+    <div id="spl-inner" style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;padding:20px;box-sizing:border-box;">
 
-      <!-- Título pixel-art flutuante -->
-      <div id="spl-title" style="text-align:center;animation:sp-float 4s ease-in-out infinite;margin-bottom:clamp(20px,3.5vw,44px);">
-        <!-- Linha decorativa pixel -->
-        <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:14px;">
-          <div style="height:3px;width:clamp(30px,5vw,70px);background:#ffd700;image-rendering:pixelated;"></div>
-          <div style="width:6px;height:6px;background:#ffd700;flex-shrink:0;"></div>
-          <div style="width:3px;height:3px;background:#ffd700;flex-shrink:0;"></div>
-          <div style="width:6px;height:6px;background:#ffd700;flex-shrink:0;"></div>
-          <div style="height:3px;width:clamp(30px,5vw,70px);background:#ffd700;"></div>
+      <!-- Título flutuante -->
+      <div id="spl-title" style="text-align:center;animation:sp-float 4.5s ease-in-out infinite;margin-bottom:clamp(28px,4vw,50px);">
+        <!-- Ornamento superior -->
+        <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:18px;">
+          <div style="height:1px;width:clamp(40px,6vw,90px);background:linear-gradient(to right,transparent,rgba(255,220,60,0.7));"></div>
+          <div style="width:5px;height:5px;background:#ffe97a;transform:rotate(45deg);flex-shrink:0;"></div>
+          <div style="width:5px;height:5px;background:#ffe97a;transform:rotate(45deg);flex-shrink:0;"></div>
+          <div style="height:1px;width:clamp(40px,6vw,90px);background:linear-gradient(to left,transparent,rgba(255,220,60,0.7));"></div>
         </div>
-
-        <!-- Título principal -->
-        <div style="font-family:'Press Start 2P',monospace;font-size:clamp(16px,4vw,56px);color:#fff;line-height:1.25;letter-spacing:0.03em;animation:sp-titlegl 3s ease-in-out infinite;">THE BUSINESS GAME</div>
-
-        <!-- Subtítulo em caixa pixel própria -->
-        <div style="margin:16px auto 0;display:inline-block;background:#0d1117;border:3px solid #ffd700;box-shadow:0 0 0 6px #0d1117,0 0 0 9px #ffd700;padding:8px 20px;">
-          <div id="spl-sub" style="font-family:'Press Start 2P',monospace;font-size:clamp(6px,1.1vw,13px);color:#ffd700;letter-spacing:0.18em;white-space:nowrap;">A MAQUINA DE IMPRIMIR DINHEIRO</div>
+        <div style="font-family:'Press Start 2P',monospace;font-size:clamp(18px,4.4vw,60px);color:#fff;line-height:1.3;letter-spacing:0.02em;text-shadow:3px 3px 0 rgba(20,60,5,0.9),6px 6px 0 rgba(0,0,0,0.55);">THE BUSINESS GAME</div>
+        <!-- Separador -->
+        <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin:12px 0 10px;">
+          <div style="height:1px;width:clamp(50px,8vw,120px);background:rgba(255,233,122,0.35);"></div>
+          <div style="width:4px;height:4px;background:rgba(255,233,122,0.7);transform:rotate(45deg);flex-shrink:0;"></div>
+          <div style="height:1px;width:clamp(50px,8vw,120px);background:rgba(255,233,122,0.35);"></div>
         </div>
-
-        <!-- Linha decorativa pixel inferior -->
-        <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:14px;">
-          <div style="height:3px;width:clamp(30px,5vw,70px);background:#ffd700;"></div>
-          <div style="width:6px;height:6px;background:#ffd700;flex-shrink:0;"></div>
-          <div style="width:3px;height:3px;background:#ffd700;flex-shrink:0;"></div>
-          <div style="width:6px;height:6px;background:#ffd700;flex-shrink:0;"></div>
-          <div style="height:3px;width:clamp(30px,5vw,70px);background:#ffd700;"></div>
+        <div id="spl-sub" style="font-family:'Press Start 2P',monospace;font-size:clamp(8px,1.6vw,20px);color:#ffe97a;letter-spacing:0.26em;text-shadow:1px 1px 0 rgba(100,50,0,0.8);">JOGO DO DINHEIRO</div>
+        <!-- Ornamento inferior -->
+        <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:18px;">
+          <div style="height:1px;width:clamp(40px,6vw,90px);background:linear-gradient(to right,transparent,rgba(255,220,60,0.5));"></div>
+          <div style="width:5px;height:5px;background:rgba(255,233,122,0.5);transform:rotate(45deg);flex-shrink:0;"></div>
+          <div style="width:5px;height:5px;background:rgba(255,233,122,0.5);transform:rotate(45deg);flex-shrink:0;"></div>
+          <div style="height:1px;width:clamp(40px,6vw,90px);background:linear-gradient(to left,transparent,rgba(255,220,60,0.5));"></div>
         </div>
       </div>
 
-      <!-- Painel de menu estilo JRPG dialog box -->
-      <div id="spl-btns" class="rpg-box" style="
-        padding:clamp(18px,2.5vw,32px) clamp(20px,3vw,40px);
-        min-width:clamp(260px,32vw,380px);max-width:420px;width:84vw;
-        animation:sp-enter 0.5s ease-out 0.15s both;
-        display:flex;flex-direction:column;gap:2px;
-        position:relative;
+      <!-- Painel de menu -->
+      <div id="spl-btns" style="
+        background:rgba(4,8,18,0.82);
+        border:1px solid rgba(255,255,255,0.1);
+        border-radius:18px;padding:28px 32px;
+        min-width:clamp(280px,35vw,400px);max-width:440px;width:88vw;
+        backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+        box-shadow:0 12px 50px rgba(0,0,0,0.75),inset 0 1px 0 rgba(255,255,255,0.06);
+        animation:sp-enter 0.7s ease-out 0.1s both;
+        display:flex;flex-direction:column;gap:11px;
       ">
-        <!-- Estrelinhas cantos pixel -->
-        <div style="position:absolute;top:-2px;left:-2px;width:10px;height:10px;background:#0d1117;border-right:4px solid #ffd700;border-bottom:4px solid #ffd700;"></div>
-        <div style="position:absolute;top:-2px;right:-2px;width:10px;height:10px;background:#0d1117;border-left:4px solid #ffd700;border-bottom:4px solid #ffd700;"></div>
-        <div style="position:absolute;bottom:-2px;left:-2px;width:10px;height:10px;background:#0d1117;border-right:4px solid #ffd700;border-top:4px solid #ffd700;"></div>
-        <div style="position:absolute;bottom:-2px;right:-2px;width:10px;height:10px;background:#0d1117;border-left:4px solid #ffd700;border-top:4px solid #ffd700;"></div>
-
-        <button class="sp-btn sp-btn-primary" onclick="var s=document.getElementById('splash');s.style.opacity='0';setTimeout(function(){s.style.display='none';},600);">
-          NOVA PARTIDA</button>
-        <button class="sp-btn" onclick="alert('Em breve!')">
-          CONTINUAR</button>
-        <div class="rpg-sep"></div>
-        <button class="sp-btn" onclick="alert('Em breve!')">
-          LOJA</button>
-        <button class="sp-btn" onclick="document.getElementById('cfg-modal').classList.add('open')">
-          CONFIGURACOES</button>
+        <button class="sp-btn sp-btn-primary" onclick="var s=document.getElementById('splash');s.style.opacity='0';setTimeout(function(){s.style.display='none';},700);"
+          style="font-size:clamp(9px,1.4vw,16px);padding:17px 24px;animation-delay:0s;">
+          START BUSINESS</button>
+        <button class="sp-btn" onclick="alert('Em breve!')"
+          style="font-size:clamp(9px,1.4vw,16px);padding:17px 24px;animation-delay:0.4s;">
+          RETURN BUSINESS</button>
+        <!-- Linha inferior: LOJA + CONFIGURACOES -->
+        <div style="display:flex;gap:10px;margin-top:4px;">
+          <button class="sp-btn" onclick="alert('Em breve!')"
+            style="font-size:clamp(7px,1vw,12px);padding:13px 10px;animation-delay:0.8s;flex:1;">
+            LOJA</button>
+          <button class="sp-btn" onclick="document.getElementById('cfg-modal').classList.add('open')"
+            style="font-size:clamp(7px,1vw,12px);padding:13px 10px;animation-delay:1s;flex:1;">
+            CONFIGURACOES</button>
+        </div>
         <!-- Versão -->
-        <div style="font-family:'Press Start 2P',monospace;font-size:7px;color:rgba(255,215,0,0.25);text-align:right;margin-top:10px;letter-spacing:0.08em;">v0.1 · 2026</div>
+        <div style="font-family:'Press Start 2P',monospace;font-size:8px;color:rgba(255,255,255,0.18);text-align:center;margin-top:6px;letter-spacing:0.1em;">v0.1 &nbsp;·&nbsp; 2026</div>
       </div>
-
-      <!-- Press any key -->
-      <div style="font-family:'Press Start 2P',monospace;font-size:clamp(6px,0.9vw,10px);color:rgba(255,215,0,0.55);margin-top:clamp(20px,3vw,36px);letter-spacing:0.15em;animation:sp-pressfl 1.4s ease-in-out infinite;">PRESSIONE ENTER PARA CONTINUAR</div>
 
     </div>
   </div>
 
   <!-- Modal de dificuldade -->
   <div id="cfg-modal">
-    <div id="cfg-inner" class="rpg-box" style="padding:clamp(24px,3vw,40px) clamp(28px,3.5vw,48px);text-align:left;min-width:280px;max-width:360px;width:80vw;position:relative;">
-      <div style="position:absolute;top:-2px;left:-2px;width:10px;height:10px;background:#0d1117;border-right:4px solid #ffd700;border-bottom:4px solid #ffd700;"></div>
-      <div style="position:absolute;top:-2px;right:-2px;width:10px;height:10px;background:#0d1117;border-left:4px solid #ffd700;border-bottom:4px solid #ffd700;"></div>
-      <div style="position:absolute;bottom:-2px;left:-2px;width:10px;height:10px;background:#0d1117;border-right:4px solid #ffd700;border-top:4px solid #ffd700;"></div>
-      <div style="position:absolute;bottom:-2px;right:-2px;width:10px;height:10px;background:#0d1117;border-left:4px solid #ffd700;border-top:4px solid #ffd700;"></div>
-      <div id="cfg-tit" style="font-family:'Press Start 2P',monospace;font-size:clamp(9px,1.2vw,13px);color:#ffd700;margin-bottom:18px;letter-spacing:0.1em;">CONFIGURACOES</div>
-      <div class="rpg-sep"></div>
-      <div id="cfg-lbl" style="font-family:'Press Start 2P',monospace;font-size:clamp(6px,0.8vw,9px);color:rgba(255,215,0,0.45);margin:14px 0 8px;letter-spacing:0.15em;">DIFICULDADE</div>
-      <div id="cfg-opts" style="display:flex;flex-direction:column;gap:0;">
-        <button class="cfg-opt" onclick="setDiff(this,'easy')">FACIL</button>
-        <button class="cfg-opt" onclick="setDiff(this,'hard')">DIFICIL</button>
-        <button class="cfg-opt" onclick="setDiff(this,'very_hard')">MUITO DIFICIL</button>
+    <div id="cfg-inner" style="background:#0a0a1a;border:4px solid #444;padding:36px 40px;text-align:center;box-shadow:0 0 80px #000;min-width:300px;">
+      <div id="cfg-tit" style="font-family:'Press Start 2P',monospace;font-size:clamp(10px,1.4vw,15px);color:#ffe97a;margin-bottom:24px;letter-spacing:0.1em;">⚙ CONFIGURAÇÕES</div>
+      <div id="cfg-lbl" style="font-family:'Press Start 2P',monospace;font-size:clamp(6px,0.85vw,10px);color:#777;margin-bottom:16px;letter-spacing:0.15em;">DIFICULDADE</div>
+      <div id="cfg-opts">
+        <button class="cfg-opt" onclick="setDiff(this,'easy')">😊 &nbsp;EASY</button>
+        <button class="cfg-opt" onclick="setDiff(this,'hard')">💀 &nbsp;HARD</button>
+        <button class="cfg-opt" onclick="setDiff(this,'very_hard')">☠ &nbsp;VERY HARD</button>
       </div>
-      <div class="rpg-sep" style="margin-top:14px;"></div>
-      <button id="cfg-back" onclick="document.getElementById('cfg-modal').classList.remove('open')" style="font-family:'Press Start 2P',monospace;font-size:clamp(6px,0.8vw,9px);color:rgba(255,215,0,0.5);background:none;border:none;padding:12px 0 0 32px;cursor:pointer;position:relative;letter-spacing:0.05em;transition:color 0.08s;">
-        <span style="position:absolute;left:10px;top:50%;transform:translateY(-10%);color:#ffd700;">&lt;</span>
-        VOLTAR
-      </button>
+      <button id="cfg-back" onclick="document.getElementById('cfg-modal').classList.remove('open')" style="font-family:'Press Start 2P',monospace;font-size:clamp(6px,0.85vw,10px);color:#777;background:none;border:2px solid #333;padding:10px 24px;cursor:pointer;margin-top:28px;">← VOLTAR</button>
     </div>
   </div>
 
   <!-- Menu de pausa (ENTER) -->
-  <div id="pause-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:10001;align-items:center;justify-content:center;background:rgba(0,0,0,0.72);">
-    <div id="pause-inner" class="rpg-box" style="padding:clamp(24px,3vw,40px) clamp(28px,3.5vw,48px);text-align:left;min-width:260px;max-width:340px;width:76vw;position:relative;">
-      <div style="position:absolute;top:-2px;left:-2px;width:10px;height:10px;background:#0d1117;border-right:4px solid #ffd700;border-bottom:4px solid #ffd700;"></div>
-      <div style="position:absolute;top:-2px;right:-2px;width:10px;height:10px;background:#0d1117;border-left:4px solid #ffd700;border-bottom:4px solid #ffd700;"></div>
-      <div style="position:absolute;bottom:-2px;left:-2px;width:10px;height:10px;background:#0d1117;border-right:4px solid #ffd700;border-top:4px solid #ffd700;"></div>
-      <div style="position:absolute;bottom:-2px;right:-2px;width:10px;height:10px;background:#0d1117;border-left:4px solid #ffd700;border-top:4px solid #ffd700;"></div>
-      <div id="pause-tit" style="font-family:'Press Start 2P',monospace;font-size:clamp(10px,1.4vw,15px);color:#ffd700;margin-bottom:16px;letter-spacing:0.12em;">PAUSA</div>
-      <div class="rpg-sep"></div>
-      <div id="pause-opts" style="display:flex;flex-direction:column;gap:0;margin-top:4px;">
+  <div id="pause-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:10001;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);">
+    <div id="pause-inner" style="background:#0a0a1a;border:4px solid rgba(200,200,200,0.5);padding:40px 48px;text-align:center;box-shadow:0 0 80px #000,6px 6px 0 rgba(0,0,0,0.9);min-width:300px;">
+      <div id="pause-tit" style="font-family:'Press Start 2P',monospace;font-size:clamp(11px,1.6vw,18px);color:#fff;margin-bottom:30px;letter-spacing:0.12em;text-shadow:3px 3px 0 #000;">PAUSA</div>
+      <div id="pause-opts">
         <button class="pause-btn cfg-opt" onclick="alert('Em breve!')">SALVAR</button>
         <button class="pause-btn cfg-opt" onclick="document.getElementById('pause-modal').classList.remove('open')">CONTINUAR</button>
-        <button class="pause-btn cfg-opt" onclick="location.reload()">REINICIAR</button>
+        <button class="pause-btn cfg-opt" onclick="location.reload()">RESTAURE</button>
         <button class="pause-btn cfg-opt" onclick="document.getElementById('pause-modal').classList.remove('open');var s=document.getElementById('splash');s.style.display='flex';s.style.opacity='1';">MENU INICIAL</button>
       </div>
     </div>
