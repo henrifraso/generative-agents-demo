@@ -247,7 +247,16 @@
 	                sprite(2240, 1600, "atlas", "down").
 	                setSize(30, 40).
 	                setOffset(0, 0);
-	  player.setDepth(-1);
+	  player.setDepth(1.8);
+	  player.setTint(0x00ddff);
+	  player.displayWidth = 40;
+	  player.scaleY = player.scaleX;
+	  this.physics.add.collider(player, collisionsLayer);
+	  window._playerLabel = this.add.text(2240, 1560, '\u2605 YOU', {
+	    font: 'bold 8px monospace', fill: '#00eeff', stroke: '#001133', strokeThickness: 4
+	  }).setDepth(1.9).setOrigin(0.5, 1);
+	  window._playerDir = 'down';
+	  window._chatOpen = false;
 	  // Setting up the camera.
 	  const camera = this.cameras.main;
 	  camera.startFollow(player);
@@ -336,6 +345,12 @@
 		    frameRate: 4,
 		    repeat: -1 });
 	  }
+
+	  // Animações do jogador (usa atlas de Yuriko com tint ciano)
+	  anims.create({ key:'player-left-walk',  frames:anims.generateFrameNames('atlas',{prefix:'left-walk.' ,start:0,end:3,zeroPad:3}), frameRate:4, repeat:-1 });
+	  anims.create({ key:'player-right-walk', frames:anims.generateFrameNames('atlas',{prefix:'right-walk.',start:0,end:3,zeroPad:3}), frameRate:4, repeat:-1 });
+	  anims.create({ key:'player-down-walk',  frames:anims.generateFrameNames('atlas',{prefix:'down-walk.' ,start:0,end:3,zeroPad:3}), frameRate:4, repeat:-1 });
+	  anims.create({ key:'player-up-walk',    frames:anims.generateFrameNames('atlas',{prefix:'up-walk.'  ,start:0,end:3,zeroPad:3}), frameRate:4, repeat:-1 });
 
 	  // Grid de colisão + grid exterior (mesma iteração, sem custo extra)
 	  var _walkable = [], _extGrid = [];
@@ -557,16 +572,30 @@
 			game_pause();
 		};
 
-	  // *** MOVE CAMERA *** 
-	  // This is where we finish up the camera setting we started in the create() 
-	  // function. We set the movement speed of the camera and wire up the keys to
-	  // map to the actual movement.
-	  const camera_speed = 400;
+	  // *** PLAYER MOVEMENT — setas do teclado, colisão via physics ***
+	  var _pspd = movement_speed * 60;
 	  player.body.setVelocity(0);
-	  if (cursors.left.isDown)  player.body.setVelocityX(-camera_speed);
-	  if (cursors.right.isDown) player.body.setVelocityX(camera_speed);
-	  if (cursors.up.isDown)    player.body.setVelocityY(-camera_speed);
-	  if (cursors.down.isDown)  player.body.setVelocityY(camera_speed);
+	  var _pMoving = false;
+	  if (!window._chatOpen) {
+	    if (cursors.left.isDown) {
+	      player.body.setVelocityX(-_pspd); player.anims.play('player-left-walk', true);
+	      window._playerDir = 'left'; _pMoving = true;
+	    } else if (cursors.right.isDown) {
+	      player.body.setVelocityX(_pspd); player.anims.play('player-right-walk', true);
+	      window._playerDir = 'right'; _pMoving = true;
+	    } else if (cursors.up.isDown) {
+	      player.body.setVelocityY(-_pspd); player.anims.play('player-up-walk', true);
+	      window._playerDir = 'up'; _pMoving = true;
+	    } else if (cursors.down.isDown) {
+	      player.body.setVelocityY(_pspd); player.anims.play('player-down-walk', true);
+	      window._playerDir = 'down'; _pMoving = true;
+	    }
+	    if (!_pMoving) { player.anims.stop(); player.setFrame(window._playerDir); }
+	  }
+	  if (window._playerLabel) {
+	    window._playerLabel.x = player.x;
+	    window._playerLabel.y = player.y - 24;
+	  }
 
 	  // Clones: destino → caminhar → esperar (3-10s) → novo destino
 	  if (window._clones && window._walkable && window._occupied) {
