@@ -76,7 +76,31 @@ Author: Joon Sung Park (joonspk@stanford.edu)
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
     /* ── Splash base ── */
-    #splash { position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;display:flex;align-items:center;justify-content:center;background:#000;transition:opacity 0.8s ease; }
+    #splash { position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;display:flex;align-items:center;justify-content:center;background:#000;transition:opacity 0.8s ease;overflow:hidden; }
+
+    /* ── Nuvens pixel CSS ── */
+    @keyframes cloud-l { from{transform:translateX(110vw)} to{transform:translateX(-320px)} }
+    @keyframes cloud-r { from{transform:translateX(-320px)} to{transform:translateX(110vw)} }
+    .sky-cloud { position:absolute;image-rendering:pixelated;opacity:0.72; }
+    .sky-cloud .cb { position:absolute;background:rgba(240,248,255,0.82); }
+    /* nuvem pequena */
+    .c-sm .b1{width:32px;height:8px;left:8px;top:16px}
+    .c-sm .b2{width:48px;height:8px;left:0;top:8px}
+    .c-sm .b3{width:24px;height:8px;left:12px;top:0}
+    .c-sm .b4{width:56px;height:8px;left:0;top:24px}
+    /* nuvem média */
+    .c-md .b1{width:48px;height:8px;left:16px;top:24px}
+    .c-md .b2{width:72px;height:8px;left:0;top:16px}
+    .c-md .b3{width:56px;height:8px;left:8px;top:8px}
+    .c-md .b4{width:32px;height:8px;left:20px;top:0}
+    .c-md .b5{width:80px;height:8px;left:0;top:32px}
+    /* nuvem grande */
+    .c-lg .b1{width:64px;height:8px;left:24px;top:32px}
+    .c-lg .b2{width:96px;height:8px;left:0;top:24px}
+    .c-lg .b3{width:80px;height:8px;left:8px;top:16px}
+    .c-lg .b4{width:56px;height:8px;left:20px;top:8px}
+    .c-lg .b5{width:32px;height:8px;left:32px;top:0}
+    .c-lg .b6{width:104px;height:8px;left:0;top:40px}
 
     /* ── Animações ── */
     @keyframes sp-float  { 0%,100%{transform:translateY(0)}  50%{transform:translateY(-7px)} }
@@ -115,6 +139,24 @@ Author: Joon Sung Park (joonspk@stanford.edu)
   </style>
 
   <div id="splash" style="background:radial-gradient(ellipse at 50% 40%,rgba(0,0,0,0) 0%,rgba(0,0,0,0.55) 60%,rgba(0,0,0,0.92) 100%),url('/static/assets/splash_bg.jpeg') center/cover no-repeat;">
+
+    <!-- Nuvens pixel animadas no céu -->
+    <div class="sky-cloud c-lg" style="top:4%;animation:cloud-l 55s linear infinite;animation-delay:-12s;">
+      <div class="cb b1"></div><div class="cb b2"></div><div class="cb b3"></div><div class="cb b4"></div><div class="cb b5"></div><div class="cb b6"></div>
+    </div>
+    <div class="sky-cloud c-md" style="top:10%;opacity:0.55;animation:cloud-l 38s linear infinite;animation-delay:-28s;">
+      <div class="cb b1"></div><div class="cb b2"></div><div class="cb b3"></div><div class="cb b4"></div><div class="cb b5"></div>
+    </div>
+    <div class="sky-cloud c-sm" style="top:2%;opacity:0.4;animation:cloud-l 70s linear infinite;animation-delay:-50s;">
+      <div class="cb b1"></div><div class="cb b2"></div><div class="cb b3"></div><div class="cb b4"></div>
+    </div>
+    <div class="sky-cloud c-lg" style="top:14%;opacity:0.35;animation:cloud-l 90s linear infinite;animation-delay:-5s;">
+      <div class="cb b1"></div><div class="cb b2"></div><div class="cb b3"></div><div class="cb b4"></div><div class="cb b5"></div><div class="cb b6"></div>
+    </div>
+    <div class="sky-cloud c-md" style="top:7%;opacity:0.5;animation:cloud-l 48s linear infinite;animation-delay:-18s;">
+      <div class="cb b1"></div><div class="cb b2"></div><div class="cb b3"></div><div class="cb b4"></div><div class="cb b5"></div>
+    </div>
+
     <div id="spl-inner" style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;padding:20px;box-sizing:border-box;padding-top:8vh;">
 
       <!-- Título flutuante -->
