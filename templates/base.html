@@ -76,6 +76,10 @@ Author: Joon Sung Park (joonspk@stanford.edu)
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
     #splash { position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#000;transition:opacity 0.7s ease; }
+    @keyframes sp-glow {
+      0%,100% { text-shadow:0 0 2px rgba(255,255,255,0.2); letter-spacing:0.06em; }
+      50%      { text-shadow:0 0 10px rgba(255,255,255,0.85),0 0 22px rgba(255,255,255,0.3); letter-spacing:0.11em; }
+    }
     .sp-btn {
       font-family:'Press Start 2P',monospace;cursor:pointer;min-width:200px;box-sizing:border-box;
       background:rgba(255,255,255,0.18);border:2px solid rgba(255,255,255,0.65);
@@ -83,11 +87,15 @@ Author: Joon Sung Park (joonspk@stanford.edu)
       backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
       box-shadow:0 3px 14px rgba(0,0,0,0.45),inset 0 1px 0 rgba(255,255,255,0.25);
       transition:transform 0.1s,background 0.12s,border-color 0.12s,box-shadow 0.12s;
+      animation:sp-glow 2.8s ease-in-out infinite;
     }
+    .sp-btn:nth-child(2) { animation-delay:0.6s; }
+    .sp-btn:nth-child(3) { animation-delay:1.2s; }
     .sp-btn:hover {
       transform:scale(1.06);background:rgba(255,255,255,0.3);
       border-color:rgba(255,255,255,0.95);
       box-shadow:0 4px 20px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.35);
+      animation:none;text-shadow:0 0 14px rgba(255,255,255,0.9),0 0 28px rgba(255,255,255,0.4);
     }
     #cfg-modal { display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:10000;align-items:center;justify-content:center; }
     #cfg-modal.open { display:flex; }
@@ -105,7 +113,7 @@ Author: Joon Sung Park (joonspk@stanford.edu)
   <div id="splash" style="background:linear-gradient(to bottom,rgba(0,0,0,0.08) 0%,rgba(0,0,0,0.52) 44%,rgba(0,0,0,0.92) 100%),url('/static/assets/splash_bg.jpeg') center/cover no-repeat;justify-content:flex-start;">
     <div id="spl-inner" style="text-align:center;padding:0 20px;margin-top:14vh;">
       <div id="spl-title" style="font-family:'Press Start 2P',monospace;font-size:clamp(20px,4.6vw,64px);color:#fff;line-height:1.35;letter-spacing:0.03em;margin-bottom:14px;text-shadow:4px 4px 0 #1a3a00,7px 7px 0 #000;">THE BUSINESS GAME</div>
-      <div id="spl-sub" style="font-family:'Press Start 2P',monospace;font-size:clamp(10px,1.9vw,24px);color:#ffe97a;letter-spacing:0.32em;margin-bottom:clamp(80px,15vw,160px);text-shadow:2px 2px 0 #7a5000,3px 3px 0 #000;">STARTUPS</div>
+      <div id="spl-sub" style="font-family:'Press Start 2P',monospace;font-size:clamp(10px,1.9vw,24px);color:#ffe97a;letter-spacing:0.32em;margin-bottom:clamp(100px,19vw,200px);text-shadow:2px 2px 0 #7a5000,3px 3px 0 #000;">STARTUPS</div>
       <div id="spl-btns">
         <button class="sp-btn" onclick="alert('Em breve!')" style="font-size:clamp(8px,1.1vw,14px);padding:16px 34px;">LOJA</button>
         <button class="sp-btn" onclick="var s=document.getElementById('splash');s.style.opacity='0';setTimeout(function(){s.style.display='none';},700);" style="font-size:clamp(10px,1.6vw,18px);padding:20px 48px;background:rgba(255,255,255,0.26);border-color:rgba(255,255,255,0.88);">START BUSINESS</button>
