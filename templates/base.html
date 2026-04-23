@@ -117,6 +117,7 @@ Author: Joon Sung Park (joonspk@stanford.edu)
       <div id="spl-btns">
         <button class="sp-btn" onclick="alert('Em breve!')" style="font-size:clamp(8px,1.1vw,14px);padding:16px 34px;">LOJA</button>
         <button class="sp-btn" onclick="var s=document.getElementById('splash');s.style.opacity='0';setTimeout(function(){s.style.display='none';},700);" style="font-size:clamp(10px,1.6vw,18px);padding:20px 48px;background:rgba(255,255,255,0.26);border-color:rgba(255,255,255,0.88);">START BUSINESS</button>
+        <button class="sp-btn" onclick="alert('Em breve!')" style="font-size:clamp(10px,1.6vw,18px);padding:20px 48px;background:rgba(255,255,255,0.26);border-color:rgba(255,255,255,0.88);">RETURN BUSINESS</button>
         <button class="sp-btn" onclick="document.getElementById('cfg-modal').classList.add('open')" style="font-size:clamp(8px,1.1vw,14px);padding:16px 34px;">CONFIGURACOES</button>
       </div>
     </div>
@@ -143,6 +144,7 @@ Author: Joon Sung Park (joonspk@stanford.edu)
       <div id="pause-opts">
         <button class="pause-btn cfg-opt" onclick="alert('Em breve!')">SALVAR</button>
         <button class="pause-btn cfg-opt" onclick="document.getElementById('pause-modal').classList.remove('open')">CONTINUAR</button>
+        <button class="pause-btn cfg-opt" onclick="location.reload()">RESTAURE</button>
         <button class="pause-btn cfg-opt" onclick="document.getElementById('pause-modal').classList.remove('open');var s=document.getElementById('splash');s.style.display='flex';s.style.opacity='1';">MENU INICIAL</button>
       </div>
     </div>
