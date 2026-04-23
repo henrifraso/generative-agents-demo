@@ -239,19 +239,12 @@ Author: Joon Sung Park (joonspk@stanford.edu)
         if (e.key === ' ' || e.key === 'Escape') { e.preventDefault(); window._closeChat(); }
         return;
       }
-      // Tecla A — abrir chat com NPC mais próximo
+      // Tecla A — abrir chat (sem checar distância por enquanto)
       if (e.key === 'a' || e.key === 'A') {
         var splash2 = document.getElementById('splash');
         if (splash2 && splash2.style.display !== 'none') return;
-        if (typeof personas !== 'undefined' && typeof player !== 'undefined') {
-          var closest = null, minDist = 200;
-          for (var pn in personas) {
-            var pp = personas[pn];
-            var dist = Math.hypot(player.x - pp.x, player.y - pp.y);
-            if (dist < minDist) { minDist = dist; closest = pn; }
-          }
-          if (closest) window._openChat(closest);
-        }
+        var pnames = (typeof personas !== 'undefined') ? Object.keys(personas) : [];
+        if (pnames.length > 0) window._openChat(pnames[0]);
         return;
       }
 
