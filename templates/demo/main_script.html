@@ -707,16 +707,17 @@
 
     	// Fase 3: NPC em modo seguir — override do movimento normal
     	if (window._following && window._following[curr_persona_name]) {
-    	  var _fspd = movement_speed;
+    	  var _fStop = 48; // distância de parada (1.5 tiles)
     	  var _ftx = player.x - curr_persona.x;
     	  var _fty = player.y - curr_persona.y;
     	  var _fdist = Math.sqrt(_ftx*_ftx + _fty*_fty);
-    	  if (_fdist > 40) {
+    	  if (_fdist > _fStop) {
+    	    var _fstep = Math.min(movement_speed, _fdist - _fStop); // nunca ultrapassa
     	    if (Math.abs(_ftx) >= Math.abs(_fty)) {
-    	      curr_persona.body.x += _ftx > 0 ? _fspd : -_fspd;
+    	      curr_persona.body.x += _ftx > 0 ? _fstep : -_fstep;
     	      curr_persona.anims.play(curr_persona_name + (_ftx > 0 ? '-right-walk' : '-left-walk'), true);
     	    } else {
-    	      curr_persona.body.y += _fty > 0 ? _fspd : -_fspd;
+    	      curr_persona.body.y += _fty > 0 ? _fstep : -_fstep;
     	      curr_persona.anims.play(curr_persona_name + (_fty > 0 ? '-down-walk' : '-up-walk'), true);
     	    }
     	  } else {
