@@ -207,7 +207,7 @@ Author: Joon Sung Park (joonspk@stanford.edu)
           <div style="width:4px;height:4px;background:rgba(255,233,122,0.7);transform:rotate(45deg);flex-shrink:0;"></div>
           <div style="height:1px;width:clamp(50px,8vw,120px);background:rgba(255,233,122,0.35);"></div>
         </div>
-        <div id="spl-em" style="font-family:'Press Start 2P',monospace;font-size:clamp(8px,1vw,13px);color:rgba(255,233,122,0.75);letter-spacing:0.3em;margin-bottom:8px;">em</div>
+        <span id="spl-em" style="display:inline-block;font-family:'Press Start 2P',monospace;font-size:clamp(8px,1vw,13px);color:rgba(255,233,122,0.75);letter-spacing:0.3em;margin-bottom:8px;">em</span>
         <div id="spl-sub" style="font-family:'Press Start 2P',monospace;font-size:clamp(8px,1.5vw,18px);color:#ffe97a;letter-spacing:0.18em;text-shadow:1px 1px 0 rgba(100,50,0,0.8);">A MAQUINA DE IMPRIMIR DINHEIRO</div>
         <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:18px;">
           <div style="height:1px;width:clamp(40px,6vw,90px);background:linear-gradient(to right,transparent,rgba(255,220,60,0.5));"></div>
@@ -455,10 +455,18 @@ Author: Joon Sung Park (joonspk@stanford.edu)
       c.style.transform = 'translate(calc(-50% + ' + _ox + 'px), calc(-50% + ' + _oy + 'px)) scale(' + _s + ')';
     }
 
+    function _getSAB() {
+      var el = document.createElement('div');
+      el.style.cssText = 'position:fixed;bottom:0;left:0;width:1px;height:env(safe-area-inset-bottom,0px);pointer-events:none;visibility:hidden;';
+      document.body.appendChild(el);
+      var h = el.offsetHeight;
+      document.body.removeChild(el);
+      return h;
+    }
     function fitCanvas() {
       var c = document.querySelector('#game-container canvas');
       if (!c) { setTimeout(fitCanvas, 300); return; }
-      var sab = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sab')) || 0;
+      var sab = _getSAB();
       var vw = window.innerWidth;
       var vh = window.innerHeight + sab;
       _sMin = Math.max(vw / c.offsetWidth, vh / c.offsetHeight);
