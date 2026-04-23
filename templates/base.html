@@ -21,12 +21,19 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     hr, .media, h2, h3, p,
     [style*="margin-top:10em"] { display: none !important; }
 
-    /* Exceções: splash e modal de config */
-    #splash, #cfg-modal.open { display: flex !important; }
-    #splash > div, #cfg-modal > div { display: block !important; }
-    #splash > div > div, #cfg-modal > div > div { display: flex !important; }
-    #splash > div > div > button, #cfg-modal > div > div > button { display: inline-block !important; }
-    #splash > div > div.sp-row > * { display: inline-block !important; }
+    /* Splash — duplo ID: especificidade (2,0,0) > regra hide (1,0,3) */
+    #splash { display: flex !important; }
+    #splash #spl-inner { display: block !important; }
+    #splash #spl-title { display: block !important; }
+    #splash #spl-sub   { display: block !important; }
+    #splash #spl-btns  { display: flex !important; flex-direction:column; align-items:center; gap:14px; }
+    /* Modal */
+    #cfg-modal.open { display: flex !important; }
+    #cfg-modal #cfg-inner { display: block !important; }
+    #cfg-modal #cfg-tit  { display: block !important; }
+    #cfg-modal #cfg-lbl  { display: block !important; }
+    #cfg-modal #cfg-opts { display: flex !important; flex-direction:column; align-items:center; gap:12px; }
+    #cfg-modal #cfg-back { display: inline-block !important; }
 
     /* Tela cheia */
     html, body { margin:0; padding:0; background:#000; overflow:hidden; width:100%; height:100%; }
@@ -72,50 +79,32 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     .cfg-opt:hover,.cfg-opt.active { background:#2a2a5e;border-color:#7fa0ff; }
   </style>
 
-  <!-- Modal de dificuldade -->
-  <div id="cfg-modal">
-    <div style="background:#0a0a1a;border:4px solid #444;padding:36px 40px;text-align:center;box-shadow:0 0 60px #000;min-width:320px;">
-      <div style="font-family:'Press Start 2P',monospace;font-size:clamp(10px,1.5vw,16px);color:#ffe97a;margin-bottom:28px;letter-spacing:0.1em;">⚙ CONFIGURAÇÕES</div>
-      <div style="font-family:'Press Start 2P',monospace;font-size:clamp(7px,0.9vw,11px);color:#aaa;margin-bottom:18px;letter-spacing:0.1em;">DIFICULDADE</div>
-      <div style="display:flex;flex-direction:column;gap:12px;align-items:center;">
-        <button class="cfg-opt" onclick="setDiff(this,'easy')">😊 &nbsp;EASY</button>
-        <button class="cfg-opt" onclick="setDiff(this,'hard')">💀 &nbsp;HARD</button>
-        <button class="cfg-opt" onclick="setDiff(this,'very_hard')">☠ &nbsp;VERY HARD</button>
-      </div>
-      <div style="margin-top:28px;">
-        <button onclick="document.getElementById('cfg-modal').classList.remove('open')"
-          style="font-family:'Press Start 2P',monospace;font-size:clamp(7px,0.9vw,11px);color:#888;background:none;border:2px solid #333;padding:10px 24px;cursor:pointer;">
-          ← VOLTAR</button>
+  <div id="splash" style="background:linear-gradient(to bottom,rgba(0,0,0,0.08) 0%,rgba(0,0,0,0.52) 44%,rgba(0,0,0,0.92) 100%),url('/static/assets/splash_bg.jpeg') center/cover no-repeat;">
+    <div id="spl-inner" style="text-align:center;padding:0 20px;">
+      <div id="spl-title" style="font-family:'Press Start 2P',monospace;font-size:clamp(16px,3.8vw,52px);color:#fff;line-height:1.35;letter-spacing:0.03em;margin-bottom:12px;text-shadow:4px 4px 0 #1a3a00,7px 7px 0 #000;">THE BUSINESS GAME</div>
+      <div id="spl-sub" style="font-family:'Press Start 2P',monospace;font-size:clamp(8px,1.5vw,19px);color:#ffe97a;letter-spacing:0.32em;margin-bottom:clamp(32px,5vw,64px);text-shadow:2px 2px 0 #7a5000,3px 3px 0 #000;">STARTUPS</div>
+      <div id="spl-btns">
+        <button class="sp-btn" onclick="var s=document.getElementById('splash');s.style.opacity='0';setTimeout(function(){s.style.display='none';},700);" style="font-size:clamp(8px,1.3vw,15px);color:#fff;background:#2a6e00;border:3px solid #7fff40;padding:15px 32px;box-shadow:4px 4px 0 #003300,inset 0 0 0 2px #4aaa00;" onmouseover="this.style.background='#3a9e00'" onmouseout="this.style.background='#2a6e00'">▶ &nbsp;START BUSINESS GAME</button>
+        <button class="sp-btn" style="font-size:clamp(7px,1vw,13px);color:#555;background:#0d0d0d;border:3px solid #252525;padding:12px 32px;opacity:0.55;cursor:default;">🛒 &nbsp;LOJA</button>
+        <button class="sp-btn" onclick="document.getElementById('cfg-modal').classList.add('open')" style="font-size:clamp(7px,1vw,13px);color:#bbb;background:#111;border:3px solid #444;padding:12px 32px;box-shadow:3px 3px 0 #000;" onmouseover="this.style.background='#222'" onmouseout="this.style.background='#111'">⚙ &nbsp;CONFIGURAÇÕES</button>
       </div>
     </div>
   </div>
 
-  <div id="splash" style="
-    background: linear-gradient(to bottom,rgba(0,0,0,0.1) 0%,rgba(0,0,0,0.55) 46%,rgba(0,0,0,0.88) 100%),
-                url('/static/assets/splash_bg.jpeg') center/cover no-repeat;
-  ">
-    <div style="text-align:center;padding:0 20px;">
-      <div style="font-family:'Press Start 2P',monospace;font-size:clamp(16px,3.8vw,52px);
-        color:#fff;line-height:1.35;letter-spacing:0.03em;margin-bottom:12px;
-        text-shadow:4px 4px 0 #1a3a00,7px 7px 0 #000;">THE BUSINESS GAME</div>
-      <div style="font-family:'Press Start 2P',monospace;font-size:clamp(8px,1.5vw,19px);
-        color:#ffe97a;letter-spacing:0.32em;margin-bottom:clamp(32px,5vw,64px);
-        text-shadow:2px 2px 0 #7a5000,3px 3px 0 #000;">STARTUPS</div>
-      <div style="flex-direction:column;align-items:center;gap:14px;">
-        <button class="sp-btn" onclick="var s=document.getElementById('splash');s.style.opacity='0';setTimeout(function(){s.style.display='none';},700);"
-          style="font-size:clamp(8px,1.3vw,15px);color:#fff;background:#2a6e00;border:3px solid #7fff40;padding:15px 32px;margin-bottom:14px;box-shadow:4px 4px 0 #003300,inset 0 0 0 2px #4aaa00;"
-          onmouseover="this.style.background='#3a9e00'" onmouseout="this.style.background='#2a6e00'">
-          ▶ &nbsp;START BUSINESS GAME</button>
-        <button class="sp-btn"
-          style="font-size:clamp(7px,1vw,13px);color:#666;background:#111;border:3px solid #333;padding:12px 32px;margin-bottom:14px;box-shadow:3px 3px 0 #000;opacity:0.6;cursor:default;">
-          🛒 &nbsp;LOJA</button>
-        <button class="sp-btn" onclick="document.getElementById('cfg-modal').classList.add('open')"
-          style="font-size:clamp(7px,1vw,13px);color:#bbb;background:#111;border:3px solid #444;padding:12px 32px;box-shadow:3px 3px 0 #000;"
-          onmouseover="this.style.background='#222'" onmouseout="this.style.background='#111'">
-          ⚙ &nbsp;CONFIGURAÇÕES</button>
+  <!-- Modal de dificuldade -->
+  <div id="cfg-modal">
+    <div id="cfg-inner" style="background:#0a0a1a;border:4px solid #444;padding:36px 40px;text-align:center;box-shadow:0 0 80px #000;min-width:300px;">
+      <div id="cfg-tit" style="font-family:'Press Start 2P',monospace;font-size:clamp(10px,1.4vw,15px);color:#ffe97a;margin-bottom:24px;letter-spacing:0.1em;">⚙ CONFIGURAÇÕES</div>
+      <div id="cfg-lbl" style="font-family:'Press Start 2P',monospace;font-size:clamp(6px,0.85vw,10px);color:#777;margin-bottom:16px;letter-spacing:0.15em;">DIFICULDADE</div>
+      <div id="cfg-opts">
+        <button class="cfg-opt" onclick="setDiff(this,'easy')">😊 &nbsp;EASY</button>
+        <button class="cfg-opt" onclick="setDiff(this,'hard')">💀 &nbsp;HARD</button>
+        <button class="cfg-opt" onclick="setDiff(this,'very_hard')">☠ &nbsp;VERY HARD</button>
       </div>
+      <button id="cfg-back" onclick="document.getElementById('cfg-modal').classList.remove('open')" style="font-family:'Press Start 2P',monospace;font-size:clamp(6px,0.85vw,10px);color:#777;background:none;border:2px solid #333;padding:10px 24px;cursor:pointer;margin-top:28px;">← VOLTAR</button>
     </div>
   </div>
+
   <script>
     window._difficulty = 'easy';
     function setDiff(btn, d) {
