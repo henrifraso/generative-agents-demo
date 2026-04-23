@@ -26,7 +26,9 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     #splash #spl-inner { display: block !important; }
     #splash #spl-title { display: block !important; }
     #splash #spl-sub   { display: block !important; }
-    #splash #spl-btns  { display: flex !important; flex-direction:row; align-items:center; justify-content:center; gap:16px; flex-wrap:wrap; }
+    #splash #spl-btns  { display: flex !important; flex-direction:column; align-items:center; justify-content:center; gap:14px; }
+    #splash .sky-cloud { display:block !important; }
+    #splash .sky-cloud .cb { display:block !important; position:absolute !important; }
     /* Modal config */
     #cfg-modal.open { display: flex !important; }
     #cfg-modal #cfg-inner { display: block !important; }
@@ -187,13 +189,13 @@ Author: Joon Sung Park (joonspk@stanford.edu)
       <!-- Botões soltos, sem painel -->
       <div id="spl-btns" style="display:flex;flex-direction:column;align-items:center;gap:14px;animation:sp-enter 0.6s ease-out 0.15s both;">
         <button class="sp-btn sp-btn-primary" onclick="var s=document.getElementById('splash');s.style.opacity='0';setTimeout(function(){s.style.display='none';},600);"
-          style="font-size:clamp(11px,1.6vw,18px);padding:20px 0;width:clamp(280px,34vw,400px);">
+          style="font-size:clamp(13px,1.9vw,22px);padding:22px 0;width:clamp(300px,38vw,460px);">
           NOVA PARTIDA</button>
         <button class="sp-btn" onclick="alert('Em breve!')"
-          style="font-size:clamp(11px,1.6vw,18px);padding:20px 0;width:clamp(280px,34vw,400px);">
+          style="font-size:clamp(13px,1.9vw,22px);padding:22px 0;width:clamp(300px,38vw,460px);">
           CONTINUAR</button>
         <button class="sp-btn" onclick="document.getElementById('cfg-modal').classList.add('open')"
-          style="font-size:clamp(9px,1.2vw,14px);padding:16px 0;width:clamp(280px,34vw,400px);">
+          style="font-size:clamp(10px,1.4vw,16px);padding:18px 0;width:clamp(300px,38vw,460px);">
           CONFIGURACOES</button>
         <div style="font-family:'Press Start 2P',monospace;font-size:7px;color:rgba(255,220,60,0.18);letter-spacing:0.1em;margin-top:6px;">v0.1 · 2026</div>
       </div>
