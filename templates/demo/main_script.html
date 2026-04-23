@@ -266,6 +266,23 @@
 	  camera.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
 	  cursors = this.input.keyboard.createCursorKeys();
 
+	  // Tecla A — iniciar conversa com NPC mais próximo (≤ 2 tiles = 64px)
+	  this.input.keyboard.on('keydown-A', function() {
+	    if (window._chatOpen) return;
+	    var closest = null, minDist = 65;
+	    for (var pn in personas) {
+	      var p = personas[pn];
+	      var dist = Math.sqrt(Math.pow(player.x - p.x, 2) + Math.pow(player.y - p.y, 2));
+	      if (dist < minDist) { minDist = dist; closest = pn; }
+	    }
+	    if (closest && window._openChat) window._openChat(closest);
+	  });
+
+	  // Tecla Espaço — fechar chat se aberto (fases seguintes: cancelador universal)
+	  this.input.keyboard.on('keydown-SPACE', function() {
+	    if (window._chatOpen && window._closeChat) { window._closeChat(); }
+	  });
+
 	  // Zoom com scroll do mouse
 	  this.input.on('wheel', function(pointer, gameObjects, deltaX, deltaY) {
 	    var newZoom = camera.zoom - deltaY * 0.001;
