@@ -42,6 +42,7 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     #splash #spl-inner { display: flex !important; }
     #splash #spl-title { display: block !important; }
     #splash #spl-sub   { display: block !important; }
+    #splash #spl-em    { display: block !important; }
     #splash #spl-btns  { display: flex !important; flex-direction:column; align-items:center; justify-content:center; gap:14px; }
     #splash #spl-btns button { display:block !important; cursor:pointer; }
     #splash .sky-cloud { display:block !important; }
@@ -62,6 +63,7 @@ Author: Joon Sung Park (joonspk@stanford.edu)
 
     /* Tela cheia */
     html, body { margin:0; padding:0; background:#000; overflow:hidden; width:100%; height:100%; }
+    :root { --sab: env(safe-area-inset-bottom, 0px); }
     body > div { margin:0 !important; padding:0 !important; }
     #game-container {
       position:fixed; top:0; left:0; right:0;
@@ -205,7 +207,7 @@ Author: Joon Sung Park (joonspk@stanford.edu)
           <div style="width:4px;height:4px;background:rgba(255,233,122,0.7);transform:rotate(45deg);flex-shrink:0;"></div>
           <div style="height:1px;width:clamp(50px,8vw,120px);background:rgba(255,233,122,0.35);"></div>
         </div>
-        <div style="font-family:'Press Start 2P',monospace;font-size:clamp(6px,0.85vw,11px);color:rgba(255,233,122,0.55);letter-spacing:0.3em;margin-bottom:6px;">em</div>
+        <div id="spl-em" style="font-family:'Press Start 2P',monospace;font-size:clamp(8px,1vw,13px);color:rgba(255,233,122,0.75);letter-spacing:0.3em;margin-bottom:8px;">em</div>
         <div id="spl-sub" style="font-family:'Press Start 2P',monospace;font-size:clamp(8px,1.5vw,18px);color:#ffe97a;letter-spacing:0.18em;text-shadow:1px 1px 0 rgba(100,50,0,0.8);">A MAQUINA DE IMPRIMIR DINHEIRO</div>
         <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:18px;">
           <div style="height:1px;width:clamp(40px,6vw,90px);background:linear-gradient(to right,transparent,rgba(255,220,60,0.5));"></div>
@@ -456,7 +458,10 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     function fitCanvas() {
       var c = document.querySelector('#game-container canvas');
       if (!c) { setTimeout(fitCanvas, 300); return; }
-      _sMin = Math.max(window.innerWidth / c.offsetWidth, window.innerHeight / c.offsetHeight);
+      var sab = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sab')) || 0;
+      var vw = window.innerWidth;
+      var vh = window.innerHeight + sab;
+      _sMin = Math.max(vw / c.offsetWidth, vh / c.offsetHeight);
       if (_s < _sMin) _s = _sMin;
       _apply();
     }
