@@ -251,11 +251,14 @@
 	  player.setTint(0x000000);
 	  player.displayWidth = 40;
 	  player.scaleY = player.scaleX;
-	  this.physics.add.collider(player, collisionsLayer);
+	  // sem physics collider — colisão manual via _walkable (tile-a-tile)
 	  window._playerLabel = this.add.text(2240, 1560, '\u2605 YOU', {
-	    font: 'bold 8px monospace', fill: '#00eeff', stroke: '#001133', strokeThickness: 4
+	    font: 'bold 8px monospace', fill: '#ffffff', stroke: '#000000', strokeThickness: 4
 	  }).setDepth(1.9).setOrigin(0.5, 1);
 	  window._playerDir = 'down';
+	  window._playerTX = 70; window._playerTY = 50;
+	  window._playerTargPX = 70*32+16; window._playerTargPY = 50*32+16;
+	  window._playerMoving = false;
 	  window._chatOpen = false;
 	  // Setting up the camera.
 	  const camera = this.cameras.main;
@@ -572,25 +575,38 @@
 			game_pause();
 		};
 
-	  // *** PLAYER MOVEMENT — setas do teclado, colisão via physics ***
-	  var _pspd = movement_speed * 60;
+	  // *** PLAYER MOVEMENT — tile-a-tile com _walkable (igual clones) ***
 	  player.body.setVelocity(0);
-	  var _pMoving = false;
-	  if (!window._chatOpen) {
-	    if (cursors.left.isDown) {
-	      player.body.setVelocityX(-_pspd); player.anims.play('player-left-walk', true);
-	      window._playerDir = 'left'; _pMoving = true;
-	    } else if (cursors.right.isDown) {
-	      player.body.setVelocityX(_pspd); player.anims.play('player-right-walk', true);
-	      window._playerDir = 'right'; _pMoving = true;
-	    } else if (cursors.up.isDown) {
-	      player.body.setVelocityY(-_pspd); player.anims.play('player-up-walk', true);
-	      window._playerDir = 'up'; _pMoving = true;
-	    } else if (cursors.down.isDown) {
-	      player.body.setVelocityY(_pspd); player.anims.play('player-down-walk', true);
-	      window._playerDir = 'down'; _pMoving = true;
+	  if (!window._chatOpen && window._walkable) {
+	    if (!window._playerMoving) {
+	      var _pdx=0,_pdy=0,_pdir=window._playerDir;
+	      if      (cursors.left.isDown)  { _pdx=-1; _pdir='left'; }
+	      else if (cursors.right.isDown) { _pdx= 1; _pdir='right'; }
+	      else if (cursors.up.isDown)    { _pdy=-1; _pdir='up'; }
+	      else if (cursors.down.isDown)  { _pdy= 1; _pdir='down'; }
+	      window._playerDir = _pdir;
+	      if (_pdx!==0||_pdy!==0) {
+	        var _ntx=window._playerTX+_pdx, _nty=window._playerTY+_pdy;
+	        if (_ntx>=0&&_ntx<140&&_nty>=0&&_nty<100&&window._walkable[_nty][_ntx]) {
+	          window._playerTX=_ntx; window._playerTY=_nty;
+	          window._playerTargPX=_ntx*32+16; window._playerTargPY=_nty*32+16;
+	          window._playerMoving=true;
+	          player.anims.play('player-'+_pdir+'-walk',true);
+	        } else { player.anims.stop(); player.setFrame(_pdir); }
+	      } else { player.anims.stop(); player.setFrame(window._playerDir); }
 	    }
-	    if (!_pMoving) { player.anims.stop(); player.setFrame(window._playerDir); }
+	    if (window._playerMoving) {
+	      var _mspd=movement_speed;
+	      var _dx=window._playerTargPX-player.x, _dy=window._playerTargPY-player.y;
+	      if (Math.abs(_dx)<=_mspd&&Math.abs(_dy)<=_mspd) {
+	        player.body.reset(window._playerTargPX,window._playerTargPY);
+	        window._playerMoving=false;
+	      } else if (Math.abs(_dx)>=Math.abs(_dy)) {
+	        player.body.reset(player.x+(_dx>0?_mspd:-_mspd), player.y);
+	      } else {
+	        player.body.reset(player.x, player.y+(_dy>0?_mspd:-_mspd));
+	      }
+	    }
 	  }
 	  if (window._playerLabel) {
 	    window._playerLabel.x = player.x;
