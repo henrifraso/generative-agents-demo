@@ -38,8 +38,9 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     #cfg-modal #cfg-back { display: inline-block !important; }
     /* Menu pausa (ENTER) */
     #pause-modal.open { display: flex !important; }
-    #pause-modal #pause-inner { display: block !important; }
+    #pause-modal #pause-inner { display: flex !important; flex-direction:column; align-items:center; }
     #pause-modal #pause-tit  { display: block !important; }
+    #pause-modal #pause-opts { display: flex !important; flex-direction:column; align-items:center; gap:14px; }
     #pause-modal #pause-opts { display: flex !important; flex-direction:column; align-items:center; gap:12px; }
 
     /* Tela cheia */
@@ -218,14 +219,25 @@ Author: Joon Sung Park (joonspk@stanford.edu)
   </div>
 
   <!-- Menu de pausa (ENTER) -->
-  <div id="pause-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:10001;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);">
-    <div id="pause-inner" style="background:#0a0a1a;border:4px solid rgba(200,200,200,0.5);padding:40px 48px;text-align:center;box-shadow:0 0 80px #000,6px 6px 0 rgba(0,0,0,0.9);min-width:300px;">
-      <div id="pause-tit" style="font-family:'Press Start 2P',monospace;font-size:clamp(11px,1.6vw,18px);color:#fff;margin-bottom:30px;letter-spacing:0.12em;text-shadow:3px 3px 0 #000;">PAUSA</div>
+  <div id="pause-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:10001;align-items:center;justify-content:center;background:rgba(0,0,0,0.72);">
+    <div id="pause-inner" style="text-align:center;">
+      <!-- Título estilo splash -->
+      <div id="pause-tit" style="font-family:'Press Start 2P',monospace;font-size:clamp(16px,3.5vw,44px);color:#fff;letter-spacing:0.03em;text-shadow:3px 3px 0 rgba(20,60,5,0.9),6px 6px 0 rgba(0,0,0,0.55);margin-bottom:10px;">PAUSA</div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:clamp(24px,4vw,40px);">
+        <div style="height:1px;width:clamp(40px,6vw,80px);background:rgba(255,233,122,0.4);"></div>
+        <div style="width:4px;height:4px;background:rgba(255,233,122,0.7);transform:rotate(45deg);flex-shrink:0;"></div>
+        <div style="height:1px;width:clamp(40px,6vw,80px);background:rgba(255,233,122,0.4);"></div>
+      </div>
+      <!-- Botões estilo splash -->
       <div id="pause-opts">
-        <button class="pause-btn cfg-opt" onclick="alert('Em breve!')">SALVAR</button>
-        <button class="pause-btn cfg-opt" onclick="document.getElementById('pause-modal').classList.remove('open')">CONTINUAR</button>
-        <button class="pause-btn cfg-opt" onclick="location.reload()">RESTAURE</button>
-        <button class="pause-btn cfg-opt" onclick="document.getElementById('pause-modal').classList.remove('open');var s=document.getElementById('splash');s.style.display='flex';s.style.opacity='1';">MENU INICIAL</button>
+        <button class="sp-btn sp-btn-primary" onclick="document.getElementById('pause-modal').classList.remove('open')"
+          style="font-size:clamp(13px,1.9vw,22px);padding:22px 0;width:clamp(300px,38vw,460px);">CONTINUAR</button>
+        <button class="sp-btn" onclick="alert('Em breve!')"
+          style="font-size:clamp(13px,1.9vw,22px);padding:22px 0;width:clamp(300px,38vw,460px);">SALVAR</button>
+        <button class="sp-btn" onclick="document.getElementById('pause-modal').classList.remove('open');var s=document.getElementById('splash');s.style.display='flex';s.style.opacity='1';"
+          style="font-size:clamp(10px,1.4vw,16px);padding:18px 0;width:clamp(300px,38vw,460px);">MENU INICIAL</button>
+        <button class="sp-btn" onclick="location.reload()"
+          style="font-size:clamp(10px,1.4vw,16px);padding:18px 0;width:clamp(300px,38vw,460px);">REINICIAR</button>
       </div>
     </div>
   </div>
