@@ -18,14 +18,26 @@ from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
 from django.shortcuts import redirect
+from django.http import FileResponse, HttpResponse
+import os
 
 from translator import views as translator_views
+
+def serve_sw(request):
+    path = os.path.join(settings.STATIC_ROOT, 'sw.js')
+    return FileResponse(open(path, 'rb'), content_type='application/javascript')
+
+def serve_manifest(request):
+    path = os.path.join(settings.STATIC_ROOT, 'manifest.json')
+    return FileResponse(open(path, 'rb'), content_type='application/manifest+json')
 
 SIM  = 'July1_the_ville_isabella_maria_klaus-step-3-20'
 STEP = '1'
 SPEED = '3'
 
 urlpatterns = [
+    url(r'^sw\.js$', serve_sw, name='sw'),
+    url(r'^manifest\.json$', serve_manifest, name='manifest'),
     url(r'^$', lambda req: redirect(f'/demo/{SIM}/{STEP}/{SPEED}/'), name='landing'),
     url(r'^simulator_home$', translator_views.home, name='home'),
     url(r'^demo/(?P<sim_code>[\w-]+)/(?P<step>[\w-]+)/(?P<play_speed>[\w-]+)/$', translator_views.demo, name='demo'),
