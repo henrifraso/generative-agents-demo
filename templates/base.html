@@ -26,7 +26,7 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     #splash #spl-inner { display: block !important; }
     #splash #spl-title { display: block !important; }
     #splash #spl-sub   { display: block !important; }
-    #splash #spl-btns  { display: flex !important; flex-direction:column; align-items:center; gap:14px; }
+    #splash #spl-btns  { display: flex !important; flex-direction:row; align-items:center; justify-content:center; gap:16px; flex-wrap:wrap; }
     /* Modal */
     #cfg-modal.open { display: flex !important; }
     #cfg-modal #cfg-inner { display: block !important; }
@@ -79,14 +79,23 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     .cfg-opt:hover,.cfg-opt.active { background:#2a2a5e;border-color:#7fa0ff; }
   </style>
 
-  <div id="splash" style="background:linear-gradient(to bottom,rgba(0,0,0,0.08) 0%,rgba(0,0,0,0.52) 44%,rgba(0,0,0,0.92) 100%),url('/static/assets/splash_bg.jpeg') center/cover no-repeat;">
-    <div id="spl-inner" style="text-align:center;padding:0 20px;">
+  <div id="splash" style="background:linear-gradient(to bottom,rgba(0,0,0,0.08) 0%,rgba(0,0,0,0.52) 44%,rgba(0,0,0,0.92) 100%),url('/static/assets/splash_bg.jpeg') center/cover no-repeat;justify-content:flex-start;">
+    <div id="spl-inner" style="text-align:center;padding:0 20px;margin-top:10vh;">
       <div id="spl-title" style="font-family:'Press Start 2P',monospace;font-size:clamp(16px,3.8vw,52px);color:#fff;line-height:1.35;letter-spacing:0.03em;margin-bottom:12px;text-shadow:4px 4px 0 #1a3a00,7px 7px 0 #000;">THE BUSINESS GAME</div>
-      <div id="spl-sub" style="font-family:'Press Start 2P',monospace;font-size:clamp(8px,1.5vw,19px);color:#ffe97a;letter-spacing:0.32em;margin-bottom:clamp(32px,5vw,64px);text-shadow:2px 2px 0 #7a5000,3px 3px 0 #000;">STARTUPS</div>
+      <div id="spl-sub" style="font-family:'Press Start 2P',monospace;font-size:clamp(8px,1.5vw,19px);color:#ffe97a;letter-spacing:0.32em;margin-bottom:clamp(40px,8vw,90px);text-shadow:2px 2px 0 #7a5000,3px 3px 0 #000;">STARTUPS</div>
       <div id="spl-btns">
-        <button class="sp-btn" onclick="var s=document.getElementById('splash');s.style.opacity='0';setTimeout(function(){s.style.display='none';},700);" style="font-size:clamp(8px,1.3vw,15px);color:#fff;background:#2a6e00;border:3px solid #7fff40;padding:15px 32px;box-shadow:4px 4px 0 #003300,inset 0 0 0 2px #4aaa00;" onmouseover="this.style.background='#3a9e00'" onmouseout="this.style.background='#2a6e00'">▶ &nbsp;START BUSINESS GAME</button>
-        <button class="sp-btn" onclick="alert('Em breve!')" style="font-size:clamp(7px,1vw,13px);color:#bbb;background:#111;border:3px solid #444;padding:12px 32px;box-shadow:3px 3px 0 #000;" onmouseover="this.style.background='#222'" onmouseout="this.style.background='#111'">🛒 &nbsp;LOJA</button>
-        <button class="sp-btn" onclick="document.getElementById('cfg-modal').classList.add('open')" style="font-size:clamp(7px,1vw,13px);color:#bbb;background:#111;border:3px solid #444;padding:12px 32px;box-shadow:3px 3px 0 #000;" onmouseover="this.style.background='#222'" onmouseout="this.style.background='#111'">⚙ &nbsp;CONFIGURAÇÕES</button>
+        <button class="sp-btn" onclick="alert('Em breve!')"
+          style="font-size:clamp(7px,1vw,13px);color:#d0d0d0;background:rgba(0,0,0,0.45);border:3px solid rgba(180,180,180,0.55);padding:13px 28px;box-shadow:3px 3px 0 rgba(0,0,0,0.8);"
+          onmouseover="this.style.background='rgba(255,255,255,0.12)';this.style.borderColor='rgba(255,255,255,0.85)';this.style.color='#fff'"
+          onmouseout="this.style.background='rgba(0,0,0,0.45)';this.style.borderColor='rgba(180,180,180,0.55)';this.style.color='#d0d0d0'">🛒 &nbsp;LOJA</button>
+        <button class="sp-btn" onclick="var s=document.getElementById('splash');s.style.opacity='0';setTimeout(function(){s.style.display='none';},700);"
+          style="font-size:clamp(9px,1.4vw,16px);color:#fff;background:rgba(0,0,0,0.55);border:3px solid rgba(255,255,255,0.8);padding:16px 36px;box-shadow:4px 4px 0 rgba(0,0,0,0.9),inset 0 0 0 1px rgba(255,255,255,0.15);"
+          onmouseover="this.style.background='rgba(255,255,255,0.15)';this.style.borderColor='#fff'"
+          onmouseout="this.style.background='rgba(0,0,0,0.55)';this.style.borderColor='rgba(255,255,255,0.8)'">▶ &nbsp;START BUSINESS GAME</button>
+        <button class="sp-btn" onclick="document.getElementById('cfg-modal').classList.add('open')"
+          style="font-size:clamp(7px,1vw,13px);color:#d0d0d0;background:rgba(0,0,0,0.45);border:3px solid rgba(180,180,180,0.55);padding:13px 28px;box-shadow:3px 3px 0 rgba(0,0,0,0.8);"
+          onmouseover="this.style.background='rgba(255,255,255,0.12)';this.style.borderColor='rgba(255,255,255,0.85)';this.style.color='#fff'"
+          onmouseout="this.style.background='rgba(0,0,0,0.45)';this.style.borderColor='rgba(180,180,180,0.55)';this.style.color='#d0d0d0'">⚙ &nbsp;CONFIGURAÇÕES</button>
       </div>
     </div>
   </div>
