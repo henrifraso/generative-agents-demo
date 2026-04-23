@@ -585,10 +585,7 @@
 	      window._playerDir = _pdir;
 	      if (_pdx!==0||_pdy!==0) {
 	        var _ntx=window._playerTX+_pdx, _nty=window._playerTY+_pdy;
-	        var _npcBlock=false;
-	        for(var _bn in personas){var _bp=personas[_bn];if(Math.floor(_bp.x/32)===_ntx&&Math.floor(_bp.y/32)===_nty){_npcBlock=true;break;}}
-	        if(!_npcBlock&&window._clones){for(var _bci=0;_bci<window._clones.length;_bci++){var _bc=window._clones[_bci];if(_bc.tileX===_ntx&&_bc.tileY===_nty){_npcBlock=true;break;}}}
-	        if (_ntx>=0&&_ntx<140&&_nty>=0&&_nty<100&&window._walkable[_nty][_ntx]&&!_npcBlock) {
+	        if (_ntx>=0&&_ntx<140&&_nty>=0&&_nty<100&&window._walkable[_nty][_ntx]) {
 	          window._playerTX=_ntx; window._playerTY=_nty;
 	          window._playerTargPX=_ntx*32+16; window._playerTargPY=_nty*32+16;
 	          window._playerMoving=true;
