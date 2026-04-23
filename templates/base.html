@@ -442,10 +442,11 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     setTimeout(fitCanvas, 1500);
     setTimeout(fitCanvas, 3000);
 
-    // Atualiza alpha do overlay Phaser (criado em main_script)
+    // Atualiza alpha do overlay Phaser usando tempo da simulação (start_datetime)
     function updateDayNight() {
       if (!window._nightRT) return;
-      var h = new Date().getHours() + new Date().getMinutes() / 60;
+      var ref = (typeof start_datetime !== 'undefined') ? start_datetime : new Date();
+      var h = ref.getHours() + ref.getMinutes() / 60;
       var alpha;
       if      (h >= 6  && h < 8)  alpha = (8-h)/2*0.15;
       else if (h >= 8  && h < 17) alpha = 0;
@@ -458,7 +459,7 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     setInterval(function() {
       if (window._forceNight) { if (window._nightRT) window._nightRT.setAlpha(0.52); }
       else updateDayNight();
-    }, 60000);
+    }, 5000);
     history.replaceState(null, '', '/');
 
     // *** CHUVA — CSS puro, sem JS por frame ***
