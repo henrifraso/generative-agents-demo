@@ -43,8 +43,8 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     #splash #spl-title { display: block !important; }
     #splash #spl-sub   { display: block !important; }
     #splash #spl-em    { display: block !important; visibility:visible !important; opacity:0.7 !important; }
-    #splash #spl-btns  { display: flex !important; flex-direction:column; align-items:center; justify-content:center; gap:14px; }
-    #splash #spl-btns button { display:block !important; cursor:pointer; }
+    #splash #spl-start button { display:block !important; cursor:pointer; }
+    #splash #spl-btns button  { display:block !important; cursor:pointer; }
     #splash .sky-cloud { display:block !important; }
     #splash .sky-cloud .cb { display:block !important; position:absolute !important; }
     /* Modal config */
@@ -217,24 +217,50 @@ Author: Joon Sung Park (joonspk@stanford.edu)
         </div>
       </div>
 
-      <!-- Botões soltos, sem painel -->
-      <div id="spl-btns" style="display:flex;flex-direction:column;align-items:center;gap:14px;animation:sp-enter 0.6s ease-out 0.15s both;margin-top:4vh;">
+      <!-- Botão START GAME inicial -->
+      <div id="spl-start" style="display:flex;flex-direction:column;align-items:center;margin-top:4vh;animation:sp-enter 0.6s ease-out 0.2s both;">
+        <button class="sp-btn sp-btn-primary"
+          onclick="_splOpenMenu();" ontouchstart="this.click();"
+          style="font-size:clamp(13px,1.9vw,22px);padding:22px 0;width:clamp(300px,38vw,460px);animation:sp-pressfl 1.2s ease-in-out infinite;">
+          START GAME</button>
+        <div style="font-family:'Press Start 2P',monospace;font-size:7px;color:rgba(255,220,60,0.18);letter-spacing:0.1em;margin-top:14px;">v0.1 · 2026</div>
+      </div>
+
+      <!-- Menu completo (oculto até clicar START GAME) -->
+      <div id="spl-btns" style="display:none;flex-direction:column;align-items:center;gap:14px;margin-top:4vh;">
         <button class="sp-btn sp-btn-primary"
           onclick="var s=document.getElementById('splash');s.style.opacity='0';setTimeout(function(){s.style.display='none';},600);"
           ontouchstart="this.click();"
           style="font-size:clamp(13px,1.9vw,22px);padding:22px 0;width:clamp(300px,38vw,460px);">
           NOVA PARTIDA</button>
-        <button class="sp-btn" onclick="alert('Em breve!')"
+        <button class="sp-btn" onclick="alert('Em breve!')" ontouchstart="this.click();"
           style="font-size:clamp(13px,1.9vw,22px);padding:22px 0;width:clamp(300px,38vw,460px);">
           CONTINUAR</button>
-        <button class="sp-btn" onclick="alert('Em breve!')"
+        <button class="sp-btn" onclick="alert('Em breve!')" ontouchstart="this.click();"
           style="font-size:clamp(13px,1.9vw,22px);padding:22px 0;width:clamp(300px,38vw,460px);">
           MULTIPLAYER</button>
-        <button class="sp-btn" onclick="document.getElementById('cfg-modal').classList.add('open')"
+        <button class="sp-btn" onclick="document.getElementById('cfg-modal').classList.add('open')" ontouchstart="this.click();"
           style="font-size:clamp(10px,1.4vw,16px);padding:18px 0;width:clamp(300px,38vw,460px);">
           CONFIGURACOES</button>
-        <div style="font-family:'Press Start 2P',monospace;font-size:7px;color:rgba(255,220,60,0.18);letter-spacing:0.1em;margin-top:6px;">v0.1 · 2026</div>
       </div>
+
+      <script>
+        var _splTimer = null;
+        function _splOpenMenu() {
+          document.getElementById('spl-start').style.display = 'none';
+          var m = document.getElementById('spl-btns');
+          m.style.display = 'flex';
+          m.style.animation = 'sp-enter 0.4s ease-out both';
+          clearTimeout(_splTimer);
+          _splTimer = setTimeout(_splCloseMenu, 60000);
+        }
+        function _splCloseMenu() {
+          document.getElementById('spl-btns').style.display = 'none';
+          var s = document.getElementById('spl-start');
+          s.style.display = 'flex';
+          s.style.animation = 'sp-enter 0.4s ease-out both';
+        }
+      </script>
 
     </div>
   </div>
