@@ -272,7 +272,7 @@
 	  camera.startFollow(player);
 	  var _worldW = _GAME_W;
 	  camera.setZoom(1);
-	  camera.setBounds(0, 0, _worldW, map.heightInPixels + 1024);
+	  camera.setBounds(0, 0, _worldW, map.heightInPixels);
 	  camera.startFollow(player);
 	  cursors = this.input.keyboard.createCursorKeys();
 	  window._camera = camera;
@@ -358,14 +358,33 @@
 	    window._capGraphics[_bpn] = this.add.graphics().setDepth(5);
 	  }
 
-	  // *** PRAIA — abaixo do mapa, layout: grama→areia→ondas→oceano ***
+	  // *** PRAIA — nos últimos 30 rows do mapa (Y=2240–3200), tiles mascarados ***
 	  {
 	    var _bsc = this;
 	    var _bMW = 140 * 32; // 4480px
-	    var _grassH = 64, _sandH = 64, _wetH = 64, _waveH = 128, _oceanH = 640;
-	    var _BEACH_H = _grassH + _sandH + _wetH + _waveH + _oceanH; // 1000px
+	    var _beachStartRow = 70; // linha 70 em diante → praia
+	    var _BY = _beachStartRow * 32; // Y=2240
+	    var _BEACH_H = map.heightInPixels - _BY; // 960px (30 linhas)
 	    window._BEACH_H = _BEACH_H;
-	    var _BY = map.heightInPixels; // Y=3200 — começa exatamente no fim do mapa
+	    window._BEACH_Y  = _BY;
+
+	    // Mascarar tiles das linhas 70-99 para a praia aparecer limpa
+	    [bottomGroundLayer, exteriorGroundLayer, exteriorDecorationL1Layer,
+	     exteriorDecorationL2Layer, wallLayer, interiorGroundLayer,
+	     interiorFurnitureL1Layer, interiorFurnitureL2Layer,
+	     foregroundL1Layer, foregroundL2Layer].forEach(function(layer) {
+	      for (var _mty = _beachStartRow; _mty < 100; _mty++) {
+	        for (var _mtx = 0; _mtx < 140; _mtx++) {
+	          var _mt = layer.getTileAt(_mtx, _mty);
+	          if (_mt) _mt.setAlpha(0);
+	        }
+	      }
+	    });
+
+	    // Layout de cima pra baixo dentro da área da praia:
+	    // grama (64px) → gradiente (28px) → areia (64px) → molhada (64px) → ondas (128px) → oceano (620px)
+	    var _grassH = 64, _gradH = 28, _sandH = 64, _wetH = 64, _waveH = 128;
+	    var _oceanH = _BEACH_H - _grassH - _gradH - _sandH - _wetH - _waveH; // restante
 
 	    // Grama + árvores (transição mapa→praia)
 	    {
@@ -387,80 +406,66 @@
 	      }
 	      _bsc.add.tileSprite(0, _BY, _GAME_W, _grassH, '_beach_grass_sprite')
 	        .setDepth(1.1).setOrigin(0, 0);
-	      for (var _ti = 0; 96 + _ti * 448 < _bMW; _ti++) {
-	        _bsc.add.image(96 + _ti * 448, _BY, '_beach_tree_sprite')
-	          .setDepth(1.6).setOrigin(0, 0);
-	      }
+	      for (var _ti = 0; 96 + _ti * 448 < _bMW; _ti++)
+	        _bsc.add.image(96 + _ti * 448, _BY, '_beach_tree_sprite').setDepth(1.6).setOrigin(0, 0);
 	    }
 
 	    // Gradiente grama→areia
 	    var _edgeCols = [0x4a5438,0x5a6040,0x7a7048,0x9a8855,0xb8a06a,0xc8ac7a,0xd4b882];
 	    _edgeCols.forEach(function(col, i) {
-	      var _eg = _bsc.add.graphics().setDepth(1.1);
-	      _eg.fillStyle(col, 1);
-	      _eg.fillRect(0, _BY + _grassH + i * 4, _bMW, 4);
+	      _bsc.add.graphics().setDepth(1.1).fillStyle(col,1)
+	        .fillRect(0, _BY + _grassH + i * 4, _bMW, 4);
 	    });
+
+	    var _sandY = _BY + _grassH + _gradH;
+	    var _wetY  = _sandY + _sandH;
+	    var _waveY = _wetY  + _wetH;
+	    var _oceanY = _waveY + _waveH;
 
 	    // Areia seca
 	    var _gSand = _bsc.add.graphics().setDepth(1);
-	    var _sandY = _BY + _grassH + 28;
-	    _gSand.fillStyle(0xd4b882, 1);
-	    _gSand.fillRect(0, _sandY, _bMW, _sandH);
+	    _gSand.fillStyle(0xd4b882, 1).fillRect(0, _sandY, _bMW, _sandH);
 	    _gSand.fillStyle(0xdcc490, 1);
-	    for (var _si = 0; _si < 140; _si += 2)
-	      _gSand.fillRect(_si * 32, _sandY, 32, _sandH);
+	    for (var _si = 0; _si < 140; _si += 2) _gSand.fillRect(_si*32, _sandY, 32, _sandH);
 
 	    // Areia molhada
 	    var _gWet = _bsc.add.graphics().setDepth(1);
-	    var _wetY = _sandY + _sandH;
-	    _gWet.fillStyle(0xb8a07a, 1);
-	    _gWet.fillRect(0, _wetY, _bMW, _wetH);
-	    _gWet.fillStyle(0x7ab4d0, 0.25);
-	    _gWet.fillRect(0, _wetY + 4, _bMW, 12);
-	    _gWet.fillRect(0, _wetY + 36, _bMW, 10);
+	    _gWet.fillStyle(0xb8a07a,1).fillRect(0, _wetY, _bMW, _wetH);
+	    _gWet.fillStyle(0x7ab4d0, 0.25).fillRect(0, _wetY+4, _bMW, 12);
+	    _gWet.fillRect(0, _wetY+36, _bMW, 10);
 
 	    // Ondas
 	    var _gWave = _bsc.add.graphics().setDepth(1);
-	    var _waveY = _wetY + _wetH;
-	    _gWave.fillStyle(0x3a8ec4, 1);
-	    _gWave.fillRect(0, _waveY, _bMW, _waveH);
-	    _gWave.fillStyle(0x7dcce8, 1);
-	    _gWave.fillRect(0, _waveY + 8, _bMW, 20);
-	    _gWave.fillStyle(0xeaf8ff, 1);
-	    _gWave.fillRect(0, _waveY + 10, _bMW, 8);
-	    _gWave.fillStyle(0x5ab8d8, 1);
-	    _gWave.fillRect(0, _waveY + 70, _bMW, 18);
-	    _gWave.fillStyle(0xd8f4ff, 1);
-	    _gWave.fillRect(0, _waveY + 72, _bMW, 6);
+	    _gWave.fillStyle(0x3a8ec4,1).fillRect(0, _waveY, _bMW, _waveH);
+	    _gWave.fillStyle(0x7dcce8,1).fillRect(0, _waveY+8, _bMW, 20);
+	    _gWave.fillStyle(0xeaf8ff,1).fillRect(0, _waveY+10, _bMW, 8);
+	    _gWave.fillStyle(0x5ab8d8,1).fillRect(0, _waveY+70, _bMW, 18);
+	    _gWave.fillStyle(0xd8f4ff,1).fillRect(0, _waveY+72, _bMW, 6);
 	    window._gWave = _gWave;
 
 	    // Oceano
 	    var _gOcean = _bsc.add.graphics().setDepth(1);
-	    var _oceanY = _waveY + _waveH;
-	    _gOcean.fillStyle(0x1a4a6e, 1);
-	    _gOcean.fillRect(0, _oceanY, _bMW, _oceanH);
+	    _gOcean.fillStyle(0x1a4a6e,1).fillRect(0, _oceanY, _bMW, _oceanH);
 	    _gOcean.fillStyle(0x2a6b99, 1);
 	    for (var _wi = 0; _wi < 50; _wi++) {
 	      _gOcean.fillRect(_wi*90, _oceanY+40+(_wi%3)*30, 60, 4);
-	      _gOcean.fillRect(_wi*90+20, _oceanY+120+(_wi%4)*40, 80, 3);
-	      _gOcean.fillRect(_wi*90+10, _oceanY+220+(_wi%5)*35, 50, 3);
-	      _gOcean.fillRect(_wi*90+30, _oceanY+360+(_wi%3)*28, 70, 4);
-	      _gOcean.fillRect(_wi*90+5,  _oceanY+480+(_wi%4)*22, 55, 3);
+	      _gOcean.fillRect(_wi*90+20, _oceanY+80+(_wi%4)*30, 80, 3);
+	      _gOcean.fillRect(_wi*90+10, _oceanY+140+(_wi%5)*25, 50, 3);
 	    }
 	    _gOcean.fillStyle(0xc8ecf8, 1);
 	    for (var _wi = 0; _wi < 50; _wi++) {
 	      _gOcean.fillRect(_wi*90, _oceanY+38+(_wi%3)*30, 60, 2);
-	      _gOcean.fillRect(_wi*90+20, _oceanY+118+(_wi%4)*40, 80, 2);
+	      _gOcean.fillRect(_wi*90+20, _oceanY+78+(_wi%4)*30, 80, 2);
 	    }
 	    window._gOcean = _gOcean;
 
-	    // Pássaros (animados no update)
+	    // Pássaros
 	    window._beachBirds = [];
 	    for (var _bb = 0; _bb < 6; _bb++) {
 	      window._beachBirds.push({
 	        g: _bsc.add.graphics().setDepth(1.9),
 	        x: Math.random() * _bMW,
-	        y: _oceanY + 30 + Math.random() * _oceanH * 0.7,
+	        y: _oceanY + 30 + Math.random() * _oceanH * 0.6,
 	        vx: 0.25 + Math.random() * 0.4,
 	        t: Math.random() * Math.PI * 2
 	      });
@@ -502,11 +507,11 @@
 	    // Praia estendida à direita
 	    var _pb = this.add.graphics().setDepth(1);
 	    var _BH = window._BEACH_H || 896;
-	    var _BY2 = map.heightInPixels;
-	    _pb.fillStyle(0xd4b882,1); _pb.fillRect(_MAP_W, _BY2,        _EXT_W, 64);
-	    _pb.fillStyle(0xb8a07a,1); _pb.fillRect(_MAP_W, _BY2+64,     _EXT_W, 64);
-	    _pb.fillStyle(0x3a8ec4,1); _pb.fillRect(_MAP_W, _BY2+128,    _EXT_W, 128);
-	    _pb.fillStyle(0x1a4a6e,1); _pb.fillRect(_MAP_W, _BY2+256,    _EXT_W, _BH-256);
+	    var _BY2 = window._BEACH_Y || 2240;
+	    _pb.fillStyle(0xd4b882,1); _pb.fillRect(_MAP_W, _BY2,     _EXT_W, 64);
+	    _pb.fillStyle(0xb8a07a,1); _pb.fillRect(_MAP_W, _BY2+64,  _EXT_W, 64);
+	    _pb.fillStyle(0x3a8ec4,1); _pb.fillRect(_MAP_W, _BY2+128, _EXT_W, 128);
+	    _pb.fillStyle(0x1a4a6e,1); _pb.fillRect(_MAP_W, _BY2+256, _EXT_W, _BH-256);
 	  }
 
 	  // Solo vazio
@@ -858,8 +863,8 @@
 	      window._playerDir = _pdir;
 	      if (_pdx!==0||_pdy!==0) {
 	        var _ntx=window._playerTX+_pdx, _nty=window._playerTY+_pdy;
-	        var _beachRows = Math.ceil(window._BEACH_H / 32) || 32;
-	        var _inBeach = _nty >= 100 && _nty < 100 + _beachRows && _ntx >= 0 && _ntx < 140;
+	        var _beachStartR = Math.floor((window._BEACH_Y || 2240) / 32);
+	        var _inBeach = _nty >= _beachStartR && _nty < 100 && _ntx >= 0 && _ntx < 140;
 	        var _inMap   = _ntx>=0&&_ntx<140&&_nty>=0&&_nty<100&&window._walkable[_nty][_ntx];
         if (_inBeach || _inMap) {
 	          window._playerTX=_ntx; window._playerTY=_nty;
