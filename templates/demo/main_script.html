@@ -424,12 +424,12 @@
 	      _eg.fillRect(0, _BY + _BEACH_H + i * 4, _bMW, 4);
 	    });
 
-	    // Árvores do mapa: sprite standalone extraído do Field_B (64×96, transparent)
-	    // Espaçamento: 384px entre cada árvore (~6 tiles de gap visível)
+	    // Árvores do mapa: Field_B 64×64, copa+tronco (ty=10+11), fundo transparente
+	    // Y = areia seca (últimos 64px da praia), espaçamento 448px = 12 tiles de chão visível
 	    {
-	      var _treeY = _BY + _BEACH_H - 96; // base da árvore na areia seca
-	      for (var _ti = 0; 192 + _ti * 384 < _bMW; _ti++) {
-	        _bsc.add.image(192 + _ti * 384, _treeY, 'beach_tree')
+	      var _treeY = _BY + _BEACH_H - 64; // árvore senta na areia seca
+	      for (var _ti = 0; 96 + _ti * 448 < _bMW; _ti++) {
+	        _bsc.add.image(96 + _ti * 448, _treeY, 'beach_tree')
 	          .setDepth(1.6).setOrigin(0, 0);
 	      }
 	    }
