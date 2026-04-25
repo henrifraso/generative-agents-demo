@@ -24,12 +24,18 @@
 	let sim_code = "{{sim_code}}";
  	let step_size = {{sec_per_step}} * 1000; // 10 seconds = 10000
 
-	// Phaser 3.0 global settings. 
-	// Configuration meant to be passed to the main Phaser game instance. 
+	// Calcula largura do canvas para preencher a tela sem borda preta
+	var _GAME_H = 3200;
+	var _GAME_W = Math.max(4480, Math.ceil(window.innerWidth * _GAME_H / window.innerHeight / 32) * 32);
+	window._GAME_W = _GAME_W;
+	window._GAME_H = _GAME_H;
+
+	// Phaser 3.0 global settings.
+	// Configuration meant to be passed to the main Phaser game instance.
 	const config = {
 	  type: Phaser.AUTO,
-	  width: 4480,
-	  height: 3200,
+	  width: _GAME_W,
+	  height: _GAME_H,
 	  parent: "game-container",
 	  pixelArt: true,
 	  physics: {
@@ -263,13 +269,12 @@
 	  camera.startFollow(player);
 	  var _beachExtra = 896;
 	  var _worldH = map.heightInPixels + _beachExtra; // 4096
-	  var _worldW = map.widthInPixels;                // 4480
-	  // Zoom para caber o mundo inteiro no canvas (canvas=4480×3200, mundo=4480×4096)
-	  var _fitZoom = Math.min(_worldW / _worldW, map.heightInPixels / _worldH);
+	  var _worldW = _GAME_W;                          // largura dinâmica
+	  var _fitZoom = map.heightInPixels / _worldH;    // 3200/4096 = 0.78
 	  camera.setZoom(_fitZoom);
 	  camera.setBounds(0, -_beachExtra, _worldW, _worldH);
 	  camera.stopFollow();
-	  camera.centerOn(_worldW / 2, (_worldH / 2) - _beachExtra);
+	  camera.centerOn(_worldW / 2, map.heightInPixels / 2 - _beachExtra / 2);
 	  cursors = this.input.keyboard.createCursorKeys();
 	  window._camera = camera;
 	  window._phaserScene = this;
@@ -454,6 +459,55 @@
 	  // *** FAZENDA — texturas pixel art + plots ***
 	  var _fScene = this;
 	  function _mkFTex(key,w,h,fn){ var c=document.createElement('canvas');c.width=w;c.height=h;fn(c.getContext('2d'));_fScene.textures.addCanvas(key,c); }
+
+	  // *** EXTENSÃO DIREITA — floresta + praia para preencher a tela ***
+	  var _MAP_W = 4480; // largura original do mapa Tiled
+	  var _EXT_W = _GAME_W - _MAP_W; // pixels extras à direita
+	  if (_EXT_W > 0) {
+	    var _eg = this.add.graphics().setDepth(0.5);
+	    // Base de floresta escura
+	    _eg.fillStyle(0x2a5218, 1);
+	    _eg.fillRect(_MAP_W, 0, _EXT_W, _GAME_H);
+	    // Faixas de variação de cor (simula dossel)
+	    _eg.fillStyle(0x1e3d10, 1);
+	    for (var _ey = 0; _ey < _GAME_H; _ey += 96)
+	      _eg.fillRect(_MAP_W, _ey, _EXT_W, 48);
+	    // Copas de árvores (círculos em grid irregular)
+	    var _treeColors = [0x2d6b1a, 0x3a7a22, 0x256014, 0x1e4d0e, 0x337020, 0x44882a];
+	    var _rng = 12345;
+	    function _rn() { _rng = (_rng * 1664525 + 1013904223) & 0xffffffff; return (_rng >>> 0) / 0xffffffff; }
+	    for (var _ty2 = -32; _ty2 < _GAME_H; _ty2 += 48) {
+	      for (var _tx2 = _MAP_W; _tx2 < _GAME_W; _tx2 += 44) {
+	        var _ox2 = (_rn()-0.5)*20, _oy2 = (_rn()-0.5)*20;
+	        var _cr = 16 + _rn()*14;
+	        var _ci = Math.floor(_rn()*_treeColors.length);
+	        _eg.fillStyle(_treeColors[_ci], 1);
+	        _eg.fillCircle(_tx2+_ox2, _ty2+_oy2, _cr);
+	        // Reflexo mais claro no topo
+	        _eg.fillStyle(0x4a9a30, 0.4);
+	        _eg.fillCircle(_tx2+_ox2-3, _ty2+_oy2-4, _cr*0.5);
+	      }
+	    }
+	    // Borda esquerda da extensão — faixa de transição mapa→floresta
+	    _eg.fillStyle(0x1a3a0a, 1);
+	    _eg.fillRect(_MAP_W, 0, 8, _GAME_H);
+	    _eg.fillStyle(0x224a10, 1);
+	    _eg.fillRect(_MAP_W+8, 0, 6, _GAME_H);
+
+	    // Praia estendida à direita (mesmas faixas, y negativo)
+	    var _pb = this.add.graphics().setDepth(1);
+	    var _BEACH_H2 = window._BEACH_H || 896;
+	    var _BY2 = -_BEACH_H2;
+	    // Oceano
+	    _pb.fillStyle(0x1a4a6e, 1); _pb.fillRect(_MAP_W, _BY2, _EXT_W, _BEACH_H2 - 128 - 64 - 64);
+	    // Ondas
+	    _pb.fillStyle(0x3a8ec4, 1); _pb.fillRect(_MAP_W, _BY2 + _BEACH_H2 - 128 - 64 - 64, _EXT_W, 128);
+	    _pb.fillStyle(0xeaf8ff, 1); _pb.fillRect(_MAP_W, _BY2 + _BEACH_H2 - 128 - 64 - 64 + 10, _EXT_W, 8);
+	    // Areia molhada
+	    _pb.fillStyle(0xb8a07a, 1); _pb.fillRect(_MAP_W, _BY2 + _BEACH_H2 - 64 - 64, _EXT_W, 64);
+	    // Areia seca
+	    _pb.fillStyle(0xd4b882, 1); _pb.fillRect(_MAP_W, _BY2 + _BEACH_H2 - 64, _EXT_W, 64);
+	  }
 
 	  // Solo vazio
 	  _mkFTex('farm_empty',32,32,function(x){

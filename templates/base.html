@@ -1318,7 +1318,7 @@ Author: Joon Sung Park (joonspk@stanford.edu)
   <script>
     var _s = 0, _sMin = 1;
     var _ox = 0, _oy = 0;
-    var _CW = 4480, _CH = 3200; // tamanho físico do canvas Phaser
+    var _CW = window._GAME_W || 4480, _CH = 3200; // tamanho físico do canvas Phaser
 
     function _apply() {
       var c = document.querySelector('#game-container canvas');
@@ -1335,6 +1335,7 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     function fitCanvas() {
       var c = document.querySelector('#game-container canvas');
       if (!c) { setTimeout(fitCanvas, 300); return; }
+      _CW = window._GAME_W || c.width || 4480;
       _s = Math.min(window.innerHeight / _CH, window.innerWidth / _CW);
       _apply();
     }
@@ -1399,8 +1400,11 @@ Author: Joon Sung Park (joonspk@stanford.edu)
       window._nightRT.setAlpha(alpha);
     }
     window._forceNight = false;
+    window._forceDay = true; // força dia enquanto desenvolvemos
     setInterval(function() {
-      if (window._forceNight) { if (window._nightRT) window._nightRT.setAlpha(0.75); }
+      if (!window._nightRT) return;
+      if (window._forceDay) { window._nightRT.setAlpha(0); return; }
+      if (window._forceNight) window._nightRT.setAlpha(0.75);
       else updateDayNight();
     }, 1000);
     history.replaceState(null, '', '/');
