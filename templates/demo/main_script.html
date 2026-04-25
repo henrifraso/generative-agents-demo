@@ -585,9 +585,9 @@
 	    for (var _ri=0;_ri<20;_ri++)
 	      _pb2.fillRect(_MAP_W+6+(_ri*73)%(_EXT_W-14),_wY+16+(_ri*47)%200,32+(_ri%3)*12,2);
 
-	    // ── Deck horizontal no oceano (igual à esquerda) ──
+	    // ── Deck horizontal — começa direto na linha d'água ──
 	    var _dkG2 = this.add.graphics().setDepth(1.1);
-	    var _dkY  = _wY + 28;
+	    var _dkY  = _wY;
 	    var _dkH  = 70;
 	    _dkG2.fillStyle(0xC8A060,1); _dkG2.fillRect(_MAP_W,_dkY,_EXT_W,_dkH);
 	    for (var _tx=_MAP_W+12;_tx<_MAP_W+_EXT_W;_tx+=16) {
