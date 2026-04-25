@@ -475,93 +475,150 @@
 	  var _fScene = this;
 	  function _mkFTex(key,w,h,fn){ var c=document.createElement('canvas');c.width=w;c.height=h;fn(c.getContext('2d'));_fScene.textures.addCanvas(key,c); }
 
-	  // *** EXTENSÃO DIREITA — grama + praia + deck horizontal + barcos ***
+	  // *** EXTENSÃO DIREITA — marina + praia + deck ***
 	  var _MAP_W = 4480;
 	  var _EXT_W = _GAME_W - _MAP_W;
 	  if (_EXT_W > 0) {
-	    var _BY2   = window._BEACH_Y || 2656;
-	    var _BH    = window._BEACH_H || 544;
+	    var _BY2  = window._BEACH_Y || 2656;
 	    var _fbSrc = this.textures.get('CuteRPG_Field_B').getSourceImage();
 
-	    // ── Fundo: grama Field_B (igual ao Bottom Ground do mapa) ──
+	    // Fundo: grama Field_B em tile sprite (depth baixo)
 	    var _gpc = document.createElement('canvas'); _gpc.width=256; _gpc.height=256;
 	    var _gpx = _gpc.getContext('2d');
 	    for (var _gy=0;_gy<8;_gy++) for (var _gx=0;_gx<8;_gx++)
 	      _gpx.drawImage(_fbSrc,32,0,32,32,_gx*32,_gy*32,32,32);
 	    this.textures.addCanvas('_ext_grass',_gpc);
-	    this.add.tileSprite(_MAP_W+_EXT_W/2, _GAME_H/2, _EXT_W, _GAME_H, '_ext_grass')
-	      .setDepth(0.5).setOrigin(0.5,0.5);
+	    this.add.tileSprite(_MAP_W+_EXT_W/2,_GAME_H/2,_EXT_W,_GAME_H,'_ext_grass')
+	      .setDepth(0.4).setOrigin(0.5,0.5);
 
-	    // ── Árvores espalhadas na área de grama ──
-	    [80,240,400,560,720,900,1120,1400,1700,2000].forEach(function(ty) {
-	      this.add.image(_MAP_W+8, ty, '_beach_tree_sprite').setDepth(0.9).setOrigin(0,0);
-	    }, this);
+	    // ── MARINA: bacia de água do Y=300 até _BY2 ──
+	    var _mrY0 = 300;            // topo da marina
+	    var _mrH  = _BY2 - _mrY0;  // altura total da bacia
+	    var _mrG  = this.add.graphics().setDepth(0.6);
 
-	    // ── Praia continuada (mesmos Y da esquerda) ──
-	    var _pb2 = this.add.graphics().setDepth(1);
-	    _pb2.fillStyle(0xd4b882,1); _pb2.fillRect(_MAP_W, _BY2+32+16, _EXT_W, 64);     // areia
-	    _pb2.fillStyle(0xb8a07a,1); _pb2.fillRect(_MAP_W, _BY2+32+16+64, _EXT_W, 32);  // molhada
-	    _pb2.fillStyle(0x3a8ec4,1); _pb2.fillRect(_MAP_W, _BY2+32+16+64+32, _EXT_W, 96); // ondas
-	    _pb2.fillStyle(0x1a4a6e,1); _pb2.fillRect(_MAP_W, _BY2+32+16+64+32+96, _EXT_W, _GAME_H); // oceano
-
-	    // Reflexos de luz na água direita
-	    _pb2.fillStyle(0x2a6b99,1);
-	    var _wY = _BY2+32+16+64+32+96; // Y onde oceano começa à direita
-	    for (var _ri=0;_ri<30;_ri++) {
-	      _pb2.fillRect(_MAP_W+8+(_ri*73)%(_EXT_W-20), _wY+20+(_ri*47)%220, 35+(_ri%3)*15, 3);
-	      _pb2.fillRect(_MAP_W+4+(_ri*61)%(_EXT_W-20), _wY+70+(_ri*83)%180, 20+(_ri%4)*12, 2);
+	    // Bacia d'água (azul marina, ligeiramente diferente do oceano)
+	    _mrG.fillStyle(0x1e5578,1); _mrG.fillRect(_MAP_W, _mrY0, _EXT_W, _mrH);
+	    // Reflexos
+	    _mrG.fillStyle(0x2a6b99,1);
+	    for (var _ri=0;_ri<50;_ri++) {
+	      _mrG.fillRect(_MAP_W+6+(_ri*73)%(_EXT_W-14), _mrY0+10+(_ri*47)%(_mrH-20), 30+(_ri%4)*12, 2);
 	    }
-	    _pb2.fillStyle(0xc8ecf8,1);
-	    for (var _ri=0;_ri<15;_ri++)
-	      _pb2.fillRect(_MAP_W+8+(_ri*97)%(_EXT_W-20), _wY+18+(_ri*53)%220, 35+(_ri%3)*15, 1);
+	    _mrG.fillStyle(0xc8ecf8,0.4);
+	    for (var _ri=0;_ri<25;_ri++)
+	      _mrG.fillRect(_MAP_W+6+(_ri*97)%(_EXT_W-14), _mrY0+8+(_ri*53)%(_mrH-16), 30+(_ri%4)*12, 1);
 
-	    // ── Deck horizontal: plataforma de madeira sobre o oceano ──
-	    // No top-down, o deck é uma FAIXA HORIZONTAL (largo em X, estreito em Y)
-	    // com tábuas visíveis como listras verticais dentro do retângulo
-	    var _dkG  = this.add.graphics().setDepth(1.1);
-	    var _dkY  = _wY + 32;          // Y do deck (dentro do oceano)
-	    var _dkH  = 80;                // altura do deck (top-down: espessura da plataforma)
-	    var _dkX0 = _MAP_W;            // começa na borda do mapa
-	    var _dkX1 = _MAP_W + _EXT_W;   // vai até a borda da tela
+	    // Margem de grama/areia entre mapa e água (8px)
+	    _mrG.fillStyle(0x88bb44,1); _mrG.fillRect(_MAP_W, _mrY0, 8, _mrH);
 
-	    // Deck base (madeira clara)
-	    _dkG.fillStyle(0xC8A060,1); _dkG.fillRect(_dkX0, _dkY, _dkX1-_dkX0, _dkH);
-	    // Tábuas (listras VERTICAIS — perpendiculares ao sentido do deck)
-	    for (var _tx=_dkX0+12; _tx<_dkX1; _tx+=16) {
-	      _dkG.fillStyle(0xA07840,1); _dkG.fillRect(_tx, _dkY+2, 2, _dkH-4);
-	      _dkG.fillStyle(0xD4B070,1); _dkG.fillRect(_tx+3, _dkY+2, 4, _dkH-4);
-	    }
-	    // Borda norte do deck (mais escura — sombra/beira)
-	    _dkG.fillStyle(0x6B4520,1); _dkG.fillRect(_dkX0, _dkY, _dkX1-_dkX0, 6);
-	    // Borda sul do deck
-	    _dkG.fillStyle(0x5C3A14,1); _dkG.fillRect(_dkX0, _dkY+_dkH-6, _dkX1-_dkX0, 6);
-	    // Pilings (estacas) ao longo das bordas a cada 64px
-	    for (var _px2=_dkX0+24; _px2<_dkX1; _px2+=64) {
+	    // ── Cais principal (N-S): corre ao longo da borda esquerda da marina ──
+	    var _mkDock = function(g, x, y, w, h) {
+	      g.fillStyle(0xC8A060,1); g.fillRect(x,y,w,h);
+	      // tábuas verticais
+	      for (var _t=x+10;_t<x+w-4;_t+=14) {
+	        g.fillStyle(0xA07840,1); g.fillRect(_t,y+2,2,h-4);
+	      }
+	      g.fillStyle(0x6B4520,1); g.fillRect(x,y,w,4);       // borda topo
+	      g.fillStyle(0x5C3A14,1); g.fillRect(x,y+h-4,w,4);   // borda baixo
+	    };
+	    var _dkG = this.add.graphics().setDepth(0.8);
+	    var _mainDockX = _MAP_W + 8;
+	    var _mainDockW = 18; // cais principal N-S
+	    _mkDock(_dkG, _mainDockX, _mrY0, _mainDockW, _mrH);
+	    // Pilings do cais principal a cada 80px
+	    for (var _pi=_mrY0+20; _pi<_mrY0+_mrH; _pi+=80) {
 	      _dkG.fillStyle(0x4A2E0A,1);
-	      _dkG.fillRect(_px2-4, _dkY-6,  8, 12); // piling norte
-	      _dkG.fillRect(_px2-4, _dkY+_dkH-6, 8, 12); // piling sul
+	      _dkG.fillRect(_mainDockX-4, _pi, 6, 12);
+	      _dkG.fillRect(_mainDockX+_mainDockW-2, _pi, 6, 12);
 	    }
 
-	    // ── Barcos top-down: casco largo em X, estreito em Y ──
-	    // (como aparecem em Stardew Valley visto de cima)
-	    var _bkG = this.add.graphics().setDepth(1.3);
-	    function _drawBoat(bx, by, bw, bh, hullCol, stripeCol, deckCol) {
-	      _bkG.fillStyle(hullCol,1);  _bkG.fillRect(bx, by, bw, bh);
-	      _bkG.fillStyle(stripeCol,1);_bkG.fillRect(bx+4, by, bw-8, 4);  // proa
-	      _bkG.fillStyle(stripeCol,1);_bkG.fillRect(bx+4, by+bh-4, bw-8, 4); // popa
-	      _bkG.fillStyle(deckCol,1);  _bkG.fillRect(bx+6, by+4, bw-12, bh-8); // convés
-	      // mastro (ponto no centro)
+	    // ── Finger piers (E-W): saem do cais principal para dentro da bacia ──
+	    var _fingerLen = Math.min(_EXT_W - _mainDockW - 20, 180);
+	    var _fingerH   = 12;
+	    var _slotH     = 90; // espaço entre fingers (vaga de barco)
+	    var _fingers   = [];
+	    var _fy = _mrY0 + 40;
+	    while (_fy + _fingerH < _mrY0 + _mrH - 40) {
+	      _mkDock(_dkG, _mainDockX + _mainDockW, _fy, _fingerLen, _fingerH);
+	      _fingers.push(_fy);
+	      _fy += _fingerH + _slotH;
+	    }
+
+	    // ── Barcos nas vagas (entre fingers, ancorados no cais) ──
+	    var _boatCols = [
+	      [0xD8CFBA, 0xCC3333, 0xB8AF96],
+	      [0x3A5C80, 0x2A4460, 0x4A7090],
+	      [0xEAE2CC, 0xCC6622, 0xD4C8A8],
+	      [0x3A6040, 0x2A4830, 0x4A7050],
+	      [0xC04040, 0xA02020, 0xD06060],
+	      [0x806030, 0x604010, 0xA08050],
+	    ];
+	    var _bkG = this.add.graphics().setDepth(1.0);
+	    _fingers.forEach(function(fy, idx) {
+	      var col = _boatCols[idx % _boatCols.length];
+	      var bx  = _mainDockX + _mainDockW + 6;
+	      var by  = fy + _fingerH + 8;
+	      var bw  = Math.min(80, _fingerLen - 12);
+	      var bh  = Math.min(_slotH - 20, 52);
+	      // casco
+	      _bkG.fillStyle(col[0],1); _bkG.fillRect(bx, by, bw, bh);
+	      // faixa/proa/popa
+	      _bkG.fillStyle(col[1],1);
+	      _bkG.fillRect(bx+4, by, bw-8, 5);
+	      _bkG.fillRect(bx+4, by+bh-5, bw-8, 5);
+	      // convés
+	      _bkG.fillStyle(col[2],1); _bkG.fillRect(bx+6, by+5, bw-12, bh-10);
+	      // mastro
 	      _bkG.fillStyle(0x2A1800,1); _bkG.fillRect(bx+bw/2-2, by+bh/2-2, 4, 4);
-	      // amarra no deck
-	      _bkG.fillStyle(0x8B6914,1); _bkG.fillRect(bx+bw/2-1, by+bh-2, 2, _dkY-(by+bh)+2);
-	    }
+	      // amarra ao finger de cima
+	      _bkG.fillStyle(0x9A7A3A,1); _bkG.fillRect(bx+bw/2-1, by-8, 2, 8);
+	    });
 
-	    // Barco 1 acima do deck (pesqueiro, branco/vermelho)
-	    _drawBoat(_dkX0+20, _dkY-52, 96, 38, 0xD8CFBA, 0xCC3333, 0xB8AF96);
-	    // Barco 2 abaixo do deck (veleiro, azul/bege)
-	    _drawBoat(_dkX0+140, _dkY+_dkH+14, 80, 32, 0x3A5C80, 0x2A4460, 0x4A7090);
-	    // Barco 3 acima do deck, deslocado (a remo, verde escuro)
-	    _drawBoat(_dkX0+160, _dkY-44, 64, 30, 0x3A6040, 0x2A4830, 0x4A7050);
+	    // ── Praia direita (mesmo Y da esquerda, abaixo da marina) ──
+	    var _pb2 = this.add.graphics().setDepth(1);
+	    var _s0 = _BY2+32+16;
+	    _pb2.fillStyle(0xd4b882,1); _pb2.fillRect(_MAP_W,_s0,     _EXT_W,64);
+	    _pb2.fillStyle(0xb8a07a,1); _pb2.fillRect(_MAP_W,_s0+64,  _EXT_W,32);
+	    _pb2.fillStyle(0x3a8ec4,1); _pb2.fillRect(_MAP_W,_s0+96,  _EXT_W,96);
+	    _pb2.fillStyle(0x1a4a6e,1); _pb2.fillRect(_MAP_W,_s0+192, _EXT_W,_GAME_H);
+	    var _wY = _s0 + 192;
+	    _pb2.fillStyle(0x2a6b99,1);
+	    for (var _ri=0;_ri<20;_ri++)
+	      _pb2.fillRect(_MAP_W+6+(_ri*73)%(_EXT_W-14),_wY+16+(_ri*47)%200,32+(_ri%3)*12,2);
+
+	    // ── Deck horizontal no oceano (igual à esquerda) ──
+	    var _dkG2 = this.add.graphics().setDepth(1.1);
+	    var _dkY  = _wY + 28;
+	    var _dkH  = 70;
+	    _dkG2.fillStyle(0xC8A060,1); _dkG2.fillRect(_MAP_W,_dkY,_EXT_W,_dkH);
+	    for (var _tx=_MAP_W+12;_tx<_MAP_W+_EXT_W;_tx+=16) {
+	      _dkG2.fillStyle(0xA07840,1); _dkG2.fillRect(_tx,_dkY+2,2,_dkH-4);
+	      _dkG2.fillStyle(0xD4B070,1); _dkG2.fillRect(_tx+3,_dkY+2,4,_dkH-4);
+	    }
+	    _dkG2.fillStyle(0x6B4520,1); _dkG2.fillRect(_MAP_W,_dkY,_EXT_W,5);
+	    _dkG2.fillStyle(0x5C3A14,1); _dkG2.fillRect(_MAP_W,_dkY+_dkH-5,_EXT_W,5);
+	    for (var _px2=_MAP_W+24;_px2<_MAP_W+_EXT_W;_px2+=64) {
+	      _dkG2.fillStyle(0x4A2E0A,1);
+	      _dkG2.fillRect(_px2-4,_dkY-5,8,10);
+	      _dkG2.fillRect(_px2-4,_dkY+_dkH-5,8,10);
+	    }
+	    // Barcos ao lado do deck oceano
+	    var _bkG2 = this.add.graphics().setDepth(1.3);
+	    [[_MAP_W+16,_dkY-46,88,34,0xD8CFBA,0xCC3333,0xB0A890],
+	     [_MAP_W+130,_dkY+_dkH+12,72,28,0x3A5C80,0x2A4460,0x4A7090],
+	     [_MAP_W+240,_dkY-40,60,28,0xEAE2CC,0xCC6622,0xD4C8A8]
+	    ].forEach(function(b) {
+	      _bkG2.fillStyle(b[4],1); _bkG2.fillRect(b[0],b[1],b[2],b[3]);
+	      _bkG2.fillStyle(b[5],1);
+	      _bkG2.fillRect(b[0]+4,b[1],b[2]-8,5);
+	      _bkG2.fillRect(b[0]+4,b[1]+b[3]-5,b[2]-8,5);
+	      _bkG2.fillStyle(b[6],1); _bkG2.fillRect(b[0]+6,b[1]+5,b[2]-12,b[3]-10);
+	      _bkG2.fillStyle(0x2A1800,1); _bkG2.fillRect(b[0]+b[2]/2-2,b[1]+b[3]/2-2,4,4);
+	    });
+
+	    // Árvores no topo (acima da marina)
+	    [40,180,330].forEach(function(ty) {
+	      this.add.image(_MAP_W+8,ty,'_beach_tree_sprite').setDepth(0.9).setOrigin(0,0);
+	    },this);
 	  }
 
 	  // Solo vazio
