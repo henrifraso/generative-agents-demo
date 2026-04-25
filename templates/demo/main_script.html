@@ -157,7 +157,8 @@
 	  {% endfor %}
 
 	  this.load.image('speech_bubble', "{% static 'assets/speech_bubble/v3.png' %}");
-	  this.load.image('beach_tree', "{% static 'assets/beach_tree.png' %}");
+	  this.load.image('beach_tree',  "{% static 'assets/beach_tree.png' %}");
+	  this.load.image('beach_grass', "{% static 'assets/beach_grass.png' %}");
 	}
 
 	function create() {  
@@ -424,12 +425,15 @@
 	      _eg.fillRect(0, _BY + _BEACH_H + i * 4, _bMW, 4);
 	    });
 
-	    // Árvores do mapa: Field_B 64×64, copa+tronco (ty=10+11), fundo transparente
-	    // Y = areia seca (últimos 64px da praia), espaçamento 448px = 12 tiles de chão visível
+	    // Strip de grama (Bottom Ground do mapa) + árvores overlay com espaçamento
 	    {
-	      var _treeY = _BY + _BEACH_H - 64; // árvore senta na areia seca
+	      var _grassY = _BY + _BEACH_H - 64; // últimos 64px da praia (2 tiles)
+	      // Strip contínuo de grama — igual ao Bottom Ground do mapa original
+	      _bsc.add.tileSprite(0, _grassY, _GAME_W, 64, 'beach_grass')
+	        .setDepth(1.1).setOrigin(0, 0);
+	      // Árvores overlay (transparentes sobre a grama), espaçamento 448px (~6 tiles de grama visível)
 	      for (var _ti = 0; 96 + _ti * 448 < _bMW; _ti++) {
-	        _bsc.add.image(96 + _ti * 448, _treeY, 'beach_tree')
+	        _bsc.add.image(96 + _ti * 448, _grassY, 'beach_tree')
 	          .setDepth(1.6).setOrigin(0, 0);
 	      }
 	    }
