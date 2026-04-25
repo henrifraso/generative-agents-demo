@@ -227,6 +227,20 @@ Author: Joon Sung Park (joonspk@stanford.edu)
       color:#cc88ff;background:rgba(10,0,20,0.65);border-color:rgba(180,80,255,0.35);
       text-shadow:0 0 6px rgba(180,80,255,0.5);
     }
+    /* Botão chat NPCs */
+    #hud-chat-btn {
+      position:absolute;bottom:14px;right:58px;
+      pointer-events:all;cursor:pointer;
+      font-size:15px;
+      color:rgba(0,220,120,0.6);
+      background:rgba(0,0,0,0.55);
+      border:1px solid rgba(0,200,100,0.25);
+      border-radius:4px;
+      width:32px;height:32px;line-height:30px;text-align:center;
+      transition:color 0.15s,border-color 0.15s,background 0.15s;
+      user-select:none;
+    }
+    #hud-chat-btn:hover { color:#00ff88;border-color:rgba(0,255,136,0.5);background:rgba(0,0,0,0.75); }
     /* Botão engrenagem */
     #hud-gear {
       position:absolute;bottom:14px;right:14px;
@@ -491,6 +505,329 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     </div>
   </div>
 
+  <!-- *** CHAT AI (tecla T) *** -->
+  <div id="ai-chat-modal">
+    <div id="ai-chat-sidebar">
+      <div id="ai-chat-sidebar-hdr">AGENTES</div>
+      <div id="ai-npc-list"></div>
+    </div>
+    <div id="ai-chat-main">
+      <div id="ai-chat-topbar">
+        <div id="ai-chat-active-info">
+          <div id="ai-chat-active-dot"></div>
+          <span id="ai-chat-active-name">— selecione um agente —</span>
+        </div>
+        <button id="ai-chat-close-btn" onclick="window._aiChatClose()">&#x2715;</button>
+      </div>
+      <div id="ai-chat-messages"><div id="ai-chat-welcome"><span>Selecione um agente para conversar.</span></div></div>
+      <div id="ai-chat-input-row">
+        <textarea id="ai-chat-ta" placeholder="Digite sua mensagem..." rows="1"></textarea>
+        <button id="ai-chat-send-btn" onclick="window._aiChatSend()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+  <style>
+    /* ── AI Chat Modal ── */
+    #ai-chat-modal {
+      position:fixed; inset:0; z-index:8500;
+      display:none; flex-direction:row;
+      background:rgba(0,0,0,0.55);
+      backdrop-filter:blur(2px);
+      -webkit-backdrop-filter:blur(2px);
+    }
+    #ai-chat-modal.open { display:flex !important; }
+    /* Sidebar */
+    #ai-chat-sidebar {
+      width:220px; min-width:180px; flex-shrink:0;
+      background:rgba(0,12,4,0.92);
+      border-right:1px solid rgba(0,255,136,0.15);
+      display:flex; flex-direction:column;
+      overflow:hidden;
+    }
+    #ai-chat-sidebar-hdr {
+      font-family:'Press Start 2P',monospace;
+      font-size:8px; color:#00ff88;
+      letter-spacing:0.18em;
+      padding:18px 16px 12px;
+      border-bottom:1px solid rgba(0,255,136,0.12);
+      flex-shrink:0;
+    }
+    #ai-npc-list {
+      flex:1; overflow-y:auto; padding:8px 0;
+    }
+    #ai-npc-list::-webkit-scrollbar { width:4px; }
+    #ai-npc-list::-webkit-scrollbar-thumb { background:rgba(0,255,136,0.18); border-radius:2px; }
+    .ai-npc-item {
+      display:flex; align-items:center; gap:10px;
+      padding:10px 16px; cursor:pointer;
+      border-left:3px solid transparent;
+      transition:background 0.15s, border-color 0.15s;
+    }
+    .ai-npc-item:hover { background:rgba(0,255,136,0.07); }
+    .ai-npc-item.active {
+      background:rgba(0,255,136,0.12);
+      border-left-color:#00ff88;
+    }
+    .ai-npc-dot {
+      width:8px; height:8px; border-radius:50%; flex-shrink:0;
+      background:#00ff88; box-shadow:0 0 5px rgba(0,255,136,0.6);
+    }
+    .ai-npc-item.active .ai-npc-dot { background:#ffd700; box-shadow:0 0 5px rgba(255,215,0,0.7); }
+    .ai-npc-label {
+      font-family:'Press Start 2P',monospace;
+      font-size:6.5px; color:rgba(200,255,210,0.75);
+      line-height:1.6; word-break:break-word;
+    }
+    .ai-npc-item.active .ai-npc-label { color:#ffd700; }
+    /* Main */
+    #ai-chat-main {
+      flex:1; display:flex; flex-direction:column;
+      background:rgba(0,10,3,0.88);
+      overflow:hidden;
+    }
+    #ai-chat-topbar {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:12px 20px;
+      border-bottom:1px solid rgba(0,255,136,0.1);
+      flex-shrink:0;
+    }
+    #ai-chat-active-info { display:flex; align-items:center; gap:10px; }
+    #ai-chat-active-dot {
+      width:10px; height:10px; border-radius:50%;
+      background:#444; flex-shrink:0;
+    }
+    #ai-chat-active-dot.on { background:#00ff88; box-shadow:0 0 6px rgba(0,255,136,0.7); }
+    #ai-chat-active-name {
+      font-family:'Press Start 2P',monospace;
+      font-size:8px; color:#a8e8b8;
+    }
+    #ai-chat-close-btn {
+      background:none; border:none; color:rgba(160,220,170,0.5);
+      font-size:18px; cursor:pointer; padding:4px 8px; line-height:1;
+      transition:color 0.15s;
+    }
+    #ai-chat-close-btn:hover { color:#ff6060; }
+    /* Messages */
+    #ai-chat-messages {
+      flex:1; overflow-y:auto; padding:20px;
+      display:flex; flex-direction:column; gap:12px;
+    }
+    #ai-chat-messages::-webkit-scrollbar { width:5px; }
+    #ai-chat-messages::-webkit-scrollbar-thumb { background:rgba(0,255,136,0.15); border-radius:3px; }
+    #ai-chat-welcome {
+      margin:auto; text-align:center;
+      font-family:'Press Start 2P',monospace;
+      font-size:7px; color:rgba(100,160,110,0.5);
+      line-height:2;
+    }
+    .ai-msg-row { display:flex; flex-direction:column; max-width:72%; }
+    .ai-msg-row.user { align-self:flex-end; align-items:flex-end; }
+    .ai-msg-row.npc  { align-self:flex-start; align-items:flex-start; }
+    .ai-msg-sender {
+      font-family:'Press Start 2P',monospace;
+      font-size:5.5px; margin-bottom:4px;
+      color:rgba(150,200,160,0.55);
+    }
+    .ai-msg-row.user .ai-msg-sender { color:rgba(0,255,136,0.55); }
+    .ai-msg-bubble {
+      padding:10px 14px; font-family:monospace;
+      font-size:13px; line-height:1.55;
+      border-radius:12px; word-break:break-word;
+    }
+    .ai-msg-row.user .ai-msg-bubble {
+      background:rgba(0,100,50,0.75);
+      border:1px solid rgba(0,255,136,0.2);
+      color:#d8ffe8;
+      border-bottom-right-radius:3px;
+    }
+    .ai-msg-row.npc .ai-msg-bubble {
+      background:rgba(15,35,18,0.9);
+      border:1px solid rgba(0,255,136,0.12);
+      color:#c8e8cc;
+      border-bottom-left-radius:3px;
+    }
+    .ai-msg-bubble.thinking {
+      color:rgba(120,180,130,0.55); font-style:italic;
+      animation:ai-blink 1s step-end infinite;
+    }
+    @keyframes ai-blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    /* Input */
+    #ai-chat-input-row {
+      display:flex; align-items:flex-end; gap:10px;
+      padding:14px 20px 16px;
+      border-top:1px solid rgba(0,255,136,0.1);
+      flex-shrink:0;
+    }
+    #ai-chat-ta {
+      flex:1; background:rgba(0,20,8,0.7);
+      border:1px solid rgba(0,255,136,0.2);
+      border-radius:8px; color:#d0eeda;
+      font-family:monospace; font-size:13px;
+      padding:10px 14px; resize:none;
+      line-height:1.5; max-height:120px;
+      outline:none; transition:border-color 0.15s;
+    }
+    #ai-chat-ta:focus { border-color:rgba(0,255,136,0.45); }
+    #ai-chat-ta::placeholder { color:rgba(100,160,110,0.4); }
+    #ai-chat-send-btn {
+      width:42px; height:42px; flex-shrink:0;
+      background:rgba(0,255,136,0.15);
+      border:1px solid rgba(0,255,136,0.3);
+      border-radius:8px; color:#00ff88;
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; transition:background 0.15s;
+    }
+    #ai-chat-send-btn:hover { background:rgba(0,255,136,0.28); }
+    #ai-chat-send-btn svg { width:18px; height:18px; }
+    /* Mobile: sidebar over main em telas pequenas */
+    @media (max-width: 600px) {
+      #ai-chat-sidebar { width:160px; min-width:140px; }
+      .ai-npc-label { font-size:5.5px; }
+      .ai-msg-bubble { font-size:12px; }
+    }
+  </style>
+  <script>
+    (function() {
+      var _modal = null, _npcActive = null, _histories = {};
+
+      function _init() {
+        _modal = document.getElementById('ai-chat-modal');
+        // Popula lista de NPCs quando Phaser estiver pronto
+        var _npcTimer = setInterval(function() {
+          var names = window.persona_names;
+          if (!names) return;
+          clearInterval(_npcTimer);
+          var list = document.getElementById('ai-npc-list');
+          Object.keys(names).forEach(function(k) {
+            var el = document.createElement('div');
+            el.className = 'ai-npc-item';
+            el.dataset.npc = k;
+            el.innerHTML = '<div class="ai-npc-dot"></div><div class="ai-npc-label">' + k.replace(/_/g,' ') + '</div>';
+            el.addEventListener('click', function() { _selectNpc(k, el); });
+            list.appendChild(el);
+          });
+        }, 500);
+      }
+
+      function _selectNpc(key, el) {
+        _npcActive = key;
+        document.querySelectorAll('.ai-npc-item').forEach(function(e){ e.classList.remove('active'); });
+        el.classList.add('active');
+        document.getElementById('ai-chat-active-name').textContent = key.replace(/_/g,' ');
+        document.getElementById('ai-chat-active-dot').classList.add('on');
+        var msgs = document.getElementById('ai-chat-messages');
+        msgs.innerHTML = '';
+        if (_histories[key] && _histories[key].length) {
+          _histories[key].forEach(function(m){ _renderBubble(m.role, m.text); });
+        } else {
+          _renderBubble('npc', 'Olá! Sou ' + key.replace(/_/g,' ') + '. Como posso ajudar?');
+          if (!_histories[key]) _histories[key] = [];
+          _histories[key].push({ role:'npc', text:'Olá! Sou ' + key.replace(/_/g,' ') + '. Como posso ajudar?' });
+        }
+        _scrollBottom();
+      }
+
+      function _renderBubble(role, text) {
+        var msgs = document.getElementById('ai-chat-messages');
+        var row = document.createElement('div');
+        row.className = 'ai-msg-row ' + (role === 'user' ? 'user' : 'npc');
+        var sender = document.createElement('div');
+        sender.className = 'ai-msg-sender';
+        sender.textContent = role === 'user' ? 'VOCÊ' : (_npcActive || '').replace(/_/g,' ').toUpperCase();
+        var bubble = document.createElement('div');
+        bubble.className = 'ai-msg-bubble';
+        bubble.textContent = text;
+        row.appendChild(sender); row.appendChild(bubble);
+        msgs.appendChild(row);
+        return bubble;
+      }
+
+      function _scrollBottom() {
+        var msgs = document.getElementById('ai-chat-messages');
+        msgs.scrollTop = msgs.scrollHeight;
+      }
+
+      window._aiChatSend = function() {
+        var ta = document.getElementById('ai-chat-ta');
+        var text = ta.value.trim();
+        if (!text || !_npcActive) return;
+        ta.value = ''; ta.style.height = 'auto';
+        if (!_histories[_npcActive]) _histories[_npcActive] = [];
+        _histories[_npcActive].push({ role:'user', text:text });
+        _renderBubble('user', text);
+        // Thinking bubble
+        var thinkRow = document.createElement('div');
+        thinkRow.className = 'ai-msg-row npc';
+        var thinkBubble = document.createElement('div');
+        thinkBubble.className = 'ai-msg-bubble thinking';
+        thinkBubble.textContent = 'pensando...';
+        thinkRow.appendChild(thinkBubble);
+        document.getElementById('ai-chat-messages').appendChild(thinkRow);
+        _scrollBottom();
+
+        var ctx = {};
+        try {
+          if (window._personas && window._personas[_npcActive]) {
+            ctx = { location: window._personas[_npcActive].tile_loc };
+          }
+        } catch(e){}
+
+        window._openclawAsk(_npcActive, text, ctx, function(reply) {
+          thinkRow.remove();
+          var response = reply || 'Não recebi resposta do servidor. Verifique a conexão OpenClaw.';
+          _histories[_npcActive].push({ role:'npc', text:response });
+          _renderBubble('npc', response);
+          _scrollBottom();
+        });
+      };
+
+      window._aiChatOpen = function() {
+        if (!_modal) _init();
+        _modal.classList.add('open');
+        setTimeout(function(){ document.getElementById('ai-chat-ta').focus(); }, 100);
+      };
+      window._aiChatClose = function() {
+        if (_modal) _modal.classList.remove('open');
+        var cv = document.querySelector('#game-container canvas');
+        if (cv) cv.focus();
+      };
+      window._aiChatToggle = function() {
+        if (!_modal) _init();
+        if (_modal && _modal.classList.contains('open')) window._aiChatClose();
+        else window._aiChatOpen();
+      };
+
+      // Tecla T abre/fecha
+      window.addEventListener('load', function() {
+        _init();
+        document.addEventListener('keydown', function(e) {
+          if (e.key === 't' || e.key === 'T') {
+            var active = document.activeElement;
+            if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA')) return;
+            if (document.getElementById('secret-terminal').classList.contains('open')) return;
+            e.preventDefault();
+            window._aiChatToggle();
+          }
+          if (e.key === 'Escape') {
+            if (_modal && _modal.classList.contains('open')) { e.stopPropagation(); window._aiChatClose(); }
+          }
+          if ((e.key === 'Enter') && !e.shiftKey) {
+            var focus = document.activeElement;
+            if (focus && focus.id === 'ai-chat-ta') { e.preventDefault(); window._aiChatSend(); }
+          }
+        });
+        // Auto-resize textarea
+        var ta = document.getElementById('ai-chat-ta');
+        if (ta) ta.addEventListener('input', function() {
+          this.style.height = 'auto';
+          this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+      });
+    })();
+  </script>
+
   <!-- *** TERMINAL SECRETO (Konami: ↑↑↓↓←→←→BA) *** -->
   <div id="secret-terminal">
     <div id="term-header">
@@ -514,6 +851,7 @@ Author: Joon Sung Park (joonspk@stanford.edu)
       <div id="hud-token-val">$ <span id="hud-token-count">0</span></div>
     </div>
     <div id="hud-mode" class="scripted">&#9654; SCRIPTED</div>
+    <div id="hud-chat-btn" onclick="window._aiChatToggle&&window._aiChatToggle()" title="Chat com NPCs [T]">&#x1F4AC;</div>
     <div id="hud-gear" onclick="document.getElementById('cfg-modal').classList.add('open')" title="Configurações">&#9881;</div>
     <div id="hud-ws"><div id="hud-ws-dot"></div><span id="hud-ws-lbl">OFFLINE</span></div>
   </div>
