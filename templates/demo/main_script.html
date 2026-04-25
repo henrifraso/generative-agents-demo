@@ -423,21 +423,16 @@
 	      _eg.fillRect(0, _BY + _BEACH_H + i * 4, _bMW, 4);
 	    });
 
-	    // Árvores idênticas ao mapa: CuteRPG_Field_B, bloco 2×2
-	    // GIDs 166,167,182,183 → local 165,166,181,182 → px(160,320),(192,320),(160,352),(192,352)
+	    // Árvores idênticas ao mapa: Field_B GIDs 166/167/182/183
+	    // Frame nativo Phaser — sem canvas, alpha do PNG preservado, sem fundo preto
 	    {
-	      var _fbSrc = _bsc.textures.get('CuteRPG_Field_B').getSourceImage();
-	      var _tc = document.createElement('canvas'); _tc.width = 64; _tc.height = 64;
-	      var _tx = _tc.getContext('2d');
-	      _tx.drawImage(_fbSrc, 160, 320, 32, 32,  0,  0, 32, 32); // local 165 — topo-esq
-	      _tx.drawImage(_fbSrc, 192, 320, 32, 32, 32,  0, 32, 32); // local 166 — topo-dir
-	      _tx.drawImage(_fbSrc, 160, 352, 32, 32,  0, 32, 32, 32); // local 181 — base-esq
-	      _tx.drawImage(_fbSrc, 192, 352, 32, 32, 32, 32, 32, 32); // local 182 — base-dir
-	      _bsc.textures.addCanvas('beach_tree', _tc);
-	      // Linha de árvores na borda areia→grama, com gap de ~200px entre cada uma
+	      var _fbTex = _bsc.textures.get('CuteRPG_Field_B');
+	      // 2×2 bloco: local 165 (px160,320), 166 (px192,320), 181 (px160,352), 182 (px192,352)
+	      if (!_fbTex.has('bt')) _fbTex.add('bt', 0, 160, 320, 64, 64);
 	      var _treeY = _BY + _BEACH_H - 64;
 	      for (var _ti = 0; _ti * 256 < _bMW; _ti++) {
-	        _bsc.add.image(96 + _ti * 256, _treeY, 'beach_tree').setDepth(1.6).setOrigin(0, 0);
+	        _bsc.add.image(96 + _ti * 256, _treeY, 'CuteRPG_Field_B', 'bt')
+	          .setDepth(1.6).setOrigin(0, 0);
 	      }
 	    }
 
