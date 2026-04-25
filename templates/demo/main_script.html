@@ -157,6 +157,7 @@
 	  {% endfor %}
 
 	  this.load.image('speech_bubble', "{% static 'assets/speech_bubble/v3.png' %}");
+	  this.load.image('beach_tree', "{% static 'assets/beach_tree.png' %}");
 	}
 
 	function create() {  
@@ -423,15 +424,12 @@
 	      _eg.fillRect(0, _BY + _BEACH_H + i * 4, _bMW, 4);
 	    });
 
-	    // Árvores idênticas ao mapa: Field_B GIDs 166/167/182/183
-	    // Frame nativo Phaser — sem canvas, alpha do PNG preservado, sem fundo preto
+	    // Árvores do mapa: sprite standalone extraído do Field_B (64×96, transparent)
+	    // Espaçamento: 384px entre cada árvore (~6 tiles de gap visível)
 	    {
-	      var _fbTex = _bsc.textures.get('CuteRPG_Field_B');
-	      // 2×2 bloco: local 165 (px160,320), 166 (px192,320), 181 (px160,352), 182 (px192,352)
-	      if (!_fbTex.has('bt')) _fbTex.add('bt', 0, 160, 320, 64, 64);
-	      var _treeY = _BY + _BEACH_H - 64;
-	      for (var _ti = 0; _ti * 256 < _bMW; _ti++) {
-	        _bsc.add.image(96 + _ti * 256, _treeY, 'CuteRPG_Field_B', 'bt')
+	      var _treeY = _BY + _BEACH_H - 96; // base da árvore na areia seca
+	      for (var _ti = 0; 192 + _ti * 384 < _bMW; _ti++) {
+	        _bsc.add.image(192 + _ti * 384, _treeY, 'beach_tree')
 	          .setDepth(1.6).setOrigin(0, 0);
 	      }
 	    }
