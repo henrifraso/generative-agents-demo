@@ -233,20 +233,6 @@
 	  foregroundL1Layer.setDepth(2);
 	  foregroundL2Layer.setDepth(2);
 
-	  // Ocultar tiles do tilemap nas linhas 0-27 (área da praia = 896px)
-	  // A praia (depth=1) aparece limpa sem o mapa vazando por baixo
-	  var _beachTileRows = 28;
-	  [bottomGroundLayer, exteriorGroundLayer, exteriorDecorationL1Layer,
-	   exteriorDecorationL2Layer, wallLayer, interiorGroundLayer,
-	   interiorFurnitureL1Layer, interiorFurnitureL2Layer,
-	   foregroundL1Layer, foregroundL2Layer].forEach(function(layer) {
-	    for (var _mty = 0; _mty < _beachTileRows; _mty++) {
-	      for (var _mtx = 0; _mtx < 140; _mtx++) {
-	        var _mt = layer.getTileAt(_mtx, _mty);
-	        if (_mt) _mt.setAlpha(0);
-	      }
-	    }
-	  });
 
 	  // *** NIGHT OVERLAY — só tiles externos (sem RenderTexture) ***
 	  var _nightG = this.add.graphics().setDepth(3).setAlpha(0);
@@ -286,7 +272,7 @@
 	  camera.startFollow(player);
 	  var _worldW = _GAME_W;
 	  camera.setZoom(1);
-	  camera.setBounds(0, 0, _worldW, map.heightInPixels);
+	  camera.setBounds(0, 0, _worldW, map.heightInPixels + 1024);
 	  camera.startFollow(player);
 	  cursors = this.input.keyboard.createCursorKeys();
 	  window._camera = camera;
@@ -372,114 +358,109 @@
 	    window._capGraphics[_bpn] = this.add.graphics().setDepth(5);
 	  }
 
-	  // *** PRAIA — Graphics puro, sem texturas, acima do mapa (Y negativo) ***
+	  // *** PRAIA — abaixo do mapa, layout: grama→areia→ondas→oceano ***
 	  {
 	    var _bsc = this;
-	    var _bTW = 32, _bMW = 140 * _bTW; // 4480px
-	    var _oceanH = 640, _waveH = 128, _wetH = 64, _sandH = 64;
-	    var _BEACH_H = _oceanH + _waveH + _wetH + _sandH; // 896px
+	    var _bMW = 140 * 32; // 4480px
+	    var _grassH = 64, _sandH = 64, _wetH = 64, _waveH = 128, _oceanH = 640;
+	    var _BEACH_H = _grassH + _sandH + _wetH + _waveH + _oceanH; // 1000px
 	    window._BEACH_H = _BEACH_H;
-	    var _BY = 0; // praia no topo do mapa (Y=0)
+	    var _BY = map.heightInPixels; // Y=3200 — começa exatamente no fim do mapa
 
-	    // Bloco único de oceano (azul profundo)
-	    var _gOcean = _bsc.add.graphics().setDepth(1);
-	    _gOcean.fillStyle(0x1a4a6e, 1);
-	    _gOcean.fillRect(0, _BY, _bMW, _oceanH);
-	    // Linhas de onda (azul médio)
-	    _gOcean.fillStyle(0x2a6b99, 1);
-	    for (var _wi = 0; _wi < 50; _wi++) {
-	      _gOcean.fillRect(_wi * 90, _BY + 40 + (_wi%3)*30, 60, 4);
-	      _gOcean.fillRect(_wi * 90 + 20, _BY + 120 + (_wi%4)*40, 80, 3);
-	      _gOcean.fillRect(_wi * 90 + 10, _BY + 220 + (_wi%5)*35, 50, 3);
-	      _gOcean.fillRect(_wi * 90 + 30, _BY + 360 + (_wi%3)*28, 70, 4);
-	      _gOcean.fillRect(_wi * 90 + 5,  _BY + 480 + (_wi%4)*22, 55, 3);
-	    }
-	    // Espuma branca no topo das ondas
-	    _gOcean.fillStyle(0xc8ecf8, 1);
-	    for (var _wi = 0; _wi < 50; _wi++) {
-	      _gOcean.fillRect(_wi * 90, _BY + 38 + (_wi%3)*30, 60, 2);
-	      _gOcean.fillRect(_wi * 90 + 20, _BY + 118 + (_wi%4)*40, 80, 2);
-	    }
-	    window._gOcean = _gOcean;
-
-	    // Zona de ondas quebrando (azul claro)
-	    var _gWave = _bsc.add.graphics().setDepth(1);
-	    _gWave.fillStyle(0x3a8ec4, 1);
-	    _gWave.fillRect(0, _BY + _oceanH, _bMW, _waveH);
-	    _gWave.fillStyle(0x7dcce8, 1);
-	    _gWave.fillRect(0, _BY + _oceanH + 8, _bMW, 20);
-	    _gWave.fillStyle(0xeaf8ff, 1);
-	    _gWave.fillRect(0, _BY + _oceanH + 10, _bMW, 8);
-	    _gWave.fillStyle(0x5ab8d8, 1);
-	    _gWave.fillRect(0, _BY + _oceanH + 70, _bMW, 18);
-	    _gWave.fillStyle(0xd8f4ff, 1);
-	    _gWave.fillRect(0, _BY + _oceanH + 72, _bMW, 6);
-	    window._gWave = _gWave;
-
-	    // Areia molhada
-	    var _gWet = _bsc.add.graphics().setDepth(1);
-	    _gWet.fillStyle(0xb8a07a, 1);
-	    _gWet.fillRect(0, _BY + _oceanH + _waveH, _bMW, _wetH);
-	    _gWet.fillStyle(0x7ab4d0, 0.25);
-	    _gWet.fillRect(0, _BY + _oceanH + _waveH + 4, _bMW, 12);
-	    _gWet.fillRect(0, _BY + _oceanH + _waveH + 36, _bMW, 10);
-
-	    // Areia seca
-	    var _gSand = _bsc.add.graphics().setDepth(1);
-	    _gSand.fillStyle(0xd4b882, 1);
-	    _gSand.fillRect(0, _BY + _oceanH + _waveH + _wetH, _bMW, _sandH);
-	    _gSand.fillStyle(0xdcc490, 1);
-	    for (var _si = 0; _si < 140; _si += 2)
-	      _gSand.fillRect(_si * 32, _BY + _oceanH + _waveH + _wetH, 32, _sandH);
-
-	    // Borda areia→grama (gradiente em faixas no fim da praia)
-	    var _edgeCols = [0xd4b882,0xc8ac7a,0xb8a06a,0x9a8855,0x7a7048,0x5a6040,0x4a5438];
-	    _edgeCols.forEach(function(col, i) {
-	      var _eg = _bsc.add.graphics().setDepth(1.1);
-	      _eg.fillStyle(col, 1);
-	      _eg.fillRect(0, _BY + _BEACH_H + i * 4, _bMW, 4);
-	    });
-
-	    // Strip de grama + árvores usando tileset já carregado (canvas opaco, sem fundo preto)
+	    // Grama + árvores (transição mapa→praia)
 	    {
-	      var _grassY = _BY + _BEACH_H - 64; // Y=832 — últimos 64px da praia
 	      var _fbSrc = this.textures.get('CuteRPG_Field_B').getSourceImage();
-	      // Canvas 64×64: grama (GID=2, px 32,0 no Field_B) + árvore overlay (px 160,320)
 	      if (!this.textures.exists('_beach_tree_sprite')) {
 	        var _tc = document.createElement('canvas'); _tc.width = 64; _tc.height = 64;
 	        var _tcx = _tc.getContext('2d');
-	        // Fundo: 4 tiles de grama (2×2) — totalmente opaco, sem transparência
 	        _tcx.drawImage(_fbSrc, 32, 0, 32, 32,  0,  0, 32, 32);
 	        _tcx.drawImage(_fbSrc, 32, 0, 32, 32, 32,  0, 32, 32);
 	        _tcx.drawImage(_fbSrc, 32, 0, 32, 32,  0, 32, 32, 32);
 	        _tcx.drawImage(_fbSrc, 32, 0, 32, 32, 32, 32, 32, 32);
-	        // Árvore overlay (64×64 com alpha real do PNG) sobre a grama
 	        _tcx.drawImage(_fbSrc, 160, 320, 64, 64, 0, 0, 64, 64);
 	        this.textures.addCanvas('_beach_tree_sprite', _tc);
 	      }
-	      // Canvas 32×32: tile de grama para o strip horizontal
 	      if (!this.textures.exists('_beach_grass_sprite')) {
 	        var _gc = document.createElement('canvas'); _gc.width = 32; _gc.height = 32;
 	        _gc.getContext('2d').drawImage(_fbSrc, 32, 0, 32, 32, 0, 0, 32, 32);
 	        this.textures.addCanvas('_beach_grass_sprite', _gc);
 	      }
-	      // Strip contínuo de grama (depth=1.1 — acima da areia/oceano depth=1)
-	      _bsc.add.tileSprite(0, _grassY, _GAME_W, 64, '_beach_grass_sprite')
+	      _bsc.add.tileSprite(0, _BY, _GAME_W, _grassH, '_beach_grass_sprite')
 	        .setDepth(1.1).setOrigin(0, 0);
-	      // Árvores espaçadas (depth=1.6)
 	      for (var _ti = 0; 96 + _ti * 448 < _bMW; _ti++) {
-	        _bsc.add.image(96 + _ti * 448, _grassY, '_beach_tree_sprite')
+	        _bsc.add.image(96 + _ti * 448, _BY, '_beach_tree_sprite')
 	          .setDepth(1.6).setOrigin(0, 0);
 	      }
 	    }
 
-	    // Pássaros (Graphics animados no update)
+	    // Gradiente grama→areia
+	    var _edgeCols = [0x4a5438,0x5a6040,0x7a7048,0x9a8855,0xb8a06a,0xc8ac7a,0xd4b882];
+	    _edgeCols.forEach(function(col, i) {
+	      var _eg = _bsc.add.graphics().setDepth(1.1);
+	      _eg.fillStyle(col, 1);
+	      _eg.fillRect(0, _BY + _grassH + i * 4, _bMW, 4);
+	    });
+
+	    // Areia seca
+	    var _gSand = _bsc.add.graphics().setDepth(1);
+	    var _sandY = _BY + _grassH + 28;
+	    _gSand.fillStyle(0xd4b882, 1);
+	    _gSand.fillRect(0, _sandY, _bMW, _sandH);
+	    _gSand.fillStyle(0xdcc490, 1);
+	    for (var _si = 0; _si < 140; _si += 2)
+	      _gSand.fillRect(_si * 32, _sandY, 32, _sandH);
+
+	    // Areia molhada
+	    var _gWet = _bsc.add.graphics().setDepth(1);
+	    var _wetY = _sandY + _sandH;
+	    _gWet.fillStyle(0xb8a07a, 1);
+	    _gWet.fillRect(0, _wetY, _bMW, _wetH);
+	    _gWet.fillStyle(0x7ab4d0, 0.25);
+	    _gWet.fillRect(0, _wetY + 4, _bMW, 12);
+	    _gWet.fillRect(0, _wetY + 36, _bMW, 10);
+
+	    // Ondas
+	    var _gWave = _bsc.add.graphics().setDepth(1);
+	    var _waveY = _wetY + _wetH;
+	    _gWave.fillStyle(0x3a8ec4, 1);
+	    _gWave.fillRect(0, _waveY, _bMW, _waveH);
+	    _gWave.fillStyle(0x7dcce8, 1);
+	    _gWave.fillRect(0, _waveY + 8, _bMW, 20);
+	    _gWave.fillStyle(0xeaf8ff, 1);
+	    _gWave.fillRect(0, _waveY + 10, _bMW, 8);
+	    _gWave.fillStyle(0x5ab8d8, 1);
+	    _gWave.fillRect(0, _waveY + 70, _bMW, 18);
+	    _gWave.fillStyle(0xd8f4ff, 1);
+	    _gWave.fillRect(0, _waveY + 72, _bMW, 6);
+	    window._gWave = _gWave;
+
+	    // Oceano
+	    var _gOcean = _bsc.add.graphics().setDepth(1);
+	    var _oceanY = _waveY + _waveH;
+	    _gOcean.fillStyle(0x1a4a6e, 1);
+	    _gOcean.fillRect(0, _oceanY, _bMW, _oceanH);
+	    _gOcean.fillStyle(0x2a6b99, 1);
+	    for (var _wi = 0; _wi < 50; _wi++) {
+	      _gOcean.fillRect(_wi*90, _oceanY+40+(_wi%3)*30, 60, 4);
+	      _gOcean.fillRect(_wi*90+20, _oceanY+120+(_wi%4)*40, 80, 3);
+	      _gOcean.fillRect(_wi*90+10, _oceanY+220+(_wi%5)*35, 50, 3);
+	      _gOcean.fillRect(_wi*90+30, _oceanY+360+(_wi%3)*28, 70, 4);
+	      _gOcean.fillRect(_wi*90+5,  _oceanY+480+(_wi%4)*22, 55, 3);
+	    }
+	    _gOcean.fillStyle(0xc8ecf8, 1);
+	    for (var _wi = 0; _wi < 50; _wi++) {
+	      _gOcean.fillRect(_wi*90, _oceanY+38+(_wi%3)*30, 60, 2);
+	      _gOcean.fillRect(_wi*90+20, _oceanY+118+(_wi%4)*40, 80, 2);
+	    }
+	    window._gOcean = _gOcean;
+
+	    // Pássaros (animados no update)
 	    window._beachBirds = [];
 	    for (var _bb = 0; _bb < 6; _bb++) {
 	      window._beachBirds.push({
 	        g: _bsc.add.graphics().setDepth(1.9),
 	        x: Math.random() * _bMW,
-	        y: _BY + 30 + Math.random() * _oceanH * 0.7,
+	        y: _oceanY + 30 + Math.random() * _oceanH * 0.7,
 	        vx: 0.25 + Math.random() * 0.4,
 	        t: Math.random() * Math.PI * 2
 	      });
@@ -521,12 +502,11 @@
 	    // Praia estendida à direita
 	    var _pb = this.add.graphics().setDepth(1);
 	    var _BH = window._BEACH_H || 896;
-	    var _BY2 = 0;
-	    _pb.fillStyle(0x1a4a6e,1); _pb.fillRect(_MAP_W, _BY2, _EXT_W, _BH-256);
-	    _pb.fillStyle(0x3a8ec4,1); _pb.fillRect(_MAP_W, _BY2+_BH-256, _EXT_W, 128);
-	    _pb.fillStyle(0xeaf8ff,1); _pb.fillRect(_MAP_W, _BY2+_BH-256+10, _EXT_W, 8);
-	    _pb.fillStyle(0xb8a07a,1); _pb.fillRect(_MAP_W, _BY2+_BH-128, _EXT_W, 64);
-	    _pb.fillStyle(0xd4b882,1); _pb.fillRect(_MAP_W, _BY2+_BH-64,  _EXT_W, 64);
+	    var _BY2 = map.heightInPixels;
+	    _pb.fillStyle(0xd4b882,1); _pb.fillRect(_MAP_W, _BY2,        _EXT_W, 64);
+	    _pb.fillStyle(0xb8a07a,1); _pb.fillRect(_MAP_W, _BY2+64,     _EXT_W, 64);
+	    _pb.fillStyle(0x3a8ec4,1); _pb.fillRect(_MAP_W, _BY2+128,    _EXT_W, 128);
+	    _pb.fillStyle(0x1a4a6e,1); _pb.fillRect(_MAP_W, _BY2+256,    _EXT_W, _BH-256);
 	  }
 
 	  // Solo vazio
@@ -878,8 +858,8 @@
 	      window._playerDir = _pdir;
 	      if (_pdx!==0||_pdy!==0) {
 	        var _ntx=window._playerTX+_pdx, _nty=window._playerTY+_pdy;
-	        var _beachRows = Math.ceil(window._BEACH_H / 32) || 28;
-	        var _inBeach = _nty >= 0 && _nty < _beachRows && _ntx >= 0 && _ntx < 140;
+	        var _beachRows = Math.ceil(window._BEACH_H / 32) || 32;
+	        var _inBeach = _nty >= 100 && _nty < 100 + _beachRows && _ntx >= 0 && _ntx < 140;
 	        var _inMap   = _ntx>=0&&_ntx<140&&_nty>=0&&_nty<100&&window._walkable[_nty][_ntx];
         if (_inBeach || _inMap) {
 	          window._playerTX=_ntx; window._playerTY=_nty;
