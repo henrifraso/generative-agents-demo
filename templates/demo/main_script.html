@@ -362,9 +362,9 @@
 	  {
 	    var _bsc = this;
 	    var _bMW = 140 * 32; // 4480px
-	    var _beachStartRow = 70; // linha 70 em diante → praia
-	    var _BY = _beachStartRow * 32; // Y=2240
-	    var _BEACH_H = map.heightInPixels - _BY; // 960px (30 linhas)
+	    var _beachStartRow = 83; // edifícios terminam em row 82, praia começa em 83
+	    var _BY = _beachStartRow * 32; // Y=2656
+	    var _BEACH_H = map.heightInPixels - _BY; // 544px (17 linhas)
 	    window._BEACH_H = _BEACH_H;
 	    window._BEACH_Y  = _BY;
 
@@ -381,10 +381,9 @@
 	      }
 	    });
 
-	    // Layout de cima pra baixo dentro da área da praia:
-	    // grama (64px) → gradiente (28px) → areia (64px) → molhada (64px) → ondas (128px) → oceano (620px)
-	    var _grassH = 64, _gradH = 28, _sandH = 64, _wetH = 64, _waveH = 128;
-	    var _oceanH = _BEACH_H - _grassH - _gradH - _sandH - _wetH - _waveH; // restante
+	    // grama (32px) → gradiente (16px) → areia (64px) → molhada (32px) → ondas (96px) → oceano (restante)
+	    var _grassH = 32, _gradH = 16, _sandH = 64, _wetH = 32, _waveH = 96;
+	    var _oceanH = _BEACH_H - _grassH - _gradH - _sandH - _wetH - _waveH; // ~304px
 
 	    // Grama + árvores (transição mapa→praia)
 	    {
@@ -411,7 +410,7 @@
 	    }
 
 	    // Gradiente grama→areia
-	    var _edgeCols = [0x4a5438,0x5a6040,0x7a7048,0x9a8855,0xb8a06a,0xc8ac7a,0xd4b882];
+	    var _edgeCols = [0x4a5438,0x7a7048,0xb8a06a,0xd4b882];
 	    _edgeCols.forEach(function(col, i) {
 	      _bsc.add.graphics().setDepth(1.1).fillStyle(col,1)
 	        .fillRect(0, _BY + _grassH + i * 4, _bMW, 4);
