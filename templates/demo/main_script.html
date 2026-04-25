@@ -230,13 +230,6 @@
 	  // Collisions layer should get a negative depth since we do not want to see
 	  // it. 
 	  collisionsLayer.setDepth(-1);
-	  exteriorGroundLayer.setDepth(1.5);
-	  exteriorDecorationL1Layer.setDepth(1.5);
-	  exteriorDecorationL2Layer.setDepth(1.5);
-	  wallLayer.setDepth(1.5);
-	  interiorGroundLayer.setDepth(1.5);
-	  interiorFurnitureL1Layer.setDepth(1.5);
-	  interiorFurnitureL2Layer.setDepth(1.5);
 	  foregroundL1Layer.setDepth(2);
 	  foregroundL2Layer.setDepth(2);
 
@@ -278,7 +271,7 @@
 	  camera.startFollow(player);
 	  var _worldW = _GAME_W;
 	  camera.setZoom(1);
-	  camera.setBounds(0, 0, _worldW, map.heightInPixels);
+	  camera.setBounds(0, -896, _worldW, map.heightInPixels + 896);
 	  camera.startFollow(player);
 	  cursors = this.input.keyboard.createCursorKeys();
 	  window._camera = camera;
@@ -371,7 +364,7 @@
 	    var _oceanH = 640, _waveH = 128, _wetH = 64, _sandH = 64;
 	    var _BEACH_H = _oceanH + _waveH + _wetH + _sandH; // 896px
 	    window._BEACH_H = _BEACH_H;
-	    var _BY = 0; // y=0, praia ocupa o topo do mapa (sobre tiles cinzas)
+	    var _BY = -_BEACH_H; // praia acima do mapa (Y negativo)
 
 	    // Bloco único de oceano (azul profundo)
 	    var _gOcean = _bsc.add.graphics().setDepth(1);
@@ -513,7 +506,7 @@
 	    // Praia estendida à direita
 	    var _pb = this.add.graphics().setDepth(1);
 	    var _BH = window._BEACH_H || 896;
-	    var _BY2 = 0;
+	    var _BY2 = -_BH;
 	    _pb.fillStyle(0x1a4a6e,1); _pb.fillRect(_MAP_W, _BY2, _EXT_W, _BH-256);
 	    _pb.fillStyle(0x3a8ec4,1); _pb.fillRect(_MAP_W, _BY2+_BH-256, _EXT_W, 128);
 	    _pb.fillStyle(0xeaf8ff,1); _pb.fillRect(_MAP_W, _BY2+_BH-256+10, _EXT_W, 8);
@@ -871,7 +864,7 @@
 	      if (_pdx!==0||_pdy!==0) {
 	        var _ntx=window._playerTX+_pdx, _nty=window._playerTY+_pdy;
 	        var _beachRows = Math.ceil(window._BEACH_H / 32) || 28;
-	        var _inBeach = _nty >= 0 && _nty < _beachRows && _ntx >= 0 && _ntx < 140;
+	        var _inBeach = _nty >= -_beachRows && _nty < 0 && _ntx >= 0 && _ntx < 140;
 	        var _inMap   = _ntx>=0&&_ntx<140&&_nty>=0&&_nty<100&&window._walkable[_nty][_ntx];
         if (_inBeach || _inMap) {
 	          window._playerTX=_ntx; window._playerTY=_nty;
