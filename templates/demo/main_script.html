@@ -230,6 +230,13 @@
 	  // Collisions layer should get a negative depth since we do not want to see
 	  // it. 
 	  collisionsLayer.setDepth(-1);
+	  exteriorGroundLayer.setDepth(1.5);
+	  exteriorDecorationL1Layer.setDepth(1.5);
+	  exteriorDecorationL2Layer.setDepth(1.5);
+	  wallLayer.setDepth(1.5);
+	  interiorGroundLayer.setDepth(1.5);
+	  interiorFurnitureL1Layer.setDepth(1.5);
+	  interiorFurnitureL2Layer.setDepth(1.5);
 	  foregroundL1Layer.setDepth(2);
 	  foregroundL2Layer.setDepth(2);
 
@@ -425,15 +432,35 @@
 	      _eg.fillRect(0, _BY + _BEACH_H + i * 4, _bMW, 4);
 	    });
 
-	    // Strip de grama (Bottom Ground do mapa) + árvores overlay com espaçamento
+	    // Strip de grama + árvores usando tileset já carregado (canvas opaco, sem fundo preto)
 	    {
-	      var _grassY = _BY + _BEACH_H - 64; // últimos 64px da praia (2 tiles)
-	      // Strip contínuo de grama — igual ao Bottom Ground do mapa original
-	      _bsc.add.tileSprite(0, _grassY, _GAME_W, 64, 'beach_grass')
+	      var _grassY = _BY + _BEACH_H - 64; // Y=832 — últimos 64px da praia
+	      var _fbSrc = this.textures.get('CuteRPG_Field_B').getSourceImage();
+	      // Canvas 64×64: grama (GID=2, px 32,0 no Field_B) + árvore overlay (px 160,320)
+	      if (!this.textures.exists('_beach_tree_sprite')) {
+	        var _tc = document.createElement('canvas'); _tc.width = 64; _tc.height = 64;
+	        var _tcx = _tc.getContext('2d');
+	        // Fundo: 4 tiles de grama (2×2) — totalmente opaco, sem transparência
+	        _tcx.drawImage(_fbSrc, 32, 0, 32, 32,  0,  0, 32, 32);
+	        _tcx.drawImage(_fbSrc, 32, 0, 32, 32, 32,  0, 32, 32);
+	        _tcx.drawImage(_fbSrc, 32, 0, 32, 32,  0, 32, 32, 32);
+	        _tcx.drawImage(_fbSrc, 32, 0, 32, 32, 32, 32, 32, 32);
+	        // Árvore overlay (64×64 com alpha real do PNG) sobre a grama
+	        _tcx.drawImage(_fbSrc, 160, 320, 64, 64, 0, 0, 64, 64);
+	        this.textures.addCanvas('_beach_tree_sprite', _tc);
+	      }
+	      // Canvas 32×32: tile de grama para o strip horizontal
+	      if (!this.textures.exists('_beach_grass_sprite')) {
+	        var _gc = document.createElement('canvas'); _gc.width = 32; _gc.height = 32;
+	        _gc.getContext('2d').drawImage(_fbSrc, 32, 0, 32, 32, 0, 0, 32, 32);
+	        this.textures.addCanvas('_beach_grass_sprite', _gc);
+	      }
+	      // Strip contínuo de grama (depth=1.1 — acima da areia/oceano depth=1)
+	      _bsc.add.tileSprite(0, _grassY, _GAME_W, 64, '_beach_grass_sprite')
 	        .setDepth(1.1).setOrigin(0, 0);
-	      // Árvores overlay (transparentes sobre a grama), espaçamento 448px (~6 tiles de grama visível)
+	      // Árvores espaçadas (depth=1.6)
 	      for (var _ti = 0; 96 + _ti * 448 < _bMW; _ti++) {
-	        _bsc.add.image(96 + _ti * 448, _grassY, 'beach_tree')
+	        _bsc.add.image(96 + _ti * 448, _grassY, '_beach_tree_sprite')
 	          .setDepth(1.6).setOrigin(0, 0);
 	      }
 	    }
