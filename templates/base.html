@@ -1318,13 +1318,11 @@ Author: Joon Sung Park (joonspk@stanford.edu)
   <script>
     var _s = 0, _sMin = 1;
     var _ox = 0, _oy = 0;
-    var _CW = 4480, _CH = 4096; // inclui 896px de praia acima
+    var _CW = 4480, _CH = 3200; // tamanho físico do canvas Phaser
 
     function _apply() {
       var c = document.querySelector('#game-container canvas');
       if (!c) return;
-      // Modo FIT: canvas inteiro visível, bordas pretas se necessário
-      _ox = 0; _oy = 0;
       c.style.transform = 'translate(-50%, -50%) scale(' + _s + ')';
     }
 
@@ -1333,8 +1331,8 @@ Author: Joon Sung Park (joonspk@stanford.edu)
       if (!c) { setTimeout(fitCanvas, 300); return; }
       var vw = window.innerWidth;
       var vh = window.innerHeight;
-      // FIT: escala para caber tudo (min = letterbox, não fill)
-      _s = Math.min(vw / _CW, vh / _CH);
+      // Escala pela altura (top e bottom encaixam), bordas pretas nas laterais se necessário
+      _s = Math.min(vh / _CH, vw / _CW);
       _apply();
     }
 
