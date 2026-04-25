@@ -1318,26 +1318,23 @@ Author: Joon Sung Park (joonspk@stanford.edu)
   <script>
     var _s = 0, _sMin = 1;
     var _ox = 0, _oy = 0;
-    var _CW = 4480, _CH = 3200;
+    var _CW = 4480, _CH = 4096; // inclui 896px de praia acima
 
     function _apply() {
       var c = document.querySelector('#game-container canvas');
       if (!c) return;
-      var maxX = Math.max(0, (_CW * _s - window.innerWidth)  / 2);
-      var maxY = Math.max(0, (_CH * _s - window.innerHeight) / 2);
-      _ox = Math.max(-maxX, Math.min(maxX, _ox));
-      _oy = Math.max(-maxY, Math.min(maxY, _oy));
-      c.style.transform = 'translate(calc(-50% + ' + _ox + 'px), calc(-50% + ' + _oy + 'px)) scale(' + _s + ')';
+      // Modo FIT: canvas inteiro visível, bordas pretas se necessário
+      _ox = 0; _oy = 0;
+      c.style.transform = 'translate(-50%, -50%) scale(' + _s + ')';
     }
 
     function fitCanvas() {
       var c = document.querySelector('#game-container canvas');
       if (!c) { setTimeout(fitCanvas, 300); return; }
-      var sab = Math.max(0, window.screen.height - window.innerHeight);
       var vw = window.innerWidth;
-      var vh = window.innerHeight + sab;
-      _sMin = Math.max(vw / c.offsetWidth, vh / c.offsetHeight);
-      if (_s < _sMin) _s = _sMin;
+      var vh = window.innerHeight;
+      // FIT: escala para caber tudo (min = letterbox, não fill)
+      _s = Math.min(vw / _CW, vh / _CH);
       _apply();
     }
 

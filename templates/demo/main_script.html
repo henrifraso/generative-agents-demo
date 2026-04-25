@@ -261,8 +261,15 @@
 	  // Setting up the camera.
 	  const camera = this.cameras.main;
 	  camera.startFollow(player);
-	  var _beachExtra = 896; // altura da praia em Y negativo
-	  camera.setBounds(0, -_beachExtra, map.widthInPixels, map.heightInPixels + _beachExtra);
+	  var _beachExtra = 896;
+	  var _worldH = map.heightInPixels + _beachExtra; // 4096
+	  var _worldW = map.widthInPixels;                // 4480
+	  // Zoom para caber o mundo inteiro no canvas (canvas=4480×3200, mundo=4480×4096)
+	  var _fitZoom = Math.min(_worldW / _worldW, map.heightInPixels / _worldH);
+	  camera.setZoom(_fitZoom);
+	  camera.setBounds(0, -_beachExtra, _worldW, _worldH);
+	  camera.stopFollow();
+	  camera.centerOn(_worldW / 2, (_worldH / 2) - _beachExtra);
 	  cursors = this.input.keyboard.createCursorKeys();
 	  window._camera = camera;
 	  window._phaserScene = this;
@@ -271,7 +278,8 @@
 	  // Zoom com scroll do mouse
 	  this.input.on('wheel', function(pointer, gameObjects, deltaX, deltaY) {
 	    var newZoom = camera.zoom - deltaY * 0.001;
-	    camera.setZoom(Math.max(1, Math.min(4, newZoom)));
+	    var _minZ = Math.min(map.heightInPixels / (map.heightInPixels + 896), 1);
+	    camera.setZoom(Math.max(_minZ, Math.min(4, newZoom)));
 	    game.canvas.focus();
 	  });
 	  game.canvas.setAttribute('tabindex', '0');
