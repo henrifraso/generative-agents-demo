@@ -261,7 +261,8 @@
 	  // Setting up the camera.
 	  const camera = this.cameras.main;
 	  camera.startFollow(player);
-	  camera.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
+	  var _beachExtra = 896; // altura da praia em Y negativo
+	  camera.setBounds(0, -_beachExtra, map.widthInPixels, map.heightInPixels + _beachExtra);
 	  cursors = this.input.keyboard.createCursorKeys();
 	  window._camera = camera;
 	  window._phaserScene = this;
@@ -409,36 +410,38 @@
 	      cols.forEach(function(c,i){ x.fillStyle=c; x.fillRect(0,i,32,1); });
 	    });
 
-	    var oceanH  = 20*TW;  // rows 0-19
-	    var waveH   =  4*TW;  // rows 20-23
-	    var wetH    =  2*TW;  // rows 24-25
-	    var sandH   =  2*TW;  // rows 26-27
+	    // A praia fica ACIMA do mapa (Y negativo) — expande o mundo para cima
+	    var oceanH = 20*TW;   // 640px de oceano
+	    var waveH  =  4*TW;   // 128px de ondas
+	    var wetH   =  2*TW;   // 64px areia molhada
+	    var sandH  =  2*TW;   // 64px areia seca
+	    var BEACH_H = oceanH + waveH + wetH + sandH; // 896px total
+	    window._BEACH_H = BEACH_H;
 
-	    // Oceano — TileSprite animado (depth 0.5 cobre o tile cinza do ground layer)
-	    window._beachOcean = sc.add.tileSprite(MAP_W/2, oceanH/2, MAP_W, oceanH, 'beach_deep')
-	      .setDepth(0.5).setOrigin(0.5, 0.5);
+	    // Origem: y=0 é o topo do mapa original. Praia começa em y=-BEACH_H
+	    var BY = -BEACH_H; // y base da praia
 
-	    // Ondas
-	    window._beachWave = sc.add.tileSprite(MAP_W/2, oceanH + waveH/2, MAP_W, waveH, 'beach_wave')
-	      .setDepth(0.5).setOrigin(0.5, 0.5);
+	    window._beachOcean = sc.add.tileSprite(MAP_W/2, BY + oceanH/2, MAP_W, oceanH, 'beach_deep')
+	      .setDepth(1).setOrigin(0.5, 0.5);
 
-	    // Areia molhada
-	    sc.add.tileSprite(MAP_W/2, oceanH+waveH+wetH/2, MAP_W, wetH, 'beach_wet')
-	      .setDepth(0.5).setOrigin(0.5, 0.5);
+	    window._beachWave = sc.add.tileSprite(MAP_W/2, BY + oceanH + waveH/2, MAP_W, waveH, 'beach_wave')
+	      .setDepth(1).setOrigin(0.5, 0.5);
 
-	    // Areia seca
-	    sc.add.tileSprite(MAP_W/2, oceanH+waveH+wetH+sandH/2, MAP_W, sandH, 'beach_sand')
-	      .setDepth(0.5).setOrigin(0.5, 0.5);
+	    sc.add.tileSprite(MAP_W/2, BY + oceanH + waveH + wetH/2, MAP_W, wetH, 'beach_wet')
+	      .setDepth(1).setOrigin(0.5, 0.5);
 
-	    // Borda transição
-	    sc.add.tileSprite(MAP_W/2, oceanH+waveH+wetH+sandH+4, MAP_W, 8, 'beach_edge')
-	      .setDepth(0.5).setOrigin(0.5, 0.5);
+	    sc.add.tileSprite(MAP_W/2, BY + oceanH + waveH + wetH + sandH/2, MAP_W, sandH, 'beach_sand')
+	      .setDepth(1).setOrigin(0.5, 0.5);
 
-	    // Palmeiras pixel art
-	    var sandBaseY = oceanH + waveH + wetH + sandH;
+	    // Borda gradiente na junção com o mapa original (y=0)
+	    sc.add.tileSprite(MAP_W/2, -4, MAP_W, 8, 'beach_edge')
+	      .setDepth(1).setOrigin(0.5, 0.5);
+
+	    // Palmeiras na faixa de areia (y próximo de 0)
+	    var sandBaseY = -wetH - sandH; // topo da areia seca
 	    function mkPalm(px) {
-	      var g = sc.add.graphics().setDepth(0.7);
-	      var by = sandBaseY;
+	      var g = sc.add.graphics().setDepth(1.5);
+	      var by = -8; // base na borda do mapa
 	      g.fillStyle(0x7a5c2e,1); g.fillRect(px-3, by-52, 6, 52);
 	      g.fillStyle(0x8a6c3e,1); g.fillRect(px-2, by-52, 3, 52);
 	      var leaves=[[-26,-10,22,8],[-18,-18,16,6],[6,-18,22,8],[8,-10,16,6],[-6,-26,16,5]];
@@ -450,12 +453,13 @@
 	    }
 	    [160,480,950,1420,2060,2750,3280,3860,4180].forEach(mkPalm);
 
-	    // Pássaros voando
+	    // Pássaros voando sobre o oceano
 	    window._beachBirds = [];
 	    for (var b = 0; b < 5; b++) {
 	      window._beachBirds.push({
-	        g: sc.add.graphics().setDepth(0.9),
-	        x: Math.random()*MAP_W, y: 30+Math.random()*oceanH*0.6,
+	        g: sc.add.graphics().setDepth(1.9),
+	        x: Math.random()*MAP_W,
+	        y: BY + 30 + Math.random() * oceanH * 0.7,
 	        vx: 0.3+Math.random()*0.5, vy: 0, t: Math.random()*Math.PI*2
 	      });
 	    }
