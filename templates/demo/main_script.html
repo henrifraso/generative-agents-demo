@@ -819,7 +819,10 @@
 	      window._playerDir = _pdir;
 	      if (_pdx!==0||_pdy!==0) {
 	        var _ntx=window._playerTX+_pdx, _nty=window._playerTY+_pdy;
-	        if (_ntx>=0&&_ntx<140&&_nty>=0&&_nty<100&&window._walkable[_nty][_ntx]) {
+	        var _beachRows = Math.ceil(window._BEACH_H / 32) || 28;
+        var _inBeach = _nty < 0 && _nty >= -_beachRows && _ntx >= 0 && _ntx < 140;
+        var _inMap   = _ntx>=0&&_ntx<140&&_nty>=0&&_nty<100&&window._walkable[_nty][_ntx];
+        if (_inBeach || _inMap) {
 	          window._playerTX=_ntx; window._playerTY=_nty;
 	          window._playerTargPX=_ntx*32+16; window._playerTargPY=_nty*32+16;
 	          window._playerMoving=true;
