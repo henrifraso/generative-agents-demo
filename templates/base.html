@@ -1323,7 +1323,11 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     function _apply() {
       var c = document.querySelector('#game-container canvas');
       if (!c) return;
+      c.style.position = 'absolute';
+      c.style.top = '50%';
+      c.style.left = '50%';
       c.style.transform = 'translate(-50%, -50%) scale(' + _s + ')';
+      c.style.transformOrigin = 'center center';
     }
 
     function fitCanvas() {
