@@ -1334,9 +1334,10 @@ Author: Joon Sung Park (joonspk@stanford.edu)
 
     function fitCanvas() {
       var c = document.querySelector('#game-container canvas');
-      if (!c) { setTimeout(fitCanvas, 300); return; }
-      _CW = window._GAME_W || c.width || 4480;
-      _s = Math.min(window.innerHeight / _CH, window.innerWidth / _CW);
+      if (!c || !c.width) { setTimeout(fitCanvas, 200); return; }
+      _CW = c.width;
+      _CH = c.height;
+      _s = Math.min(window.innerWidth / _CW, window.innerHeight / _CH);
       _apply();
     }
 
