@@ -230,17 +230,23 @@
 	  // Collisions layer should get a negative depth since we do not want to see
 	  // it. 
 	  collisionsLayer.setDepth(-1);
-	  // depth=1.5: conteúdo da cidade visível acima da praia (depth=1)
-	  // bottomGroundLayer fica em 0 — praia cobre os tiles cinzas das linhas 0-27
-	  exteriorGroundLayer.setDepth(1.5);
-	  exteriorDecorationL1Layer.setDepth(1.5);
-	  exteriorDecorationL2Layer.setDepth(1.5);
-	  wallLayer.setDepth(1.5);
-	  interiorGroundLayer.setDepth(1.5);
-	  interiorFurnitureL1Layer.setDepth(1.5);
-	  interiorFurnitureL2Layer.setDepth(1.5);
 	  foregroundL1Layer.setDepth(2);
 	  foregroundL2Layer.setDepth(2);
+
+	  // Ocultar tiles do tilemap nas linhas 0-27 (área da praia = 896px)
+	  // A praia (depth=1) aparece limpa sem o mapa vazando por baixo
+	  var _beachTileRows = 28;
+	  [bottomGroundLayer, exteriorGroundLayer, exteriorDecorationL1Layer,
+	   exteriorDecorationL2Layer, wallLayer, interiorGroundLayer,
+	   interiorFurnitureL1Layer, interiorFurnitureL2Layer,
+	   foregroundL1Layer, foregroundL2Layer].forEach(function(layer) {
+	    for (var _mty = 0; _mty < _beachTileRows; _mty++) {
+	      for (var _mtx = 0; _mtx < 140; _mtx++) {
+	        var _mt = layer.getTileAt(_mtx, _mty);
+	        if (_mt) _mt.setAlpha(0);
+	      }
+	    }
+	  });
 
 	  // *** NIGHT OVERLAY — só tiles externos (sem RenderTexture) ***
 	  var _nightG = this.add.graphics().setDepth(3).setAlpha(0);
