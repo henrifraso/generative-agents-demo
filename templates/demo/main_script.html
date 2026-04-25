@@ -423,21 +423,22 @@
 	      _eg.fillRect(0, _BY + _BEACH_H + i * 4, _bMW, 4);
 	    });
 
-	    // Árvores reais do mapa (Forest_C: large tree, cols 0-1, rows 4-7 = px 0-63, 128-255)
+	    // Árvores idênticas ao mapa: CuteRPG_Field_B, bloco 2×2
+	    // GIDs 166,167,182,183 → local 165,166,181,182 → px(160,320),(192,320),(160,352),(192,352)
 	    {
-	      var _fSrc = _bsc.textures.get('CuteRPG_Forest_C').getSourceImage();
-	      var _tc = document.createElement('canvas'); _tc.width = 64; _tc.height = 128;
+	      var _fbSrc = _bsc.textures.get('CuteRPG_Field_B').getSourceImage();
+	      var _tc = document.createElement('canvas'); _tc.width = 64; _tc.height = 64;
 	      var _tx = _tc.getContext('2d');
-	      // 2×4 tile tree: rows 4-7, cols 0-1 do tileset
-	      for (var _tr = 0; _tr < 4; _tr++) {
-	        _tx.drawImage(_fSrc, 0,  128 + _tr*32, 32, 32, 0,  _tr*32, 32, 32);
-	        _tx.drawImage(_fSrc, 32, 128 + _tr*32, 32, 32, 32, _tr*32, 32, 32);
-	      }
+	      _tx.drawImage(_fbSrc, 160, 320, 32, 32,  0,  0, 32, 32); // local 165 — topo-esq
+	      _tx.drawImage(_fbSrc, 192, 320, 32, 32, 32,  0, 32, 32); // local 166 — topo-dir
+	      _tx.drawImage(_fbSrc, 160, 352, 32, 32,  0, 32, 32, 32); // local 181 — base-esq
+	      _tx.drawImage(_fbSrc, 192, 352, 32, 32, 32, 32, 32, 32); // local 182 — base-dir
 	      _bsc.textures.addCanvas('beach_tree', _tc);
-	      var _treeY = _BY + _BEACH_H - 128; // topo da árvore: 4 tiles acima da borda
-	      [160,480,950,1420,2060,2750,3280,3860,4180].forEach(function(px) {
-	        _bsc.add.image(px - 32, _treeY, 'beach_tree').setDepth(1.6).setOrigin(0, 0);
-	      });
+	      // Linha de árvores na borda areia→grama, com gap de ~200px entre cada uma
+	      var _treeY = _BY + _BEACH_H - 64;
+	      for (var _ti = 0; _ti * 256 < _bMW; _ti++) {
+	        _bsc.add.image(96 + _ti * 256, _treeY, 'beach_tree').setDepth(1.6).setOrigin(0, 0);
+	      }
 	    }
 
 	    // Pássaros (Graphics animados no update)
