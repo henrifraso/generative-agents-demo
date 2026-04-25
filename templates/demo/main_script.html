@@ -423,20 +423,22 @@
 	      _eg.fillRect(0, _BY + _BEACH_H + i * 4, _bMW, 4);
 	    });
 
-	    // Palmeiras
-	    function _mkPalm(px) {
-	      var g = _bsc.add.graphics().setDepth(1.5);
-	      var by = _BY + _BEACH_H - 28; // base na areia seca, próximo à transição
-	      g.fillStyle(0x7a5c2e,1); g.fillRect(px-3, by-52, 6, 52);
-	      g.fillStyle(0x8a6c3e,1); g.fillRect(px-2, by-52, 3, 48);
-	      var lv=[[-24,-8,20,8],[-16,-18,16,6],[6,-18,20,8],[8,-8,16,6],[-6,-26,14,5]];
-	      lv.forEach(function(l){
-	        g.fillStyle(0x2d6e2d,1); g.fillRect(px+l[0], by-52+l[1], l[2], l[3]);
-	        g.fillStyle(0x4a9a4a,1); g.fillRect(px+l[0]+2, by-52+l[1], Math.max(3,l[2]-4), Math.max(2,l[3]-2));
+	    // Árvores reais do mapa (Forest_C: large tree, cols 0-1, rows 4-7 = px 0-63, 128-255)
+	    {
+	      var _fSrc = _bsc.textures.get('CuteRPG_Forest_C').getSourceImage();
+	      var _tc = document.createElement('canvas'); _tc.width = 64; _tc.height = 128;
+	      var _tx = _tc.getContext('2d');
+	      // 2×4 tile tree: rows 4-7, cols 0-1 do tileset
+	      for (var _tr = 0; _tr < 4; _tr++) {
+	        _tx.drawImage(_fSrc, 0,  128 + _tr*32, 32, 32, 0,  _tr*32, 32, 32);
+	        _tx.drawImage(_fSrc, 32, 128 + _tr*32, 32, 32, 32, _tr*32, 32, 32);
+	      }
+	      _bsc.textures.addCanvas('beach_tree', _tc);
+	      var _treeY = _BY + _BEACH_H - 128; // topo da árvore: 4 tiles acima da borda
+	      [160,480,950,1420,2060,2750,3280,3860,4180].forEach(function(px) {
+	        _bsc.add.image(px - 32, _treeY, 'beach_tree').setDepth(1.6).setOrigin(0, 0);
 	      });
-	      g.fillStyle(0x3a2008,1); g.fillCircle(px-5, by-50, 5); g.fillCircle(px+5, by-48, 5);
 	    }
-	    [160,480,950,1420,2060,2750,3280,3860,4180].forEach(_mkPalm);
 
 	    // Pássaros (Graphics animados no update)
 	    window._beachBirds = [];
