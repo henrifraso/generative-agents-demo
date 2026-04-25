@@ -497,7 +497,7 @@
 	    var _mrG  = this.add.graphics().setDepth(0.6);
 
 	    // Bacia d'água (azul marina, ligeiramente diferente do oceano)
-	    _mrG.fillStyle(0x1e5578,1); _mrG.fillRect(_MAP_W, _mrY0, _EXT_W, _mrH);
+	    _mrG.fillStyle(0x1a4a6e,1); _mrG.fillRect(_MAP_W, _mrY0, _EXT_W, _mrH);
 	    // Reflexos
 	    _mrG.fillStyle(0x2a6b99,1);
 	    for (var _ri=0;_ri<50;_ri++) {
@@ -573,8 +573,14 @@
 	      _bkG.fillStyle(0x9A7A3A,1); _bkG.fillRect(bx+bw/2-1, by-8, 2, 8);
 	    });
 
-	    // ── Praia direita (mesmo Y da esquerda, abaixo da marina) ──
+	    // ── Praia direita — grama + gradiente idênticos à esquerda ──
 	    var _pb2 = this.add.graphics().setDepth(1);
+	    // grama (cobre a quina marina→praia)
+	    _pb2.fillStyle(0x98cc50,1); _pb2.fillRect(_MAP_W,_BY2,_EXT_W,32);
+	    // gradiente grama→areia
+	    [0x4a5438,0x7a7048,0xb8a06a,0xd4b882].forEach(function(c,i){
+	      _pb2.fillStyle(c,1); _pb2.fillRect(_MAP_W,_BY2+32+i*4,_EXT_W,4);
+	    });
 	    var _s0 = _BY2+32+16;
 	    _pb2.fillStyle(0xd4b882,1); _pb2.fillRect(_MAP_W,_s0,     _EXT_W,64);
 	    _pb2.fillStyle(0xb8a07a,1); _pb2.fillRect(_MAP_W,_s0+64,  _EXT_W,32);
