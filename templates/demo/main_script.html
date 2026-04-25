@@ -244,17 +244,17 @@
 	  // OLD NOTE: Create a sprite with physics enabled via the physics system. 
 	  // The image  used for the sprite has a bit of whitespace, so I'm using 
 	  // setSize & setOffset to control the size of the player's body.
-	  player = this.add.sprite(70*32+16, 50*32+16, "atlas", "down");
+	  player = this.add.sprite(70*32+16, 3*32+16, "atlas", "down");
 	  player.setDepth(1.8);
 	  player.displayWidth = 40;
 	  player.scaleY = player.scaleX;
 	  // sprite simples (sem physics) — posição controlada diretamente
-	  window._playerLabel = this.add.text(2240, 1560, '\u2605 YOU', {
+	  window._playerLabel = this.add.text(70*32+16, 3*32-8, '\u2605 YOU', {
 	    font: 'bold 8px monospace', fill: '#ffffff', stroke: '#000000', strokeThickness: 4
 	  }).setDepth(1.9).setOrigin(0.5, 1);
 	  window._playerDir = 'down';
-	  window._playerTX = 70; window._playerTY = 50;
-	  window._playerTargPX = 70*32+16; window._playerTargPY = 50*32+16;
+	  window._playerTX = 70; window._playerTY = 3;
+	  window._playerTargPX = 70*32+16; window._playerTargPY = 3*32+16;
 	  window._playerMoving = false;
 	  window._chatOpen = false;
 	  window._following = {};
@@ -347,124 +347,101 @@
 	    window._capGraphics[_bpn] = this.add.graphics().setDepth(5);
 	  }
 
-	  // *** PRAIA — rows 0-27 (acima da ville) ***
-	  (function() {
-	    var sc = this;
-	    var TW = 32, MAP_W = 140 * TW;
+	  // *** PRAIA — Graphics puro, sem texturas, acima do mapa (Y negativo) ***
+	  {
+	    var _bsc = this;
+	    var _bTW = 32, _bMW = 140 * _bTW; // 4480px
+	    var _oceanH = 640, _waveH = 128, _wetH = 64, _sandH = 64;
+	    var _BEACH_H = _oceanH + _waveH + _wetH + _sandH; // 896px
+	    window._BEACH_H = _BEACH_H;
+	    var _BY = -_BEACH_H; // y=-896, a praia começa aqui
 
-	    function mkTex(key, w, h, fn) {
-	      var c = document.createElement('canvas'); c.width = w; c.height = h;
-	      fn(c.getContext('2d'));
-	      sc.textures.addCanvas(key, c);
+	    // Bloco único de oceano (azul profundo)
+	    var _gOcean = _bsc.add.graphics().setDepth(1);
+	    _gOcean.fillStyle(0x1a4a6e, 1);
+	    _gOcean.fillRect(0, _BY, _bMW, _oceanH);
+	    // Linhas de onda (azul médio)
+	    _gOcean.fillStyle(0x2a6b99, 1);
+	    for (var _wi = 0; _wi < 50; _wi++) {
+	      _gOcean.fillRect(_wi * 90, _BY + 40 + (_wi%3)*30, 60, 4);
+	      _gOcean.fillRect(_wi * 90 + 20, _BY + 120 + (_wi%4)*40, 80, 3);
+	      _gOcean.fillRect(_wi * 90 + 10, _BY + 220 + (_wi%5)*35, 50, 3);
+	      _gOcean.fillRect(_wi * 90 + 30, _BY + 360 + (_wi%3)*28, 70, 4);
+	      _gOcean.fillRect(_wi * 90 + 5,  _BY + 480 + (_wi%4)*22, 55, 3);
 	    }
+	    // Espuma branca no topo das ondas
+	    _gOcean.fillStyle(0xc8ecf8, 1);
+	    for (var _wi = 0; _wi < 50; _wi++) {
+	      _gOcean.fillRect(_wi * 90, _BY + 38 + (_wi%3)*30, 60, 2);
+	      _gOcean.fillRect(_wi * 90 + 20, _BY + 118 + (_wi%4)*40, 80, 2);
+	    }
+	    window._gOcean = _gOcean;
 
-	    // Oceano profundo (64×32)
-	    mkTex('beach_deep', 64, 32, function(x) {
-	      x.fillStyle = '#1a4a6e'; x.fillRect(0, 0, 64, 32);
-	      x.fillStyle = '#1f5a84';
-	      for (var i = 0; i < 4; i++) { x.fillRect(i*16, 8, 10, 3); x.fillRect(i*16+4, 18, 12, 3); }
-	      x.fillStyle = '#2a6b99';
-	      for (var i = 0; i < 4; i++) { x.fillRect(i*16+2, 6, 6, 2); x.fillRect(i*16+6, 16, 8, 2); }
-	      x.fillStyle = 'rgba(120,200,255,0.18)';
-	      x.fillRect(5, 4, 14, 1); x.fillRect(22, 14, 18, 1); x.fillRect(44, 7, 10, 1);
+	    // Zona de ondas quebrando (azul claro)
+	    var _gWave = _bsc.add.graphics().setDepth(1);
+	    _gWave.fillStyle(0x3a8ec4, 1);
+	    _gWave.fillRect(0, _BY + _oceanH, _bMW, _waveH);
+	    _gWave.fillStyle(0x7dcce8, 1);
+	    _gWave.fillRect(0, _BY + _oceanH + 8, _bMW, 20);
+	    _gWave.fillStyle(0xeaf8ff, 1);
+	    _gWave.fillRect(0, _BY + _oceanH + 10, _bMW, 8);
+	    _gWave.fillStyle(0x5ab8d8, 1);
+	    _gWave.fillRect(0, _BY + _oceanH + 70, _bMW, 18);
+	    _gWave.fillStyle(0xd8f4ff, 1);
+	    _gWave.fillRect(0, _BY + _oceanH + 72, _bMW, 6);
+	    window._gWave = _gWave;
+
+	    // Areia molhada
+	    var _gWet = _bsc.add.graphics().setDepth(1);
+	    _gWet.fillStyle(0xb8a07a, 1);
+	    _gWet.fillRect(0, _BY + _oceanH + _waveH, _bMW, _wetH);
+	    _gWet.fillStyle(0x7ab4d0, 0.25);
+	    _gWet.fillRect(0, _BY + _oceanH + _waveH + 4, _bMW, 12);
+	    _gWet.fillRect(0, _BY + _oceanH + _waveH + 36, _bMW, 10);
+
+	    // Areia seca
+	    var _gSand = _bsc.add.graphics().setDepth(1);
+	    _gSand.fillStyle(0xd4b882, 1);
+	    _gSand.fillRect(0, _BY + _oceanH + _waveH + _wetH, _bMW, _sandH);
+	    _gSand.fillStyle(0xdcc490, 1);
+	    for (var _si = 0; _si < 140; _si += 2)
+	      _gSand.fillRect(_si * 32, _BY + _oceanH + _waveH + _wetH, 32, _sandH);
+
+	    // Borda grama→areia (gradiente em faixas)
+	    var _edgeCols = [0xd4b882,0xc8ac7a,0xb8a06a,0x9a8855,0x7a7048,0x5a6040,0x4a5438];
+	    _edgeCols.forEach(function(col, i) {
+	      var _eg = _bsc.add.graphics().setDepth(1.1);
+	      _eg.fillStyle(col, 1);
+	      _eg.fillRect(0, -(_edgeCols.length - i) * 4, _bMW, 4);
 	    });
 
-	    // Ondas quebrando (64×32)
-	    mkTex('beach_wave', 64, 32, function(x) {
-	      x.fillStyle = '#2a7aaa'; x.fillRect(0, 0, 64, 32);
-	      x.fillStyle = '#6bbcd8'; x.fillRect(0, 4, 64, 6);
-	      x.fillStyle = '#a8dff0'; x.fillRect(0, 5, 64, 3);
-	      x.fillStyle = '#e0f6ff'; x.fillRect(2, 6, 60, 1);
-	      x.fillStyle = '#5aaac8'; x.fillRect(0, 18, 64, 5);
-	      x.fillStyle = '#9ed6ec'; x.fillRect(0, 19, 64, 2);
-	      x.fillStyle = '#d8f2ff'; x.fillRect(4, 19, 56, 1);
-	      x.fillStyle = '#3d8eb8'; x.fillRect(0, 10, 64, 8); x.fillRect(0, 23, 64, 9);
-	    });
-
-	    // Areia molhada (32×32)
-	    mkTex('beach_wet', 32, 32, function(x) {
-	      x.fillStyle = '#b8a07a'; x.fillRect(0, 0, 32, 32);
-	      x.fillStyle = '#c4ac86';
-	      for (var i = 0; i < 4; i++) x.fillRect(i*8, 0, 4, 32);
-	      x.fillStyle = 'rgba(60,140,200,0.22)';
-	      x.fillRect(0, 2, 32, 4); x.fillRect(0, 16, 32, 3);
-	      x.fillStyle = 'rgba(80,60,30,0.3)';
-	      x.fillRect(5, 8, 2, 2); x.fillRect(18, 22, 2, 2); x.fillRect(26, 12, 2, 2);
-	    });
-
-	    // Areia seca (32×32)
-	    mkTex('beach_sand', 32, 32, function(x) {
-	      x.fillStyle = '#d4b882'; x.fillRect(0, 0, 32, 32);
-	      x.fillStyle = '#dcc490';
-	      for (var i = 0; i < 4; i++) x.fillRect(i*8, 0, 4, 32);
-	      x.fillStyle = '#e0cc9a'; x.fillRect(0, 0, 32, 2); x.fillRect(0, 16, 32, 2);
-	      x.fillStyle = 'rgba(120,90,40,0.25)';
-	      x.fillRect(4, 5, 2, 2); x.fillRect(14, 20, 2, 2); x.fillRect(24, 10, 2, 2);
-	      x.fillStyle = 'rgba(255,240,180,0.4)';
-	      x.fillRect(6, 4, 3, 1); x.fillRect(20, 15, 4, 1); x.fillRect(12, 25, 3, 1);
-	    });
-
-	    // Borda transição areia→grama (32×8)
-	    mkTex('beach_edge', 32, 8, function(x) {
-	      var cols = ['#d4b882','#c8ac7a','#b8a06a','#9a8855','#7a7048','#5a6040','#4a5438','#3a4830'];
-	      cols.forEach(function(c,i){ x.fillStyle=c; x.fillRect(0,i,32,1); });
-	    });
-
-	    // A praia fica ACIMA do mapa (Y negativo) — expande o mundo para cima
-	    var oceanH = 20*TW;   // 640px de oceano
-	    var waveH  =  4*TW;   // 128px de ondas
-	    var wetH   =  2*TW;   // 64px areia molhada
-	    var sandH  =  2*TW;   // 64px areia seca
-	    var BEACH_H = oceanH + waveH + wetH + sandH; // 896px total
-	    window._BEACH_H = BEACH_H;
-
-	    // Origem: y=0 é o topo do mapa original. Praia começa em y=-BEACH_H
-	    var BY = -BEACH_H; // y base da praia
-
-	    window._beachOcean = sc.add.tileSprite(MAP_W/2, BY + oceanH/2, MAP_W, oceanH, 'beach_deep')
-	      .setDepth(1).setOrigin(0.5, 0.5);
-
-	    window._beachWave = sc.add.tileSprite(MAP_W/2, BY + oceanH + waveH/2, MAP_W, waveH, 'beach_wave')
-	      .setDepth(1).setOrigin(0.5, 0.5);
-
-	    sc.add.tileSprite(MAP_W/2, BY + oceanH + waveH + wetH/2, MAP_W, wetH, 'beach_wet')
-	      .setDepth(1).setOrigin(0.5, 0.5);
-
-	    sc.add.tileSprite(MAP_W/2, BY + oceanH + waveH + wetH + sandH/2, MAP_W, sandH, 'beach_sand')
-	      .setDepth(1).setOrigin(0.5, 0.5);
-
-	    // Borda gradiente na junção com o mapa original (y=0)
-	    sc.add.tileSprite(MAP_W/2, -4, MAP_W, 8, 'beach_edge')
-	      .setDepth(1).setOrigin(0.5, 0.5);
-
-	    // Palmeiras na faixa de areia (y próximo de 0)
-	    var sandBaseY = -wetH - sandH; // topo da areia seca
-	    function mkPalm(px) {
-	      var g = sc.add.graphics().setDepth(1.5);
-	      var by = -8; // base na borda do mapa
+	    // Palmeiras
+	    function _mkPalm(px) {
+	      var g = _bsc.add.graphics().setDepth(1.5);
+	      var by = -28; // base logo acima da borda do mapa
 	      g.fillStyle(0x7a5c2e,1); g.fillRect(px-3, by-52, 6, 52);
-	      g.fillStyle(0x8a6c3e,1); g.fillRect(px-2, by-52, 3, 52);
-	      var leaves=[[-26,-10,22,8],[-18,-18,16,6],[6,-18,22,8],[8,-10,16,6],[-6,-26,16,5]];
-	      leaves.forEach(function(l){
-	        g.fillStyle(0x2d6e2d,1); g.fillRect(px+l[0],by-52+l[1],l[2],l[3]);
-	        g.fillStyle(0x3d8e3d,1); g.fillRect(px+l[0]+2,by-52+l[1],Math.max(4,l[2]-4),Math.max(2,l[3]-2));
+	      g.fillStyle(0x8a6c3e,1); g.fillRect(px-2, by-52, 3, 48);
+	      var lv=[[-24,-8,20,8],[-16,-18,16,6],[6,-18,20,8],[8,-8,16,6],[-6,-26,14,5]];
+	      lv.forEach(function(l){
+	        g.fillStyle(0x2d6e2d,1); g.fillRect(px+l[0], by-52+l[1], l[2], l[3]);
+	        g.fillStyle(0x4a9a4a,1); g.fillRect(px+l[0]+2, by-52+l[1], Math.max(3,l[2]-4), Math.max(2,l[3]-2));
 	      });
-	      g.fillStyle(0x4a2e08,1); g.fillCircle(px-5,by-50,5); g.fillCircle(px+5,by-48,5);
+	      g.fillStyle(0x3a2008,1); g.fillCircle(px-5, by-50, 5); g.fillCircle(px+5, by-48, 5);
 	    }
-	    [160,480,950,1420,2060,2750,3280,3860,4180].forEach(mkPalm);
+	    [160,480,950,1420,2060,2750,3280,3860,4180].forEach(_mkPalm);
 
-	    // Pássaros voando sobre o oceano
+	    // Pássaros (Graphics animados no update)
 	    window._beachBirds = [];
-	    for (var b = 0; b < 5; b++) {
+	    for (var _bb = 0; _bb < 6; _bb++) {
 	      window._beachBirds.push({
-	        g: sc.add.graphics().setDepth(1.9),
-	        x: Math.random()*MAP_W,
-	        y: BY + 30 + Math.random() * oceanH * 0.7,
-	        vx: 0.3+Math.random()*0.5, vy: 0, t: Math.random()*Math.PI*2
+	        g: _bsc.add.graphics().setDepth(1.9),
+	        x: Math.random() * _bMW,
+	        y: _BY + 30 + Math.random() * _oceanH * 0.7,
+	        vx: 0.25 + Math.random() * 0.4,
+	        t: Math.random() * Math.PI * 2
 	      });
 	    }
-
-	  }).call(this);
+	  }
 
 	  // *** FAZENDA — texturas pixel art + plots ***
 	  var _fScene = this;
