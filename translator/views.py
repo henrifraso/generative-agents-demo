@@ -8,10 +8,13 @@ import random
 import json
 from os import listdir
 import os
+import uuid
+import time
 
 import datetime
 from django.shortcuts import render, redirect, HttpResponseRedirect
 from django.http import HttpResponse, JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 from global_methods import *
 
 from django.templatetags.static import static
@@ -308,7 +311,146 @@ def update_environment(request):
   return JsonResponse(response_data)
 
 
-def path_tester_update(request): 
+# ═══════════════════════════════════════════════════════
+# MULTIPLAYER — estado em memória (sem banco de dados)
+# ═══════════════════════════════════════════════════════
+_ROOMS = {}
+_MP_SPAWNS = [(70,50),(72,50),(68,50),(70,52),(72,52)]
+
+def _mp_code():
+    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+
+def _mp_clean():
+    now = time.time()
+    for k in [k for k, v in _ROOMS.items() if now - v.get('ts', 0) > 3600]:
+        del _ROOMS[k]
+
+@csrf_exempt
+def mp_room_create(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST only'}, status=405)
+    try: data = json.loads(request.body)
+    except: data = {}
+    name = str(data.get('name', 'Player'))[:20]
+    _mp_clean()
+    code = _mp_code()
+    while code in _ROOMS: code = _mp_code()
+    pid = str(uuid.uuid4())[:8]
+    sp = _MP_SPAWNS[0]
+    _ROOMS[code] = {
+        'ts': time.time(), 'started': False, 'creator': pid,
+        'players': {
+            pid: {'name': name, 'x': sp[0]*32+16, 'y': sp[1]*32+16,
+                  'dir': 'down', 'action': '', 'ts': time.time()}
+        },
+        'farm': {
+            'plots': [{'state': 'empty', 'timer': 0} for _ in range(6)],
+            'warehouse': 0,
+            'kitchen': {'cooking': False, 'timer': 0, 'count': 0},
+            'fridge': 0,
+        },
+        'following': {},
+        'msgs': [], 'seq': 0,
+    }
+    return JsonResponse({'room_code': code, 'player_id': pid})
+
+@csrf_exempt
+def mp_room_join(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST only'}, status=405)
+    try: data = json.loads(request.body)
+    except: data = {}
+    code = str(data.get('room_code', '')).upper().strip()
+    name = str(data.get('name', 'Player'))[:20]
+    if code not in _ROOMS:
+        return JsonResponse({'error': 'Sala não encontrada'}, status=404)
+    room = _ROOMS[code]
+    if room['started']:
+        return JsonResponse({'error': 'Partida já iniciada'}, status=400)
+    pid = str(uuid.uuid4())[:8]
+    idx = len(room['players'])
+    sp = _MP_SPAWNS[min(idx, 4)]
+    room['players'][pid] = {
+        'name': name, 'x': sp[0]*32+16, 'y': sp[1]*32+16,
+        'dir': 'down', 'action': '', 'ts': time.time()
+    }
+    players = [{'id': k, 'name': v['name']} for k, v in room['players'].items()]
+    return JsonResponse({'player_id': pid, 'players': players, 'creator': room['creator']})
+
+@csrf_exempt
+def mp_room_start(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST only'}, status=405)
+    try: data = json.loads(request.body)
+    except: data = {}
+    code = str(data.get('room_code', '')).upper()
+    pid = str(data.get('player_id', ''))
+    if code not in _ROOMS:
+        return JsonResponse({'error': 'Sala não encontrada'}, status=404)
+    room = _ROOMS[code]
+    if room['creator'] != pid:
+        return JsonResponse({'error': 'Só o criador pode iniciar'}, status=403)
+    room['started'] = True
+    return JsonResponse({'ok': True})
+
+@csrf_exempt
+def mp_sync(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST only'}, status=405)
+    try: data = json.loads(request.body)
+    except: return JsonResponse({'error': 'JSON inválido'}, status=400)
+    code = str(data.get('room_code', '')).upper()
+    pid = str(data.get('player_id', ''))
+    if code not in _ROOMS:
+        return JsonResponse({'error': 'Sala não encontrada'}, status=404)
+    room = _ROOMS[code]
+    now = time.time()
+    # Atualizar estado do jogador
+    if pid in room['players']:
+        p = room['players'][pid]
+        p['x'] = data.get('x', p['x'])
+        p['y'] = data.get('y', p['y'])
+        p['dir'] = data.get('dir', p['dir'])
+        p['action'] = data.get('action', '')
+        p['ts'] = now
+    # Atualizar farm compartilhado
+    if isinstance(data.get('farm'), dict):
+        fd = data['farm']
+        if isinstance(fd.get('plots'), list): room['farm']['plots'] = fd['plots']
+        if 'warehouse' in fd: room['farm']['warehouse'] = int(fd['warehouse'])
+        if isinstance(fd.get('kitchen'), dict): room['farm']['kitchen'] = fd['kitchen']
+        if 'fridge' in fd: room['farm']['fridge'] = int(fd['fridge'])
+    # Following compartilhado
+    if isinstance(data.get('following'), dict):
+        room['following'] = data['following']
+    # Nova mensagem de chat
+    if data.get('msg'):
+        pname = room['players'].get(pid, {}).get('name', '?')
+        room['msgs'].append({'seq': room['seq'], 'who': pname, 'text': str(data['msg'])[:200]})
+        room['seq'] += 1
+        if len(room['msgs']) > 50: room['msgs'] = room['msgs'][-50:]
+    # Remover jogadores inativos (>15s)
+    for sp_id in [k for k, v in room['players'].items() if now - v['ts'] > 15]:
+        del room['players'][sp_id]
+    # Mensagens novas para o cliente
+    last_seq = int(data.get('last_seq', -1))
+    new_msgs = [m for m in room['msgs'] if m['seq'] > last_seq]
+    # Resposta
+    players_out = {}
+    for i, (k, v) in enumerate(room['players'].items()):
+        players_out[k] = {'name': v['name'], 'x': v['x'], 'y': v['y'], 'dir': v['dir'], 'ci': i}
+    return JsonResponse({
+        'started': room['started'],
+        'creator': room['creator'],
+        'players': players_out,
+        'farm': room['farm'],
+        'following': room['following'],
+        'new_msgs': new_msgs,
+        'player_count': len(room['players']),
+    })
+
+
+def path_tester_update(request):
   """
   Processing the path and saving it to path_tester_env.json temp storage for 
   conducting the path tester. 

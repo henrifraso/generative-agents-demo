@@ -178,6 +178,128 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     .cfg-opt { font-family:'Press Start 2P',monospace;font-size:clamp(8px,1.1vw,13px);color:#d4f0c0;background:rgba(10,25,10,0.55);border:2px solid rgba(100,200,80,0.28);border-radius:0;padding:14px 28px;cursor:pointer;min-width:220px;box-shadow:0 2px 10px rgba(0,0,0,0.4);transition:background 0.12s,border-color 0.12s,color 0.12s; }
     .cfg-opt:hover,.cfg-opt.active { background:rgba(30,90,15,0.75);border-color:rgba(160,255,80,0.7);color:#e8ffb0; }
 
+    /* ── HUD ── */
+    #game-hud { display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:2000;pointer-events:none; }
+    .hud-panel {
+      font-family:'Press Start 2P',monospace;
+      background:rgba(0,0,0,0.55);
+      border:1px solid rgba(255,220,60,0.22);
+      padding:6px 10px;
+      line-height:1.7;
+      image-rendering:pixelated;
+    }
+    #hud-left  { position:absolute;top:10px;left:12px; }
+    #hud-right { position:absolute;top:10px;right:12px;text-align:right; }
+    #hud-time-day  { font-size:6px;color:rgba(255,233,122,0.65);letter-spacing:0.12em; }
+    #hud-time-hour { font-size:8px;color:#ffe97a;letter-spacing:0.08em;text-shadow:0 0 8px rgba(255,220,60,0.35); }
+    #hud-token-lbl { font-size:6px;color:rgba(255,233,122,0.65);letter-spacing:0.12em; }
+    #hud-token-val { font-size:9px;color:#ffe97a;letter-spacing:0.05em;text-shadow:0 0 8px rgba(255,220,60,0.35); }
+    /* OpenClaw status */
+    #hud-ws {
+      position:absolute;bottom:14px;left:14px;
+      font-family:'Press Start 2P',monospace;font-size:6px;
+      color:rgba(150,150,150,0.6);letter-spacing:0.08em;
+      background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.1);
+      padding:5px 8px;pointer-events:none;
+      display:flex;align-items:center;gap:6px;
+    }
+    #hud-ws-dot { width:6px;height:6px;border-radius:50%;background:#555;flex-shrink:0; }
+    #hud-ws.connected #hud-ws-dot { background:#00ff88;box-shadow:0 0 6px #00ff88; }
+    #hud-ws.connected { color:#00cc66; border-color:rgba(0,255,120,0.2); }
+    @keyframes tok-spend { 0%{color:#ff4444;text-shadow:0 0 12px rgba(255,80,80,0.9)} 100%{color:#ffe97a;text-shadow:0 0 8px rgba(255,220,60,0.35)} }
+    @keyframes tok-earn  { 0%{color:#00ff88;text-shadow:0 0 12px rgba(0,255,120,0.9)} 100%{color:#ffe97a;text-shadow:0 0 8px rgba(255,220,60,0.35)} }
+    .tok-flash-spend { animation:tok-spend 0.5s ease-out forwards; }
+    .tok-flash-earn  { animation:tok-earn  0.5s ease-out forwards; }
+    /* Badge de modo */
+    #hud-mode {
+      position:absolute;top:10px;left:50%;transform:translateX(-50%);
+      font-family:'Press Start 2P',monospace;font-size:7px;
+      letter-spacing:0.1em;padding:5px 12px;
+      border:1px solid;white-space:nowrap;
+      pointer-events:none;
+      transition:background 0.4s,color 0.4s,border-color 0.4s;
+    }
+    #hud-mode.scripted {
+      color:#ffe97a;background:rgba(0,0,0,0.55);border-color:rgba(255,220,60,0.3);
+      text-shadow:0 0 6px rgba(255,220,60,0.4);
+    }
+    #hud-mode.ai {
+      color:#cc88ff;background:rgba(10,0,20,0.65);border-color:rgba(180,80,255,0.35);
+      text-shadow:0 0 6px rgba(180,80,255,0.5);
+    }
+    /* Botão engrenagem */
+    #hud-gear {
+      position:absolute;bottom:14px;right:14px;
+      pointer-events:all;cursor:pointer;
+      font-family:'Press Start 2P',monospace;font-size:14px;
+      color:rgba(255,220,60,0.55);
+      background:rgba(0,0,0,0.5);
+      border:1px solid rgba(255,220,60,0.18);
+      width:32px;height:32px;line-height:30px;text-align:center;
+      transition:color 0.15s,border-color 0.15s,background 0.15s;
+      user-select:none;
+    }
+    #hud-gear:hover { color:#ffe97a;border-color:rgba(255,220,60,0.6);background:rgba(0,0,0,0.75); }
+    /* Botões bloqueados */
+    .sp-btn-locked {
+      opacity:0.42 !important;cursor:not-allowed !important;
+      border-color:rgba(150,150,150,0.25) !important;
+      color:rgba(180,180,180,0.6) !important;
+    }
+    .sp-btn-locked:hover { background:rgba(0,0,0,0.38) !important;border-color:rgba(150,150,150,0.25) !important;color:rgba(180,180,180,0.6) !important;box-shadow:none !important;text-shadow:none !important; }
+    /* ── Multiplayer Lobby ── */
+    #mp-modal { display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:10500;background:rgba(0,0,0,0.88);align-items:center;justify-content:center; }
+    #mp-modal.open { display:flex; }
+    .mp-panel { font-family:'Press Start 2P',monospace;text-align:center;padding:36px 40px;background:#050a05;border:3px solid rgba(255,220,60,0.28);box-shadow:0 0 60px rgba(0,0,0,0.9);min-width:320px;max-width:460px;width:90%; }
+    .mp-title { font-size:clamp(12px,2vw,18px);color:#ffe97a;margin-bottom:28px;letter-spacing:0.05em;text-shadow:2px 2px 0 rgba(20,60,5,0.9); }
+    .mp-sub   { font-size:8px;color:rgba(255,233,122,0.5);letter-spacing:0.15em;margin-bottom:20px; }
+    .mp-input { font-family:'Press Start 2P',monospace;font-size:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,220,60,0.3);color:#fff;padding:10px 14px;width:100%;box-sizing:border-box;margin-bottom:12px;letter-spacing:0.08em;outline:none; }
+    .mp-input:focus { border-color:rgba(255,220,60,0.65); }
+    .mp-input::placeholder { color:rgba(255,255,255,0.3); }
+    .mp-div   { height:1px;background:rgba(255,220,60,0.15);margin:18px 0; }
+    #mp-code-display { font-size:clamp(18px,3vw,28px);color:#00ff88;letter-spacing:0.25em;margin:16px 0;text-shadow:0 0 18px rgba(0,255,120,0.5); }
+    #mp-player-list { font-size:8px;color:#d4f0c0;text-align:left;margin:14px 0;line-height:2; }
+    #mp-status { font-size:7px;color:rgba(255,255,255,0.4);margin-top:12px;letter-spacing:0.1em; }
+    /* Chat multiplayer durante o jogo */
+    #mp-chat-box { display:none;position:fixed;bottom:0;left:0;width:clamp(280px,35vw,420px);z-index:2100;pointer-events:none; }
+    #mp-chat-box.open { display:block; }
+    #mp-msgs { max-height:110px;overflow-y:auto;padding:8px 14px;background:rgba(0,0,0,0.55); }
+    .mp-msg  { font-family:monospace;font-size:12px;color:rgba(255,255,255,0.85);margin-bottom:4px;line-height:1.4; }
+    #mp-chat-irow { display:none;align-items:center;gap:6px;padding:6px 14px;background:rgba(0,0,0,0.72);pointer-events:all; }
+    #mp-chat-irow.open { display:flex; }
+    /* Override da regra global body>div>div que esconde filhos de modais */
+    #mp-modal.open .mp-panel         { display:block !important; }
+    #mp-p0, #mp-p1, #mp-p2          { display:none !important; }
+    #mp-modal.open.ph0 #mp-p0        { display:block !important; }
+    #mp-modal.open.ph1 #mp-p1        { display:block !important; }
+    #mp-modal.open.ph2 #mp-p2        { display:block !important; }
+    #mp-chat-box.open #mp-msgs       { display:block !important; }
+    #mp-chat-box #mp-chat-irow.open  { display:flex  !important; }
+    #mp-chat-prompt { font-family:'Press Start 2P',monospace;font-size:8px;color:#00ff88; }
+    #mp-chat-in { flex:1;background:transparent;border:none;outline:none;font-family:monospace;font-size:12px;color:#fff;caret-color:#00ff88; }
+    /* ── Terminal Secreto ── */
+    #secret-terminal {
+      display:none;position:fixed;top:0;left:0;width:100%;height:100%;
+      z-index:99999;background:rgba(0,8,0,0.93);
+      font-family:'Courier New',Courier,monospace;
+      flex-direction:column;padding:24px 28px;box-sizing:border-box;
+      border:2px solid rgba(0,255,80,0.25);
+    }
+    #secret-terminal.open { display:flex; }
+    #term-header { font-size:11px;color:#00ff44;letter-spacing:0.15em;margin-bottom:16px;border-bottom:1px solid rgba(0,255,80,0.2);padding-bottom:10px; }
+    #term-output { flex:1;overflow-y:auto;font-size:12px;line-height:1.7;color:#00cc33;margin-bottom:12px; }
+    .term-line { margin:0;white-space:pre-wrap;word-break:break-all; }
+    .term-line.err { color:#ff4444; }
+    .term-line.sys { color:#44aaff; }
+    .term-line.ok  { color:#ffe97a; }
+    #term-irow { display:flex;align-items:center;gap:8px;border-top:1px solid rgba(0,255,80,0.15);padding-top:10px; }
+    #term-prompt { color:#00ff44;font-size:12px;white-space:nowrap; }
+    #term-input {
+      flex:1;background:transparent;border:none;outline:none;
+      color:#00ff44;font-family:'Courier New',Courier,monospace;font-size:12px;
+      caret-color:#00ff44;
+    }
+    @keyframes term-blink { 0%,49%{opacity:1}50%,100%{opacity:0} }
     /* ── Chat Box (Fase 2) ── */
     #chat-box.open { display:block !important; }
     #chat-box #chat-inner  { display:block !important; }
@@ -243,19 +365,22 @@ Author: Joon Sung Park (joonspk@stanford.edu)
       <!-- Menu completo (oculto até clicar START GAME) -->
       <div id="spl-btns" style="display:none;flex-direction:column;align-items:center;gap:14px;margin-top:4vh;">
         <button class="sp-btn sp-btn-primary"
-          onclick="var s=document.getElementById('splash');s.style.opacity='0';setTimeout(function(){s.style.display='none';},600);"
+          onclick="var m=document.getElementById('mp-modal');m.classList.add('open','ph0');"
           ontouchstart="this.click();"
           style="font-size:clamp(13px,1.9vw,22px);padding:22px 0;width:clamp(300px,38vw,460px);">
           NOVA PARTIDA</button>
         <button class="sp-btn" onclick="alert('Em breve!')" ontouchstart="this.click();"
           style="font-size:clamp(13px,1.9vw,22px);padding:22px 0;width:clamp(300px,38vw,460px);">
           CONTINUAR</button>
-        <button class="sp-btn" onclick="alert('Em breve!')" ontouchstart="this.click();"
+        <button class="sp-btn" onclick="var m=document.getElementById('mp-modal');m.classList.add('open');_mpShowLobby();" ontouchstart="this.click();"
           style="font-size:clamp(13px,1.9vw,22px);padding:22px 0;width:clamp(300px,38vw,460px);">
-          MULTIPLAYER</button>
+          &#128101; MULTIPLAYER</button>
+        <button class="sp-btn sp-btn-locked" onclick="" ontouchstart=""
+          style="font-size:clamp(13px,1.9vw,22px);padding:22px 0;width:clamp(300px,38vw,460px);">
+          &#128274; LOJA</button>
         <button class="sp-btn" onclick="document.getElementById('cfg-modal').classList.add('open')" ontouchstart="this.click();"
           style="font-size:clamp(10px,1.4vw,16px);padding:18px 0;width:clamp(300px,38vw,460px);">
-          CONFIGURACOES</button>
+          &#9881; CONFIGURACOES</button>
       </div>
 
       <script>
@@ -317,6 +442,82 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     </div>
   </div>
 
+  <!-- *** MULTIPLAYER LOBBY *** -->
+  <div id="mp-modal">
+    <div class="mp-panel">
+
+      <!-- Fase 0: SOLO / MULTIPLAYER -->
+      <div id="mp-p0">
+        <div class="mp-title">NOVA PARTIDA</div>
+        <button class="sp-btn sp-btn-primary" style="font-size:clamp(11px,1.6vw,18px);padding:18px 0;width:100%;margin-bottom:12px;" onclick="_mpSolo()">&#9654; SOLO</button>
+        <button class="sp-btn" style="font-size:clamp(11px,1.6vw,18px);padding:18px 0;width:100%;" onclick="_mpShowLobby()">&#128101; MULTIPLAYER</button>
+        <button onclick="var m=document.getElementById('mp-modal');m.className='';" style="font-family:'Press Start 2P',monospace;font-size:7px;color:#555;background:none;border:none;cursor:pointer;margin-top:20px;">← VOLTAR</button>
+      </div>
+
+      <!-- Fase 1: Nome + Criar/Entrar -->
+      <div id="mp-p1">
+        <div class="mp-title">MULTIPLAYER</div>
+        <div class="mp-sub">SEU NOME</div>
+        <input id="mp-name" class="mp-input" placeholder="JOGADOR 1" maxlength="14">
+        <button class="sp-btn sp-btn-primary" style="font-size:clamp(10px,1.4vw,16px);padding:14px 0;width:100%;margin-bottom:16px;" onclick="_mpCreate()">&#43; CRIAR SALA</button>
+        <div class="mp-div"></div>
+        <div class="mp-sub">CÓDIGO DA SALA</div>
+        <input id="mp-code-in" class="mp-input" placeholder="XXXXXX" maxlength="6" style="text-transform:uppercase;letter-spacing:0.3em;text-align:center;">
+        <button class="sp-btn" style="font-size:clamp(10px,1.4vw,16px);padding:14px 0;width:100%;" onclick="_mpJoin()">&#8594; ENTRAR</button>
+        <button onclick="_mpBack(0)" style="font-family:'Press Start 2P',monospace;font-size:7px;color:#555;background:none;border:none;cursor:pointer;margin-top:20px;">← VOLTAR</button>
+      </div>
+
+      <!-- Fase 2: Aguardando jogadores -->
+      <div id="mp-p2">
+        <div class="mp-title">SALA</div>
+        <div id="mp-code-display">------</div>
+        <div class="mp-sub" style="margin-top:4px;">COMPARTILHE ESTE CÓDIGO</div>
+        <div class="mp-div"></div>
+        <div id="mp-player-list"></div>
+        <button id="mp-start-btn" class="sp-btn sp-btn-primary" style="display:none;font-size:clamp(11px,1.6vw,18px);padding:18px 0;width:100%;margin-top:8px;" onclick="_mpStart()">&#9654; INICIAR</button>
+        <div id="mp-status">Aguardando jogadores...</div>
+        <button onclick="_mpBack(1)" style="font-family:'Press Start 2P',monospace;font-size:7px;color:#555;background:none;border:none;cursor:pointer;margin-top:18px;">← SAIR DA SALA</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- *** CHAT MULTIPLAYER (tecla T) *** -->
+  <div id="mp-chat-box">
+    <div id="mp-msgs"></div>
+    <div id="mp-chat-irow">
+      <span id="mp-chat-prompt">[T]&nbsp;</span>
+      <input id="mp-chat-in" type="text" maxlength="120" autocomplete="off">
+    </div>
+  </div>
+
+  <!-- *** TERMINAL SECRETO (Konami: ↑↑↓↓←→←→BA) *** -->
+  <div id="secret-terminal">
+    <div id="term-header">
+      TBG SYSTEM TERMINAL v1.0 &nbsp;|&nbsp; ACESSO RESTRITO &nbsp;|&nbsp; [ESC] para sair
+    </div>
+    <div id="term-output"></div>
+    <div id="term-irow">
+      <span id="term-prompt">root@tbg:~$&nbsp;</span>
+      <input id="term-input" type="text" autocomplete="off" spellcheck="false" placeholder="">
+    </div>
+  </div>
+
+  <!-- *** HUD *** -->
+  <div id="game-hud">
+    <div id="hud-left" class="hud-panel">
+      <div id="hud-time-day"></div>
+      <div id="hud-time-hour">--:-- --</div>
+    </div>
+    <div id="hud-right" class="hud-panel">
+      <div id="hud-token-lbl">TOKENS</div>
+      <div id="hud-token-val">$ <span id="hud-token-count">0</span></div>
+    </div>
+    <div id="hud-mode" class="scripted">&#9654; SCRIPTED</div>
+    <div id="hud-gear" onclick="document.getElementById('cfg-modal').classList.add('open')" title="Configurações">&#9881;</div>
+    <div id="hud-ws"><div id="hud-ws-dot"></div><span id="hud-ws-lbl">OFFLINE</span></div>
+  </div>
+
   <!-- *** CHAT BOX (Fase 2 — tecla A) *** -->
   <div id="chat-box" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:3000;">
     <div id="chat-inner" style="width:100%;max-width:720px;margin:0 auto;background:rgba(6,10,22,0.93);border:1px solid rgba(255,255,255,0.13);border-radius:14px 14px 0 0;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 -4px 40px rgba(0,0,0,0.7);overflow:hidden;">
@@ -333,6 +534,497 @@ Author: Joon Sung Park (joonspk@stanford.edu)
   </div>
 
   <script>
+    // ── OpenClaw WebSocket Gateway ──
+    (function() {
+      var _wsUrl = (new URLSearchParams(window.location.search)).get('ws') || 'ws://localhost:3001/ws';
+      var _ws = null;
+      var _pending = {}; // { id: { cb, timer } }
+      var _msgId = 0;
+
+      function _wsSetStatus(ok) {
+        var el = document.getElementById('hud-ws');
+        var lbl = document.getElementById('hud-ws-lbl');
+        if (!el) return;
+        if (ok) { el.classList.add('connected'); lbl.textContent = 'OPENCLAW'; }
+        else     { el.classList.remove('connected'); lbl.textContent = 'OFFLINE'; }
+      }
+
+      function _wsConnect() {
+        try {
+          _ws = new WebSocket(_wsUrl);
+        } catch(e) { _ws = null; return; }
+
+        _ws.onopen = function() { _wsSetStatus(true); };
+
+        _ws.onmessage = function(ev) {
+          try {
+            var d = JSON.parse(ev.data);
+            if (d.event === 'reply' && d.id && _pending[d.id]) {
+              clearTimeout(_pending[d.id].timer);
+              _pending[d.id].cb(d.text || '...');
+              delete _pending[d.id];
+            }
+          } catch(e) {}
+        };
+
+        _ws.onclose = function() {
+          _wsSetStatus(false); _ws = null;
+          // Reconectar após 8s
+          setTimeout(_wsConnect, 8000);
+        };
+
+        _ws.onerror = function() { _wsSetStatus(false); };
+      }
+
+      // Expor função para pedir resposta ao OpenClaw
+      window._openclawAsk = function(npcKey, playerMsg, context, cb) {
+        if (!_ws || _ws.readyState !== WebSocket.OPEN) { cb(null); return; }
+        var id = ++_msgId;
+        var payload = JSON.stringify({
+          event: 'chat', id: id,
+          npc: npcKey.replace(/_/g,' '),
+          player_msg: playerMsg,
+          npc_context: context || {}
+        });
+        // Timeout 3s → fallback
+        var timer = setTimeout(function() {
+          if (_pending[id]) { _pending[id].cb(null); delete _pending[id]; }
+        }, 3000);
+        _pending[id] = { cb: cb, timer: timer };
+        try { _ws.send(payload); }
+        catch(e) { clearTimeout(timer); delete _pending[id]; cb(null); }
+      };
+
+      window._openclawConnected = function() {
+        return _ws && _ws.readyState === WebSocket.OPEN;
+      };
+
+      // Iniciar conexão após o jogo carregar
+      window.addEventListener('load', function() { setTimeout(_wsConnect, 2000); });
+    })();
+
+    // ── Terminal Secreto — Konami ↑↑↓↓←→←→BA ──
+    (function() {
+      var _SEQ = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+      var _buf = [];
+      document.addEventListener('keydown', function(e) {
+        _buf.push(e.key); if (_buf.length > _SEQ.length) _buf.shift();
+        if (_buf.join(',') === _SEQ.join(',')) { _buf = []; _termOpen(); }
+      }, true); // capture phase — antes dos outros handlers
+
+      function _termOpen() {
+        var t = document.getElementById('secret-terminal');
+        t.classList.add('open');
+        _termPrint('sys', 'TBG System Terminal — Konami access granted.');
+        _termPrint('sys', 'Digite "help" para ver os comandos disponíveis.');
+        _termPrint('', '');
+        setTimeout(function(){ document.getElementById('term-input').focus(); }, 50);
+      }
+      function _termClose() {
+        document.getElementById('secret-terminal').classList.remove('open');
+        document.getElementById('term-output').innerHTML = '';
+        document.getElementById('term-input').value = '';
+        var cv = document.querySelector('#game-container canvas');
+        if (cv) cv.focus();
+      }
+      function _termPrint(cls, text) {
+        var out = document.getElementById('term-output');
+        var p = document.createElement('p');
+        p.className = 'term-line' + (cls ? ' ' + cls : '');
+        p.textContent = text;
+        out.appendChild(p);
+        out.scrollTop = out.scrollHeight;
+      }
+
+      var _CMDS = {
+        help: function() {
+          _termPrint('ok','Comandos disponíveis:');
+          _termPrint('','  tokens [n]    — adiciona n tokens (padrão: 10)');
+          _termPrint('','  rain [0-3]    — nível de chuva');
+          _termPrint('','  night         — alternar modo noite forçada');
+          _termPrint('','  speed [n]     — velocidade do jogador (1-8)');
+          _termPrint('','  farm          — colher todos os plots prontos');
+          _termPrint('','  status        — estado atual do jogo');
+          _termPrint('','  clear         — limpar terminal');
+          _termPrint('','  exit          — fechar terminal');
+        },
+        tokens: function(args) {
+          var n = parseInt(args[0]) || 10;
+          window._earnTokens(n);
+          _termPrint('ok', '+ ' + n + ' tokens adicionados. Saldo: ' + window._tokens);
+        },
+        rain: function(args) {
+          var lv = Math.max(0, Math.min(3, parseInt(args[0]) || 0));
+          window._rainLevel = lv;
+          _termPrint('ok', 'Chuva definida para nível ' + lv + '.');
+        },
+        night: function() {
+          window._forceNight = !window._forceNight;
+          if (window._nightRT) window._nightRT.setAlpha(window._forceNight ? 0.75 : 0);
+          _termPrint('ok', 'Modo noite: ' + (window._forceNight ? 'ATIVADO' : 'DESATIVADO'));
+        },
+        speed: function(args) {
+          var sp = Math.max(1, Math.min(8, parseInt(args[0]) || 3));
+          if (typeof movement_speed !== 'undefined') movement_speed = sp;
+          _termPrint('ok', 'Velocidade do jogador: ' + sp);
+        },
+        farm: function() {
+          var n = 0;
+          if (window._farmPlots) {
+            for (var i = 0; i < window._farmPlots.length; i++) {
+              var p = window._farmPlots[i];
+              if (p.state === 'ready') { p.state='empty'; p.timer=0; p.sprite.setTexture('farm_empty'); window._earnTokens(3); n++; }
+              else if (p.state !== 'empty') { p.state='ready'; p.timer=0; p.sprite.setTexture('farm_ready'); }
+            }
+          }
+          _termPrint('ok', n + ' plots colhidos (+' + (n*3) + ' tokens). Restantes → prontos.');
+        },
+        status: function() {
+          var mode = window._getSimMode ? window._getSimMode() : '?';
+          _termPrint('','  Tokens:     ' + (window._tokens || 0));
+          _termPrint('','  Modo:       ' + mode.toUpperCase());
+          _termPrint('','  Chuva:      nível ' + (window._rainLevel || 0));
+          _termPrint('','  Noite forç: ' + (window._forceNight ? 'sim' : 'não'));
+          _termPrint('','  Plots:      ' + (window._farmPlots ? window._farmPlots.map(function(p){return p.state[0];}).join(' ') : '?'));
+        },
+        clear: function() { document.getElementById('term-output').innerHTML = ''; },
+        exit: function() { _termClose(); }
+      };
+
+      document.getElementById('term-input').addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') { e.preventDefault(); _termClose(); return; }
+        if (e.key !== 'Enter') return;
+        e.preventDefault();
+        var raw = (this.value || '').trim();
+        this.value = '';
+        _termPrint('', '$ ' + raw);
+        if (!raw) return;
+        var parts = raw.split(/\s+/);
+        var cmd = parts[0].toLowerCase();
+        var args = parts.slice(1);
+        if (_CMDS[cmd]) _CMDS[cmd](args);
+        else _termPrint('err', 'Comando não encontrado: ' + cmd + '. Digite "help".');
+      });
+    })();
+
+    // ══════════════════════════════════════════════
+    // MULTIPLAYER — camada por cima do single player
+    // ══════════════════════════════════════════════
+    window._mpMode       = false;
+    window._mpRoom       = null;
+    window._mpPlayerId   = null;
+    window._mpPlayerName = '';
+    window._mpIsCreator  = false;
+    window._mpPollIv     = null;
+    window._mpLastSeq    = -1;
+    window._mpPendingMsg = null;
+    window._mpRemotePlayers = {};
+    window._mpChatOpen   = false;
+    // Cores por índice de jogador (tint Phaser)
+    window._mpColors = [0x44ddff, 0xff6666, 0xaa66ff, 0xffaa44, 0x66ff88];
+
+    // ── Lobby: navegação entre fases ──
+    function _mpShow(phase) {
+      var modal = document.getElementById('mp-modal');
+      modal.classList.remove('ph0','ph1','ph2');
+      var map = {'mp-p0':'ph0','mp-p1':'ph1','mp-p2':'ph2'};
+      if (map[phase]) modal.classList.add(map[phase]);
+    }
+    function _mpSolo() {
+      document.getElementById('mp-modal').classList.remove('open');
+      var s = document.getElementById('splash');
+      s.style.opacity = '0';
+      setTimeout(function(){ s.style.display = 'none'; window._showHUD(); }, 600);
+    }
+    function _mpShowLobby() { _mpShow('mp-p1'); }
+    function _mpBack(to) {
+      if (to === 0) { _mpShow('mp-p0'); }
+      else { _mpShow('mp-p1'); _mpStopPoll(); window._mpRoom = null; }
+    }
+
+    // ── Criar sala ──
+    function _mpCreate() {
+      var name = (document.getElementById('mp-name').value.trim() || 'Player').toUpperCase();
+      fetch('/api/room/create/', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name:name})})
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+          window._mpRoom = d.room_code;
+          window._mpPlayerId = d.player_id;
+          window._mpPlayerName = name;
+          window._mpIsCreator = true;
+          document.getElementById('mp-code-display').textContent = d.room_code;
+          _mpShow('mp-p2');
+          _mpStartPoll(true);
+        }).catch(function(){ alert('Erro ao criar sala.'); });
+    }
+
+    // ── Entrar na sala ──
+    function _mpJoin() {
+      var name = (document.getElementById('mp-name').value.trim() || 'Player').toUpperCase();
+      var code = document.getElementById('mp-code-in').value.trim().toUpperCase();
+      if (!code) { alert('Digite o código da sala.'); return; }
+      fetch('/api/room/join/', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name:name, room_code:code})})
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+          if (d.error) { alert(d.error); return; }
+          window._mpRoom = code;
+          window._mpPlayerId = d.player_id;
+          window._mpPlayerName = name;
+          window._mpIsCreator = false;
+          document.getElementById('mp-code-display').textContent = code;
+          _mpShow('mp-p2');
+          _mpStartPoll(true);
+        }).catch(function(){ alert('Erro ao entrar na sala.'); });
+    }
+
+    // ── Iniciar partida (só o criador) ──
+    function _mpStart() {
+      fetch('/api/room/start/', {method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({room_code:window._mpRoom, player_id:window._mpPlayerId})})
+        .then(function(r){ return r.json(); })
+        .then(function(d){ if (d.ok) _mpLaunch(); })
+        .catch(function(){});
+    }
+
+    // ── Lançar o jogo em modo multiplayer ──
+    function _mpLaunch() {
+      document.getElementById('mp-modal').classList.remove('open');
+      var s = document.getElementById('splash');
+      s.style.opacity = '0';
+      setTimeout(function(){ s.style.display = 'none'; window._showHUD(); }, 600);
+      window._mpMode = true;
+      document.getElementById('mp-chat-box').classList.add('open');
+      _mpStopPoll();
+      _mpStartPoll(false); // poll de jogo (500ms)
+    }
+
+    // ── Polling ──
+    function _mpStartPoll(lobby) {
+      _mpStopPoll();
+      var interval = lobby ? 1200 : 500;
+      window._mpPollIv = setInterval(function(){ _mpPoll(lobby); }, interval);
+      _mpPoll(lobby);
+    }
+    function _mpStopPoll() {
+      if (window._mpPollIv) { clearInterval(window._mpPollIv); window._mpPollIv = null; }
+    }
+    function _mpPoll(lobby) {
+      if (!window._mpRoom || !window._mpPlayerId) return;
+      var payload = {
+        room_code: window._mpRoom, player_id: window._mpPlayerId,
+        x: (typeof player !== 'undefined' && player) ? player.x : 0,
+        y: (typeof player !== 'undefined' && player) ? player.y : 0,
+        dir: window._playerDir || 'down',
+        action: '',
+        last_seq: window._mpLastSeq,
+      };
+      if (!lobby && window._farmPlots) {
+        payload.farm = {
+          plots: window._farmPlots.map(function(p){ return {state:p.state, timer:p.timer}; }),
+          warehouse: window._warehouse || 0,
+          kitchen: window._kitchen || {cooking:false,timer:0,count:0},
+          fridge: window._fridge || 0,
+        };
+        payload.following = window._following || {};
+      }
+      if (window._mpPendingMsg) {
+        payload.msg = window._mpPendingMsg;
+        window._mpPendingMsg = null;
+      }
+      fetch('/api/sync/', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)})
+        .then(function(r){ return r.json(); })
+        .then(function(d){ _mpApplyState(d, lobby); })
+        .catch(function(){});
+    }
+
+    // ── Aplicar estado recebido do servidor ──
+    function _mpApplyState(d, lobby) {
+      if (!d || d.error) return;
+      // Lobby: atualizar lista de jogadores e detectar início
+      if (lobby) {
+        var players = d.players || {};
+        var names = Object.values(players).map(function(p){ return '▸ ' + p.name; }).join('<br>');
+        var listEl = document.getElementById('mp-player-list');
+        if (listEl) listEl.innerHTML = names;
+        var startBtn = document.getElementById('mp-start-btn');
+        if (startBtn) startBtn.style.display = (window._mpIsCreator && d.player_count >= 1) ? 'block' : 'none';
+        var statusEl = document.getElementById('mp-status');
+        if (statusEl) statusEl.textContent = d.player_count + ' jogador(es) na sala';
+        if (d.started) { _mpLaunch(); return; }
+        return;
+      }
+      // Jogo: detectar início tardio (non-creator)
+      if (d.started && !window._mpMode) { _mpLaunch(); return; }
+      // Atualizar remote players (Phaser update() vai criar os sprites)
+      var myId = window._mpPlayerId;
+      var remotePlayers = {};
+      for (var pid in (d.players || {})) {
+        if (pid === myId) continue;
+        remotePlayers[pid] = d.players[pid];
+      }
+      window._mpRemotePlayers = remotePlayers;
+      // Sincronizar farm compartilhado do servidor
+      if (d.farm && window._farmPlots) {
+        var sf = d.farm;
+        if (Array.isArray(sf.plots)) {
+          sf.plots.forEach(function(sp, i) {
+            if (window._farmPlots[i] && window._farmPlots[i].state !== sp.state) {
+              window._farmPlots[i].state = sp.state;
+              window._farmPlots[i].timer = sp.timer || 0;
+              var tex = 'farm_' + sp.state;
+              if (window._farmPlots[i].sprite) window._farmPlots[i].sprite.setTexture(tex);
+            }
+          });
+        }
+        if (typeof sf.warehouse === 'number') window._warehouse = sf.warehouse;
+        if (sf.kitchen) window._kitchen = sf.kitchen;
+        if (typeof sf.fridge === 'number') window._fridge = sf.fridge;
+      }
+      // Following compartilhado
+      if (d.following) window._following = d.following;
+      // Novas mensagens de chat
+      if (Array.isArray(d.new_msgs) && d.new_msgs.length) {
+        d.new_msgs.forEach(function(m) {
+          _mpAddMsg(m.who, m.text);
+          if (m.seq > window._mpLastSeq) window._mpLastSeq = m.seq;
+        });
+      }
+    }
+
+    // ── Chat de jogadores (tecla T) ──
+    function _mpOpenChat() {
+      var row = document.getElementById('mp-chat-irow');
+      row.classList.add('open');
+      document.getElementById('mp-chat-in').focus();
+      window._mpChatOpen = true;
+    }
+    function _mpCloseChat() {
+      document.getElementById('mp-chat-irow').classList.remove('open');
+      document.getElementById('mp-chat-in').value = '';
+      window._mpChatOpen = false;
+      var cv = document.querySelector('#game-container canvas');
+      if (cv) cv.focus();
+    }
+    function _mpAddMsg(who, text) {
+      var box = document.getElementById('mp-msgs');
+      var d = document.createElement('div');
+      d.className = 'mp-msg';
+      d.innerHTML = '<span style="color:#00ff88;font-weight:bold;">' + who + ':</span> ' + text;
+      box.appendChild(d);
+      if (box.children.length > 12) box.removeChild(box.firstChild);
+      box.scrollTop = box.scrollHeight;
+    }
+    (function(){
+      var inp = document.getElementById('mp-chat-in');
+      inp.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          var msg = this.value.trim();
+          if (msg) {
+            window._mpPendingMsg = msg;
+            _mpAddMsg(window._mpPlayerName || 'Eu', msg);
+          }
+          _mpCloseChat();
+        }
+        if (e.key === 'Escape' || e.key === ' ') { e.preventDefault(); _mpCloseChat(); }
+        e.stopPropagation(); // não disparar keydown do jogo
+      });
+    })();
+
+    // ── Modo Cliente ──
+    window._clientMode = false;
+    window._clientName = '';
+    (function() {
+      var _p = new URLSearchParams(window.location.search);
+      if (_p.get('mode') === 'client') {
+        window._clientMode = true;
+        window._clientName = (_p.get('name') || '').replace(/-/g, '_');
+        // Auto-fade: pula splash em 1.5s
+        window.addEventListener('load', function() {
+          setTimeout(function() {
+            var s = document.getElementById('splash');
+            if (!s) return;
+            s.style.transition = 'opacity 0.8s ease';
+            s.style.opacity = '0';
+            setTimeout(function() { s.style.display = 'none'; window._showHUD(); }, 900);
+          }, 1500);
+        });
+      }
+    })();
+
+    // ── Economia de Tokens ──
+    window._tokenCosts = { chat: 1, follow: 2, meeting: 3, message: 1, plant: 1 };
+    // ── Pipeline de fazenda ──
+    window._warehouse = 0;  // colhido bruto
+    window._kitchen   = { cooking: false, timer: 0, count: 0 };
+    window._fridge    = 0;  // refeições prontas
+    window._npcBoost  = {}; // { npcName: timerFrames }
+    // Custo só se aplica em AI mode; em scripted é grátis
+    window._spendTokens = function(action) {
+      if (window._getSimMode() === 'scripted') return true; // grátis
+      var cost = window._tokenCosts[action] || 1;
+      if (window._tokens < cost) {
+        window._addChatLine('SISTEMA', 'Sem tokens! (precisa de ' + cost + ')', '#ff4444');
+        return false;
+      }
+      window._tokens -= cost;
+      var el = document.getElementById('hud-token-val');
+      if (el) { el.classList.remove('tok-flash-earn','tok-flash-spend'); void el.offsetWidth; el.classList.add('tok-flash-spend'); }
+      document.getElementById('hud-token-count').textContent = window._tokens;
+      return true;
+    };
+    window._earnTokens = function(n) {
+      window._tokens += (n || 1);
+      var el = document.getElementById('hud-token-val');
+      if (el) { el.classList.remove('tok-flash-earn','tok-flash-spend'); void el.offsetWidth; el.classList.add('tok-flash-earn'); }
+      document.getElementById('hud-token-count').textContent = window._tokens;
+    };
+    // Regeneração: +1 a cada 2 steps (via polling em start_datetime)
+    var _lastRegenStep = -1;
+    setInterval(function() {
+      if (typeof step === 'undefined') return;
+      if (step > _lastRegenStep + 1) { _lastRegenStep = step; window._earnTokens(1); }
+    }, 10000);
+
+    // ── Rotinas: horas SCRIPTED vs AI ──
+    // scripted = rotina predefinida (gratuito); ai = comportamento LLM (custa 1 token)
+    window._scriptedHours = [6,7,8,12,13,18,19,20,21]; // horas da simulação = scripted
+    window._getSimMode = function() {
+      var ref = (typeof start_datetime !== 'undefined') ? start_datetime : null;
+      if (!ref) return 'scripted';
+      return window._scriptedHours.indexOf(ref.getHours()) >= 0 ? 'scripted' : 'ai';
+    };
+
+    // ── HUD ──
+    window._tokens = 10; // saldo inicial
+    var _DAYS = ['DOM','SEG','TER','QUA','QUI','SEX','SAB'];
+    function _hudTick() {
+      var ref = (typeof start_datetime !== 'undefined') ? start_datetime : null;
+      if (!ref) return;
+      var h = ref.getHours(), m = ref.getMinutes();
+      var ampm = h >= 12 ? 'PM' : 'AM';
+      var h12 = h % 12 || 12;
+      var mm = m < 10 ? '0'+m : m;
+      document.getElementById('hud-time-day').textContent = _DAYS[ref.getDay()] + ' ' + (ref.getMonth()+1) + '/' + ref.getDate();
+      document.getElementById('hud-time-hour').textContent = h12 + ':' + mm + ' ' + ampm;
+      document.getElementById('hud-token-count').textContent = window._tokens;
+      // Atualizar badge de modo
+      var mode = window._getSimMode();
+      var badge = document.getElementById('hud-mode');
+      if (badge) {
+        badge.className = mode;
+        badge.innerHTML = mode === 'scripted' ? '&#9654; SCRIPTED' : '&#10024; AI MODE';
+      }
+    }
+    window._showHUD = function() {
+      document.getElementById('game-hud').style.display = 'block';
+      _hudTick();
+    };
+    window._addTokens = function(n) {
+      window._tokens = (window._tokens || 0) + (n || 1);
+      document.getElementById('hud-token-count').textContent = window._tokens;
+    };
+    setInterval(_hudTick, 5000);
+
     window._difficulty = 'easy';
     function setDiff(btn, d) {
       window._difficulty = d;
@@ -341,6 +1033,10 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     }
     // ENTER: send chat se aberto, senão abre/fecha pausa
     document.addEventListener('keydown', function(e) {
+      if (window._mpChatOpen) {
+        if (e.key === 'Escape' || e.key === ' ') { e.preventDefault(); _mpCloseChat(); }
+        return;
+      }
       if (window._chatOpen) {
         if (e.key === 'Enter' && document.activeElement && document.activeElement.id === 'chat-input') {
           e.preventDefault(); e.stopPropagation(); window._sendChat();
@@ -348,36 +1044,120 @@ Author: Joon Sung Park (joonspk@stanford.edu)
         if (e.key === ' ' || e.key === 'Escape') { e.preventDefault(); window._closeChat(); }
         return;
       }
-      // Tecla A — abrir chat com primeiro NPC disponível
+      // A — chat solo com NPC mais próximo (≤ 2 tiles = 64px)
       if (e.key === 'a' || e.key === 'A') {
-        var pnames = (typeof personas !== 'undefined') ? Object.keys(personas) : [];
-        if (pnames.length > 0) window._openChat(pnames[0]);
+        if (typeof personas === 'undefined' || !player) return;
+        var _clA = null, _minA = Infinity;
+        for (var _pnA in personas) {
+          var _dA = Math.hypot(player.x - personas[_pnA].x, player.y - personas[_pnA].y);
+          if (_dA < _minA) { _minA = _dA; _clA = _pnA; }
+        }
+        if (_clA && _minA <= 64 && window._spendTokens('chat')) window._openChat(_clA);
         return;
       }
-
-      // Tecla S — NPC mais próximo começa a seguir o jogador
+      // S — NPC mais próximo segue o jogador (≤ 2 tiles = 64px)
       if (e.key === 's' || e.key === 'S') {
-        if (window._chatOpen) return;
+        if (typeof personas === 'undefined' || !player) return;
         window._following = window._following || {};
-        if (typeof personas !== 'undefined') {
-          var closest2 = null, minD2 = Infinity;
-          for (var pn2 in personas) {
-            if (window._following[pn2]) continue; // já seguindo
-            var pp2 = personas[pn2];
-            var d2 = Math.hypot((player ? player.x : 0) - pp2.x, (player ? player.y : 0) - pp2.y);
-            if (d2 < minD2) { minD2 = d2; closest2 = pn2; }
+        var _clS = null, _minS = Infinity;
+        for (var _pnS in personas) {
+          if (window._following[_pnS]) continue;
+          var _dS = Math.hypot(player.x - personas[_pnS].x, player.y - personas[_pnS].y);
+          if (_dS < _minS) { _minS = _dS; _clS = _pnS; }
+        }
+        if (_clS && _minS <= 64 && window._spendTokens('follow')) window._following[_clS] = true;
+        return;
+      }
+      // D — reunião em grupo (todos NPCs a ≤ 2 tiles)
+      if (e.key === 'd' || e.key === 'D') {
+        if (typeof personas === 'undefined' || !player) return;
+        var _grp = [];
+        for (var _pnD in personas) {
+          var _dD = Math.hypot(player.x - personas[_pnD].x, player.y - personas[_pnD].y);
+          if (_dD <= 64) _grp.push(_pnD);
+        }
+        if (_grp.length > 0 && window._spendTokens('meeting')) window._openGroupChat(_grp);
+        return;
+      }
+      // F — pipeline de fazenda (prioridade: alimentar NPC > celeiro > plot)
+      if (e.key === 'f' || e.key === 'F') {
+        if (!player) return;
+        var _FRANGE = 64;
+
+        // 1. Alimentar NPC próximo com refeição da geladeira
+        if (window._fridge > 0 && typeof personas !== 'undefined') {
+          var _clF = null, _minF = Infinity;
+          for (var _pfn in personas) {
+            var _dff = Math.hypot(player.x - personas[_pfn].x, player.y - personas[_pfn].y);
+            if (_dff < _minF) { _minF = _dff; _clF = _pfn; }
           }
-          if (closest2) window._following[closest2] = true;
+          if (_clF && _minF <= _FRANGE) {
+            window._fridge--;
+            window._npcBoost[_clF] = 600; // 10s de boost
+            if (window._npcCapacity) window._npcCapacity[_clF] = Math.max(0.05, (window._npcCapacity[_clF]||0.5) - 0.3);
+            window._earnTokens(5); // recompensa por alimentar
+            if (typeof window._addChatLine === 'function' && window._chatOpen)
+              window._addChatLine('SISTEMA', _clF.replace(/_/g,' ') + ' comeu e recebeu boost! +5 tokens.', '#00ff88');
+            return;
+          }
+        }
+
+        // 2. Interagir com celeiro (warehouse → cozinhar → fridge)
+        var _barnPX = 59*32+32, _barnPY = 50*32+28;
+        var _barnDist = Math.hypot(player.x - _barnPX, player.y - _barnPY);
+        if (_barnDist <= 96) {
+          var _kt = window._kitchen;
+          if (_kt.cooking) {
+            // já cozinhando, mostrar progresso
+          } else if (window._warehouse > 0) {
+            // transferir warehouse para cozinha
+            _kt.count = window._warehouse;
+            window._warehouse = 0;
+            _kt.cooking = true;
+            _kt.timer = 0;
+          } else if (window._fridge > 0) {
+            // geladeira tem comida — não faz nada (deve alimentar NPC primeiro)
+          }
+          return;
+        }
+
+        // 3. Interagir com plot de fazenda
+        if (typeof window._farmPlots === 'undefined') return;
+        var _nearPlot = null, _nearDist = Infinity;
+        for (var _fki = 0; _fki < window._farmPlots.length; _fki++) {
+          var _fpk = window._farmPlots[_fki];
+          var _fd = Math.hypot(player.x - (_fpk.tx*32+16), player.y - (_fpk.ty*32+16));
+          if (_fd < _nearDist) { _nearDist = _fd; _nearPlot = _fpk; }
+        }
+        if (!_nearPlot || _nearDist > _FRANGE) return;
+        if (_nearPlot.state === 'empty' && window._spendTokens('plant')) {
+          _nearPlot.state = 'planted'; _nearPlot.timer = 0;
+          _nearPlot.sprite.setTexture('farm_planted');
+        } else if (_nearPlot.state === 'ready') {
+          _nearPlot.state = 'empty'; _nearPlot.timer = 0;
+          _nearPlot.sprite.setTexture('farm_empty');
+          window._warehouse++;     // colheita vai pro armazém
+          window._earnTokens(1);   // token imediato menor
         }
         return;
       }
-
-      // Tecla Espaço — cancela seguir todos os NPCs
-      if (e.key === ' ') {
-        window._following = {};
+      // T — chat entre jogadores (só em multiplayer)
+      if (e.key === 't' || e.key === 'T') {
+        if (!window._mpMode) return;
+        e.preventDefault();
+        _mpOpenChat();
         return;
       }
-
+      // Espaço — cancelar tudo (universal)
+      if (e.key === ' ') {
+        e.preventDefault();
+        window._following = {};
+        var _pm = document.getElementById('pause-modal');
+        if (_pm && _pm.classList.contains('open')) _pm.classList.remove('open');
+        var _cm = document.getElementById('cfg-modal');
+        if (_cm && _cm.classList.contains('open')) _cm.classList.remove('open');
+        return;
+      }
       if (e.key !== 'Enter') return;
       var splash = document.getElementById('splash');
       if (splash && splash.style.display !== 'none') return;
@@ -389,6 +1169,7 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     // ── Chat functions ──
     window._chatOpen = false;
     window._chatPersona = null;
+    window._chatGroup = null;
 
     window._openChat = function(personaKey) {
       window._chatPersona = personaKey;
@@ -407,9 +1188,9 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     window._closeChat = function() {
       window._chatOpen = false;
       window._chatPersona = null;
+      window._chatGroup = null;
       document.getElementById('chat-box').classList.remove('open');
       document.getElementById('chat-input').value = '';
-      // Devolver foco ao canvas para setas voltarem a funcionar
       var cv = document.querySelector('#game-container canvas');
       if (cv) cv.focus();
     };
@@ -426,15 +1207,66 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     window._sendChat = function() {
       var inp = document.getElementById('chat-input');
       var msg = (inp.value || '').trim();
-      if (!msg || !window._chatPersona) return;
+      if (!msg) return;
+      if (!window._spendTokens('message')) { inp.value = ''; return; }
       inp.value = '';
       window._addChatLine('Você', msg, '#5bc8ff');
-      var persona = window._chatPersona;
-      setTimeout(function() {
-        var resp = window._npcResponse(persona, msg);
-        var name = persona.replace(/_/g, ' ');
-        window._addChatLine(name, resp, '#ffd700');
-      }, 500 + Math.random() * 400);
+      if (window._chatGroup && window._chatGroup.length) {
+        var _gc = window._chatGroup;
+        var _gc2 = _gc.slice().sort(function(){ return Math.random()-0.5; }).slice(0, Math.min(2, _gc.length));
+        _gc2.forEach(function(pn, i) {
+          var _ctx = _npcContext(pn);
+          var _col = window._grpColor(_gc.indexOf(pn));
+          var _name = pn.replace(/_/g,' ');
+          setTimeout(function() {
+            window._openclawAsk(pn, msg, _ctx, function(reply) {
+              window._addChatLine(_name, reply || window._npcResponse(pn, msg), _col);
+            });
+          }, 500 + i * 600 + Math.random() * 300);
+        });
+      } else {
+        if (!window._chatPersona) return;
+        var persona = window._chatPersona;
+        var _ctx = _npcContext(persona);
+        window._openclawAsk(persona, msg, _ctx, function(reply) {
+          window._addChatLine(persona.replace(/_/g,' '), reply || window._npcResponse(persona, msg), '#ffd700');
+        });
+      }
+    };
+
+    function _npcContext(personaKey) {
+      try {
+        var name = personaKey.replace(/_/g,' ');
+        var sd = (typeof all_movement!=='undefined' && typeof step!=='undefined') ? all_movement[step][name] : null;
+        return {
+          activity: sd ? sd.description.split('@')[0].trim() : '',
+          location: sd && sd.description.includes('@') ? sd.description.split('@')[1].split(':').pop().trim() : '',
+          emoji: sd ? sd.pronunciatio : '',
+          sim_time: (typeof start_datetime!=='undefined') ? start_datetime.toISOString() : ''
+        };
+      } catch(e) { return {}; }
+    }
+
+    window._grpColor = function(idx) {
+      return ['#ffd700','#00ffaa','#ff9944','#cc88ff','#44ddff','#ff6688'][idx % 6];
+    };
+
+    window._openGroupChat = function(group) {
+      window._chatGroup = group;
+      window._chatPersona = null;
+      window._chatOpen = true;
+      var names = group.map(function(k){ return k.replace(/_/g,' '); }).join(', ');
+      document.getElementById('chat-npc-name').textContent = '\u25a0 REUNIÃO: ' + names;
+      document.getElementById('chat-msgs').innerHTML = '';
+      document.getElementById('chat-box').classList.add('open');
+      group.forEach(function(pn, idx) {
+        setTimeout(function() {
+          window._addChatLine(pn.replace(/_/g,' '), window._npcGreeting(pn), window._grpColor(idx));
+          if (idx === group.length - 1) {
+            setTimeout(function(){ var i=document.getElementById('chat-input'); if(i) i.focus(); }, 80);
+          }
+        }, 150 + idx * 380);
+      });
     };
 
     window._npcGreeting = function(personaKey) {
@@ -554,24 +1386,25 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     setTimeout(fitCanvas, 1500);
     setTimeout(fitCanvas, 3000);
 
-    // Atualiza alpha do overlay Phaser usando tempo da simulação (start_datetime)
+    // Atualiza alpha do overlay Phaser usando tempo da simulação (window.start_datetime)
     function updateDayNight() {
       if (!window._nightRT) return;
-      var ref = (typeof start_datetime !== 'undefined') ? start_datetime : new Date();
+      var ref = window.start_datetime || null;
+      if (!ref) { window._nightRT.setAlpha(0); return; }
       var h = ref.getHours() + ref.getMinutes() / 60;
       var alpha;
-      if      (h >= 6  && h < 8)  alpha = (8-h)/2*0.15;
-      else if (h >= 8  && h < 17) alpha = 0;
-      else if (h >= 17 && h < 19) alpha = (h-17)/2*0.15;
-      else if (h >= 19 && h < 21) alpha = 0.08 + (h-19)/2*0.1;
-      else                        alpha = 0.52;
+      // Amanhecer 5h→7h, dia 7h→17h, entardecer 17h→20h, noite 20h→5h
+      if      (h >= 5  && h < 7)  alpha = (7 - h) / 2 * 0.65;        // 0.65→0
+      else if (h >= 7  && h < 17) alpha = 0;                           // pleno dia
+      else if (h >= 17 && h < 20) alpha = ((h - 17) / 3) * 0.75;     // 0→0.75
+      else                        alpha = 0.75;                        // noite plena
       window._nightRT.setAlpha(alpha);
     }
     window._forceNight = false;
     setInterval(function() {
-      if (window._forceNight) { if (window._nightRT) window._nightRT.setAlpha(0.52); }
+      if (window._forceNight) { if (window._nightRT) window._nightRT.setAlpha(0.75); }
       else updateDayNight();
-    }, 5000);
+    }, 1000);
     history.replaceState(null, '', '/');
 
     // *** CHUVA — CSS puro, sem JS por frame ***
@@ -654,10 +1487,10 @@ Author: Joon Sung Park (joonspk@stanford.edu)
       _setRain(window._rainLevel);
       setInterval(function(){ _setRain(window._rainLevel||0); }, 600);
     })();
-    // Polling: aplica noite assim que _nightRT estiver pronto (sem depender de timeout fixo)
+    // Polling: aplica noite assim que _nightRT E start_datetime estiverem prontos
     (function _waitNight() {
-      if (!window._nightRT) { setTimeout(_waitNight, 400); return; }
-      if (window._forceNight) window._nightRT.setAlpha(0.52);
+      if (!window._nightRT || !window.start_datetime) { setTimeout(_waitNight, 400); return; }
+      if (window._forceNight) window._nightRT.setAlpha(0.75);
       else updateDayNight();
     })();
   </script>
