@@ -491,8 +491,8 @@
 	    this.add.tileSprite(_MAP_W+_EXT_W/2,_GAME_H/2,_EXT_W,_GAME_H,'_ext_grass')
 	      .setDepth(0.4).setOrigin(0.5,0.5);
 
-	    // ── MARINA: bacia de água do Y=300 até _BY2 ──
-	    var _mrY0 = 300;            // topo da marina
+	    // ── MARINA: bacia de água do Y=0 até _BY2 ──
+	    var _mrY0 = 0;              // topo da marina (até o teto)
 	    var _mrH  = _BY2 - _mrY0;  // altura total da bacia
 	    var _mrG  = this.add.graphics().setDepth(0.6);
 
@@ -615,10 +615,6 @@
 	      _bkG2.fillStyle(0x2A1800,1); _bkG2.fillRect(b[0]+b[2]/2-2,b[1]+b[3]/2-2,4,4);
 	    });
 
-	    // Árvores no topo (acima da marina)
-	    [40,180,330].forEach(function(ty) {
-	      this.add.image(_MAP_W+8,ty,'_beach_tree_sprite').setDepth(0.9).setOrigin(0,0);
-	    },this);
 	  }
 
 	  // Solo vazio
