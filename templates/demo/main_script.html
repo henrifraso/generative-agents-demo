@@ -275,33 +275,36 @@
 	  // Setting up the camera.
 	  const camera = this.cameras.main;
 	  var _worldW  = _GAME_W;
-	  // Desktop: fit-height mostra o mapa inteiro (tiles visíveis com setCullPadding)
-	  // Mobile (<900px): zoom maior (0.45) para ver detalhes, drag-to-pan para explorar
-	  var _initZoom = _CANVAS_H / map.heightInPixels; // fit-height em todos os devices
+	  var _zoomMin = Math.min(_CANVAS_W / _GAME_W, _CANVAS_H / map.heightInPixels); // fit-all
+	  var _zoomMax = 1.0;
+	  var _initZoom = _zoomMin; // começa com o mapa inteiro visível
 	  camera.setZoom(_initZoom);
 	  camera.setBounds(0, 0, _worldW, _GAME_H);
 	  camera.startFollow(player);
 	  cursors = this.input.keyboard.createCursorKeys();
 	  window._camera = camera;
 	  window._phaserScene = this;
-	  window._remoteSprites = {}; // { player_id: {sprite, label, tx, ty} }
+	  window._remoteSprites = {};
 
-	  // Zoom desativado — zoom fixo em 0.6
 	  game.canvas.setAttribute('tabindex', '0');
 	  game.canvas.focus();
 
-	  // ── Touch: pinch-zoom + drag-to-pan ──
+	  // ── Touch: 1 dedo = pan, 2 dedos = pinch zoom ──
 	  var _pinchDist = null;
-	  var _dragFollowing = true;
-	  this.input.addPointer(1); // suporte a 2 dedos
+	  this.input.addPointer(1);
 	  this.input.on('pointermove', function(ptr) {
 	    var p1 = this.input.pointer1, p2 = this.input.pointer2;
 	    if (p1.isDown && p2.isDown) {
-	      _pinchDist = null; // pinch desativado
-	    } else if (ptr.isDown && this.input.pointer2 && !this.input.pointer2.isDown) {
-	      // drag to pan — solta o follow temporariamente
+	      // pinch zoom
+	      var d = Phaser.Math.Distance.Between(p1.x, p1.y, p2.x, p2.y);
+	      if (_pinchDist !== null) {
+	        var newZoom = Phaser.Math.Clamp(camera.zoom * (d / _pinchDist), _zoomMin, _zoomMax);
+	        camera.setZoom(newZoom);
+	      }
+	      _pinchDist = d;
+	    } else if (ptr.isDown && !(this.input.pointer2 && this.input.pointer2.isDown)) {
+	      // drag to pan
 	      camera.stopFollow();
-	      _dragFollowing = false;
 	      camera.scrollX -= (ptr.x - ptr.prevPosition.x) / camera.zoom;
 	      camera.scrollY -= (ptr.y - ptr.prevPosition.y) / camera.zoom;
 	    }
