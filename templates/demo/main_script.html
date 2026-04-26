@@ -299,30 +299,51 @@
 	  game.canvas.setAttribute('tabindex', '0');
 	  game.canvas.focus();
 
-	  // ── Touch: 1 dedo = pan, 2 dedos = pinch zoom ──
-	  // stopFollow() no primeiro toque para que o pinch zoom funcione sem conflito com startFollow
-	  var _pinchDist = null;
-	  var _touchStarted = false;
-	  this.input.on('pointerdown', function() {
-	    if (!_touchStarted) { _touchStarted = true; camera.stopFollow(); }
-	  }, this);
-	  this.input.on('pointermove', function(ptr) {
-	    var p1 = this.input.pointer1, p2 = this.input.pointer2;
-	    if (p1.isDown && p2.isDown) {
-	      // pinch zoom
-	      var d = Phaser.Math.Distance.Between(p1.x, p1.y, p2.x, p2.y);
+	  // ── Eventos nativos DOM: pan (1 dedo) + pinch zoom (2 dedos) + wheel (desktop) ──
+	  var _pinchDist = null, _panX = null, _panY = null;
+	  var _cv = game.canvas;
+	  camera.stopFollow();
+
+	  _cv.addEventListener('touchstart', function(e) {
+	    e.preventDefault();
+	    if (e.touches.length === 1) {
+	      _panX = e.touches[0].clientX; _panY = e.touches[0].clientY;
+	    } else {
+	      _panX = null;
+	    }
+	    _pinchDist = null;
+	  }, { passive: false });
+
+	  _cv.addEventListener('touchmove', function(e) {
+	    e.preventDefault();
+	    if (e.touches.length === 2) {
+	      var dx = e.touches[0].clientX - e.touches[1].clientX;
+	      var dy = e.touches[0].clientY - e.touches[1].clientY;
+	      var d = Math.sqrt(dx*dx + dy*dy);
 	      if (_pinchDist !== null) {
 	        var newZoom = Phaser.Math.Clamp(camera.zoom * (d / _pinchDist), _zoomMin, _zoomMax);
 	        camera.setZoom(newZoom);
 	      }
-	      _pinchDist = d;
-	    } else if (ptr.isDown && !(p2 && p2.isDown)) {
-	      // drag para pan
-	      camera.scrollX -= (ptr.x - ptr.prevPosition.x) / camera.zoom;
-	      camera.scrollY -= (ptr.y - ptr.prevPosition.y) / camera.zoom;
+	      _pinchDist = d; _panX = null;
+	    } else if (e.touches.length === 1 && _panX !== null) {
+	      var tx = e.touches[0].clientX, ty = e.touches[0].clientY;
+	      camera.scrollX -= (tx - _panX) / camera.zoom;
+	      camera.scrollY -= (ty - _panY) / camera.zoom;
+	      _panX = tx; _panY = ty;
 	    }
-	  }, this);
-	  this.input.on('pointerup', function() { _pinchDist = null; });
+	  }, { passive: false });
+
+	  _cv.addEventListener('touchend', function(e) {
+	    _pinchDist = null;
+	    if (e.touches.length === 1) { _panX = e.touches[0].clientX; _panY = e.touches[0].clientY; }
+	    else { _panX = null; }
+	  }, { passive: false });
+
+	  _cv.addEventListener('wheel', function(e) {
+	    e.preventDefault();
+	    var factor = e.deltaY < 0 ? 1.1 : 0.9;
+	    camera.setZoom(Phaser.Math.Clamp(camera.zoom * factor, _zoomMin, _zoomMax));
+	  }, { passive: false });
 
 	  // Prevenir scroll das setas (handlers de A/Espaço ficam no base.html)
 	  window.addEventListener('keydown', function(e) {
