@@ -35,20 +35,18 @@
 	window._GAME_H = _GAME_H;
 
 	// Canvas = viewport — a câmera navega pelo mundo
-	var _CANVAS_W = window.innerWidth  || 800;
-	var _CANVAS_H = window.innerHeight || 600;
+	// screen.width/height são fixos independente do chrome do Safari
+	var _CANVAS_W = window.screen.width  || window.innerWidth  || 800;
+	var _CANVAS_H = window.screen.height || window.innerHeight || 600;
 
 	// Phaser 3.0 global settings.
 	// Configuration meant to be passed to the main Phaser game instance.
 	const config = {
 	  type: Phaser.AUTO,
+	  width: _CANVAS_W,
+	  height: _CANVAS_H,
+	  parent: "game-container",
 	  backgroundColor: 0x1a4a6e,
-	  scale: {
-	    mode: Phaser.Scale.NONE,
-	    parent: "game-container",
-	    width: _CANVAS_W,
-	    height: _CANVAS_H,
-	  },
 	  pixelArt: true,
 	  input: { activePointers: 3 },
 	  physics: {
@@ -283,6 +281,7 @@
 	  window._following = {};
 	  // Setting up the camera.
 	  const camera = this.cameras.main;
+	  camera.setBackgroundColor(0x1a4a6e);
 	  var _worldW  = _GAME_W;
 	  var _zoomMax = 2.0;
 	  // Mobile retrato: zoom mínimo = fit-height (mapa preenche tela verticalmente)
