@@ -45,7 +45,6 @@
 	  width: _CANVAS_W,
 	  height: _CANVAS_H,
 	  parent: "game-container",
-	  backgroundColor: 0x1a4a6e,
 	  pixelArt: true,
 	  input: { activePointers: 3 },
 	  physics: {
@@ -280,16 +279,16 @@
 	  window._following = {};
 	  // Setting up the camera.
 	  const camera = this.cameras.main;
-	  camera.setBackgroundColor(0x1a4a6e);
 	  var _worldW  = _GAME_W;
+	  var _zoomMin = Math.min(_CANVAS_W / _GAME_W, _CANVAS_H / map.heightInPixels); // fit-all
 	  var _zoomMax = 2.0;
-	  var _mapW = map.widthInPixels;
-	  var _mapH = map.heightInPixels;
-	  var _zoomMin = Math.min(_CANVAS_W / _GAME_W, _CANVAS_H / _mapH);
-	  window._zoomMin = _zoomMin;
-	  camera.setZoom(_zoomMin);
-	  camera.setBounds(0, 0, _worldW, _mapH);
-	  camera.setScroll(0, 0);
+	  // Mobile: inicia em fit-height (vê o mapa inteiro na vertical, rola horizontal)
+	  //         pode pinch-zoom OUT até fit-all e IN até 2x
+	  // Desktop: fit-all (mapa inteiro visível)
+	  var _initZoom = _zoomMin; // fit-all: mapa inteiro + call center visível
+	  camera.setZoom(_initZoom);
+	  camera.setBounds(0, 0, _worldW, _GAME_H);
+	  camera.centerOn(_GAME_W / 2, _GAME_H / 2);
 	  cursors = this.input.keyboard.createCursorKeys();
 	  window._camera = camera;
 	  window._phaserScene = this;
@@ -428,7 +427,7 @@
 	  // *** PRAIA — nos últimos 30 rows do mapa (Y=2240–3200), tiles mascarados ***
 	  {
 	    var _bsc = this;
-	    var _bMW = _GAME_W; // cobre toda a largura incluindo extensão do call center
+	    var _bMW = 140 * 32; // 4480px
 	    var _beachStartRow = 83; // edifícios terminam em row 82, praia começa em 83
 	    var _BY  = _beachStartRow * 32; // Y=2656
 	    var _AVH = 128;                  // altura da avenida
@@ -1253,10 +1252,9 @@
 
 
 	function update(time, delta) {
+		// Força câmera dentro dos limites a cada frame
 		var _cam = this.cameras.main;
-		var _zm = window._zoomMin || _cam.zoom;
 		var _cvw = _CANVAS_W / _cam.zoom, _cvh = _CANVAS_H / _cam.zoom;
-		if (_cam.zoom < _zm) _cam.setZoom(_zm);
 		if (_cvw >= _GAME_W) _cam.scrollX = 0;
 		else _cam.scrollX = Phaser.Math.Clamp(_cam.scrollX, 0, _GAME_W - _cvw);
 		if (_cvh >= _GAME_H) _cam.scrollY = 0;
