@@ -284,14 +284,16 @@
 	  var _zoomMin = Math.min(_CANVAS_W / _GAME_W, _CANVAS_H / map.heightInPixels); // fit-all (pinch-out mínimo)
 	  var _zoomMax = 2.0;
 	  var _isPortrait = window.screen.width < window.screen.height;
+	  var _callCenterX = _MAP_BASE_W + (_GAME_W - _MAP_BASE_W) / 2; // centro do call center
 	  var _initZoom = _isPortrait
-	    ? _CANVAS_H / map.heightInPixels
+	    ? Math.max(_CANVAS_H / map.heightInPixels, Math.min(0.5, _zoomMax))
 	    : _zoomMin;
+	  _zoomMin = _isPortrait ? _CANVAS_H / map.heightInPixels : _zoomMin;
 	  camera.setZoom(_initZoom);
 	  camera.setBounds(0, 0, _worldW, _GAME_H);
 	  if (_isPortrait) {
-	    _zoomMin = _initZoom;
-	    camera.scrollX = Math.max(0, _GAME_W - _CANVAS_W / _initZoom);
+	    var _vpW = _CANVAS_W / _initZoom;
+	    camera.scrollX = Phaser.Math.Clamp(_callCenterX - _vpW / 2, 0, _worldW - _vpW);
 	    camera.scrollY = 0;
 	  } else {
 	    camera.centerOn(_GAME_W / 2, _GAME_H / 2);
