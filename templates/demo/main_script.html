@@ -289,18 +289,8 @@
 	  // Desktop: fit-all (mapa inteiro visível)
 	  var _initZoom = _zoomMin; // fit-all: mapa inteiro + call center visível
 	  camera.setZoom(_initZoom);
-	  camera.setBounds(-2000, -2000, 4480 + 4000, 3200 + 8000);
+	  camera.setBounds(0, 0, _worldW, _GAME_H);
 	  camera.centerOn(_GAME_W / 2, _GAME_H / 2);
-	  if (window.screen.width < window.screen.height) {
-	    var _mapW = map.widthInPixels;
-	    var _mapH = map.heightInPixels;
-	    var _zoomFill = Math.max(_CANVAS_W / _mapW, _CANVAS_H / _mapH);
-	    camera.setZoom(_zoomFill);
-	    camera.setBounds(-2000, -2000, _mapW + 4000, _mapH + 8000);
-	    camera.centerOn(_mapW / 2, _mapH / 2);
-	    _zoomMin = _zoomFill;
-	    window._zoomMin = _zoomFill;
-	  }
 	  cursors = this.input.keyboard.createCursorKeys();
 	  window._camera = camera;
 	  window._phaserScene = this;
@@ -1265,7 +1255,6 @@
 
 	function update(time, delta) {
 		var _cam = this.cameras.main;
-		if (window._zoomMin && _cam.zoom < window._zoomMin) _cam.setZoom(window._zoomMin);
 		var _cvw = _CANVAS_W / _cam.zoom, _cvh = _CANVAS_H / _cam.zoom;
 		if (_cvw >= _GAME_W) _cam.scrollX = 0;
 		else _cam.scrollX = Phaser.Math.Clamp(_cam.scrollX, 0, _GAME_W - _cvw);
