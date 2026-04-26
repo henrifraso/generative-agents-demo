@@ -288,6 +288,31 @@
 	  game.canvas.setAttribute('tabindex', '0');
 	  game.canvas.focus();
 
+	  // ── Touch: pinch-zoom + drag-to-pan ──
+	  var _pinchDist = null;
+	  var _dragFollowing = true;
+	  this.input.addPointer(1); // suporte a 2 dedos
+	  this.input.on('pointermove', function(ptr) {
+	    var p1 = this.input.pointer1, p2 = this.input.pointer2;
+	    if (p1.isDown && p2.isDown) {
+	      // pinch zoom
+	      var dx = p1.x - p2.x, dy = p1.y - p2.y;
+	      var dist = Math.sqrt(dx*dx + dy*dy);
+	      if (_pinchDist !== null) {
+	        var nz = camera.zoom + (dist - _pinchDist) * 0.008;
+	        camera.setZoom(Math.max(0.25, Math.min(4, nz)));
+	      }
+	      _pinchDist = dist;
+	    } else if (ptr.isDown && this.input.pointer2 && !this.input.pointer2.isDown) {
+	      // drag to pan — solta o follow temporariamente
+	      camera.stopFollow();
+	      _dragFollowing = false;
+	      camera.scrollX -= (ptr.x - ptr.prevPosition.x) / camera.zoom;
+	      camera.scrollY -= (ptr.y - ptr.prevPosition.y) / camera.zoom;
+	    }
+	  }, this);
+	  this.input.on('pointerup', function() { _pinchDist = null; });
+
 	  // Prevenir scroll das setas (handlers de A/Espaço ficam no base.html)
 	  window.addEventListener('keydown', function(e) {
 	    if ([37,38,39,40].indexOf(e.keyCode) >= 0) e.preventDefault();
