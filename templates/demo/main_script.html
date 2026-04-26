@@ -289,7 +289,13 @@
 	    : _zoomMin;
 	  camera.setZoom(_initZoom);
 	  camera.setBounds(0, 0, _worldW, _GAME_H);
-	  camera.centerOn(_GAME_W / 2, _GAME_H / 2);
+	  if (window.screen.width < window.screen.height) {
+	    // Mobile: mostra lado direito (call center visível), pan esquerda pra ver cidade
+	    camera.scrollX = Math.max(0, _GAME_W - _CANVAS_W / _initZoom);
+	    camera.scrollY = 0;
+	  } else {
+	    camera.centerOn(_GAME_W / 2, _GAME_H / 2);
+	  }
 	  cursors = this.input.keyboard.createCursorKeys();
 	  window._camera = camera;
 	  window._phaserScene = this;
