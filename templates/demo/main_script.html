@@ -45,6 +45,7 @@
 	  width: _CANVAS_W,
 	  height: _CANVAS_H,
 	  parent: "game-container",
+	  backgroundColor: '#1a4a6e',
 	  pixelArt: true,
 	  input: { activePointers: 3 },
 	  physics: {
@@ -427,7 +428,7 @@
 	  // *** PRAIA — nos últimos 30 rows do mapa (Y=2240–3200), tiles mascarados ***
 	  {
 	    var _bsc = this;
-	    var _bMW = 140 * 32; // 4480px
+	    var _bMW = _GAME_W; // cobre toda a largura incluindo extensão do call center
 	    var _beachStartRow = 83; // edifícios terminam em row 82, praia começa em 83
 	    var _BY  = _beachStartRow * 32; // Y=2656
 	    var _AVH = 128;                  // altura da avenida
