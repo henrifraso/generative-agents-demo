@@ -281,26 +281,15 @@
 	  window._playerMoving = false;
 	  window._chatOpen = false;
 	  window._following = {};
-	  // Força cor de fundo oceano no WebGL e na câmera — múltiplas camadas de defesa
-	  if (this.sys.game.renderer && this.sys.game.renderer.gl) {
-	    this.sys.game.renderer.gl.clearColor(0x1a/255, 0x4a/255, 0x6e/255, 1.0);
-	  }
 	  // Setting up the camera.
 	  const camera = this.cameras.main;
-	  camera.setBackgroundColor(0x1a4a6e);
 	  var _worldW  = _GAME_W;
 	  var _zoomMin = Math.min(_CANVAS_W / _GAME_W, _CANVAS_H / map.heightInPixels);
 	  var _zoomMax = 2.0;
-	  // Altura virtual do mundo — estende até cobrir 100% da tela ao zoom mínimo
-	  // Elimina o espaço preto abaixo do mapa desenhando océano de Phaser real
-	  var _WORLD_H = Math.max(_GAME_H, Math.ceil(_CANVAS_H / _zoomMin));
+	  // Estende o mundo Phaser para cobrir a viewport proporcional no celular retrato
+	  var _screenRatio = window.innerHeight / window.innerWidth;
+	  var _WORLD_H = Math.max(_GAME_H, Math.ceil(_GAME_W * _screenRatio));
 	  window._WORLD_H = _WORLD_H;
-	  if (_WORLD_H > _GAME_H) {
-	    this.add.graphics()
-	      .fillStyle(0x1a4a6e, 1)
-	      .fillRect(0, _GAME_H, _worldW, _WORLD_H - _GAME_H)
-	      .setDepth(0);
-	  }
 	  camera.setZoom(_zoomMin);
 	  camera.setBounds(0, 0, _worldW, _WORLD_H);
 	  camera.centerOn(_GAME_W / 2, _WORLD_H / 2);
