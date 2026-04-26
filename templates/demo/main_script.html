@@ -274,11 +274,12 @@
 	  // Setting up the camera.
 	  const camera = this.cameras.main;
 	  var _worldW = _GAME_W;
-	  // Zoom: trava nas bordas do mapa; inicia em 0.45 (mas nunca menor que o fit-height)
-	  var _fitZoom  = _CANVAS_H / _GAME_H;          // zoom mínimo — mapa inteiro na tela
-	  var _initZoom = Math.max(_fitZoom, 0.45);      // inicia em 0.45, sem overflow vertical
+	  // Zoom responsivo: desktop = fit-all (mapa inteiro); mobile = 0.45 (visão próxima + pan)
+	  var _isMobile = _CANVAS_W < 900;
+	  var _fitAll   = Math.min(_CANVAS_W / _GAME_W, _CANVAS_H / _GAME_H);
+	  var _initZoom = _isMobile ? 0.45 : _fitAll;
 	  camera.setZoom(_initZoom);
-	  camera.setBounds(0, 0, _worldW, _GAME_H);      // bounds incluem beach extension
+	  camera.setBounds(0, 0, _worldW, _GAME_H);
 	  camera.startFollow(player);
 	  cursors = this.input.keyboard.createCursorKeys();
 	  window._camera = camera;
