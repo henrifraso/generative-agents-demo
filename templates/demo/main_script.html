@@ -283,27 +283,12 @@
 	  camera.setBackgroundColor(0x1a4a6e);
 	  var _worldW  = _GAME_W;
 	  var _zoomMax = 2.0;
-	  // Dimensões reais do mapa lidas do tilemap (não hardcoded)
-	  var _mapW = map.widthInPixels;   // 4480px (140 tiles × 32px)
-	  var _mapH = map.heightInPixels;  // 3200px (100 tiles × 32px)
-	  // Detecção de retrato via screen (não innerHeight — Safari mente)
-	  var _isPortrait = window.screen.width < window.screen.height;
-	  var _screenW = window.screen.width;
-	  var _screenH = window.screen.height;
-	  var _zoomMin;
-	  if (_isPortrait) {
-	    // Retrato: zoom para preencher altura da tela com o mapa
-	    // screenH / mapH = px de tela / px de mapa → mapa ocupa 100% da altura
-	    _zoomMin = _screenH / _mapH;
-	  } else {
-	    // Paisagem (desktop): fit-all original — não altera comportamento
-	    _zoomMin = Math.min(_CANVAS_W / _GAME_W, _CANVAS_H / _mapH);
-	  }
+	  var _mapW = map.widthInPixels;
+	  var _mapH = map.heightInPixels;
+	  var _zoomMin = Math.min(_CANVAS_W / _GAME_W, _CANVAS_H / _mapH);
 	  window._zoomMin = _zoomMin;
 	  camera.setZoom(_zoomMin);
-	  // Bounds = mapa real (não estendido) — zoom correto já garante sem preto
 	  camera.setBounds(0, 0, _worldW, _mapH);
-	  // Começa mostrando a cidade (lado esquerdo do mapa)
 	  camera.setScroll(0, 0);
 	  cursors = this.input.keyboard.createCursorKeys();
 	  window._camera = camera;
@@ -1268,11 +1253,9 @@
 
 
 	function update(time, delta) {
-		// Força câmera dentro dos limites a cada frame
 		var _cam = this.cameras.main;
 		var _zm = window._zoomMin || _cam.zoom;
 		var _cvw = _CANVAS_W / _cam.zoom, _cvh = _CANVAS_H / _cam.zoom;
-		// Impede zoom abaixo do mínimo calculado (garante sem preto em retrato)
 		if (_cam.zoom < _zm) _cam.setZoom(_zm);
 		if (_cvw >= _GAME_W) _cam.scrollX = 0;
 		else _cam.scrollX = Phaser.Math.Clamp(_cam.scrollX, 0, _GAME_W - _cvw);
