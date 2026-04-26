@@ -246,20 +246,6 @@ Author: Joon Sung Park (joonspk@stanford.edu)
       user-select:none;
     }
     #hud-gear:hover { color:#ffe97a;border-color:rgba(255,220,60,0.6);background:rgba(0,0,0,0.75); }
-    /* Botões zoom — fixed, sempre visíveis */
-    #zoom-controls {
-      position:fixed;bottom:14px;right:14px;z-index:9000;
-      display:flex;flex-direction:column;gap:4px;
-    }
-    .zoom-btn {
-      cursor:pointer;font-size:20px;font-weight:bold;line-height:1;
-      color:rgba(255,255,255,0.85);background:rgba(0,0,0,0.6);
-      border:1px solid rgba(255,255,255,0.25);border-radius:6px;
-      width:40px;height:40px;display:flex;align-items:center;justify-content:center;
-      user-select:none;-webkit-user-select:none;touch-action:manipulation;
-      transition:background 0.15s;
-    }
-    .zoom-btn:active { background:rgba(255,255,255,0.2); }
     /* Botões bloqueados */
     .sp-btn-locked {
       opacity:0.42 !important;cursor:not-allowed !important;
@@ -844,12 +830,6 @@ Author: Joon Sung Park (joonspk@stanford.edu)
       <span id="term-prompt">root@tbg:~$&nbsp;</span>
       <input id="term-input" type="text" autocomplete="off" spellcheck="false" placeholder="">
     </div>
-  </div>
-
-  <!-- *** BOTÕES ZOOM (fixed, sempre visíveis) *** -->
-  <div id="zoom-controls">
-    <div class="zoom-btn" id="zoom-in-btn">+</div>
-    <div class="zoom-btn" id="zoom-out-btn">−</div>
   </div>
 
   <!-- *** HUD *** -->
