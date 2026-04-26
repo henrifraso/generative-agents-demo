@@ -277,8 +277,7 @@
 	  var _worldW  = _GAME_W;
 	  // Desktop: fit-height mostra o mapa inteiro (tiles visíveis com setCullPadding)
 	  // Mobile (<900px): zoom maior (0.45) para ver detalhes, drag-to-pan para explorar
-	  var _isMobile = _CANVAS_W < 900;
-	  var _initZoom = _isMobile ? 0.45 : (_CANVAS_H / map.heightInPixels);
+	  var _initZoom = _CANVAS_H / map.heightInPixels; // fit-height em todos os devices
 	  camera.setZoom(_initZoom);
 	  camera.setBounds(0, 0, _worldW, _GAME_H);
 	  camera.startFollow(player);
