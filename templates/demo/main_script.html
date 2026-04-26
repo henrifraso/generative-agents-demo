@@ -35,9 +35,8 @@
 	window._GAME_H = _GAME_H;
 
 	// Canvas = viewport — a câmera navega pelo mundo
-	// screen.width/height são fixos independente do chrome do Safari
-	var _CANVAS_W = window.screen.width  || window.innerWidth  || 800;
-	var _CANVAS_H = window.screen.height || window.innerHeight || 600;
+	var _CANVAS_W = window.innerWidth  || 800;
+	var _CANVAS_H = window.innerHeight || 600;
 
 	// Phaser 3.0 global settings.
 	// Configuration meant to be passed to the main Phaser game instance.
@@ -284,16 +283,18 @@
 	  camera.setBackgroundColor(0x1a4a6e);
 	  var _worldW  = _GAME_W;
 	  var _zoomMax = 2.0;
-	  // Mobile retrato: zoom mínimo = fit-height (mapa preenche tela verticalmente)
-	  // Desktop paisagem: zoom mínimo = fit-all (mapa inteiro visível)
-	  var _isPortrait = window.innerHeight > window.innerWidth;
-	  var _zoomFitH = _CANVAS_H / map.heightInPixels;
-	  var _zoomFitAll = Math.min(_CANVAS_W / _GAME_W, _zoomFitH);
+	  // No retrato: usa o máximo entre innerHeight e screen.height
+	  // pois o chrome do Safari reduz o innerHeight temporariamente
+	  var _isPortrait = window.screen.width < window.screen.height;
+	  var _screenH = Math.max(window.innerHeight, window.screen ? (window.screen.height || 0) : 0);
+	  var _zoomFitH = _screenH / map.heightInPixels;
+	  var _zoomFitAll = Math.min(_CANVAS_W / _GAME_W, _CANVAS_H / map.heightInPixels);
 	  var _zoomMin = _isPortrait ? _zoomFitH : _zoomFitAll;
 	  window._WORLD_H = _GAME_H;
 	  camera.setZoom(_zoomMin);
 	  camera.setBounds(0, 0, _worldW, _GAME_H);
-	  camera.centerOn(_GAME_W / 2, _GAME_H / 2);
+	  // Começa mostrando a cidade (esquerda do mapa), não o centro
+	  camera.setScroll(0, 0);
 	  cursors = this.input.keyboard.createCursorKeys();
 	  window._camera = camera;
 	  window._phaserScene = this;
