@@ -290,11 +290,17 @@
 	  camera.setBounds(0, 0, _worldW, _GAME_H);
 	  camera.centerOn(_GAME_W / 2, _GAME_H / 2);
 	  if (window.screen.width < window.screen.height) {
-	    var zoomFill = window.screen.height / map.heightInPixels;
-	    camera.setZoom(zoomFill);
-	    camera.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
-	    camera.scrollTo(0, 0);
-	    window._zoomMin = zoomFill;
+	    var _scrH = Math.max(window.screen.height, window.innerHeight, document.documentElement.clientHeight);
+	    var _scrW = Math.max(window.screen.width, window.innerWidth, document.documentElement.clientWidth);
+	    var _mapW = map.widthInPixels;
+	    var _mapH = map.heightInPixels;
+	    var _zoomByW = _scrW / _mapW;
+	    var _zoomByH = _scrH / _mapH;
+	    var _zoomFill = Math.max(_zoomByW, _zoomByH);
+	    camera.setZoom(_zoomFill);
+	    camera.setBounds(0, 0, _mapW, _mapH);
+	    camera.centerOn(_mapW / 2, _mapH / 2);
+	    window._zoomMin = _zoomFill;
 	  }
 	  cursors = this.input.keyboard.createCursorKeys();
 	  window._camera = camera;
