@@ -48,7 +48,6 @@
 	  backgroundColor: '#1a4a6e',
 	  pixelArt: true,
 	  input: { activePointers: 3 },
-	  scale: { mode: Phaser.Scale.NONE },
 	  physics: {
 	    default: "arcade",
 	    arcade: {
@@ -293,17 +292,13 @@
 	  camera.setBounds(-2000, -2000, 4480 + 4000, 3200 + 8000);
 	  camera.centerOn(_GAME_W / 2, _GAME_H / 2);
 	  if (window.screen.width < window.screen.height) {
-	    var _scrH = Math.max(window.screen.height, window.innerHeight, document.documentElement.clientHeight);
-	    var _scrW = Math.max(window.screen.width, window.innerWidth, document.documentElement.clientWidth);
 	    var _mapW = map.widthInPixels;
 	    var _mapH = map.heightInPixels;
-	    var _zoomByW = _scrW / _mapW;
-	    var _zoomByH = _scrH / _mapH;
-	    var _zoomFill = Math.max(_zoomByW, _zoomByH);
+	    var _zoomFill = Math.max(_CANVAS_W / _mapW, _CANVAS_H / _mapH);
 	    camera.setZoom(_zoomFill);
 	    camera.setBounds(-2000, -2000, _mapW + 4000, _mapH + 8000);
 	    camera.centerOn(_mapW / 2, _mapH / 2);
-	    _zoomMin = _zoomFill;      // atualiza closure do pinch/wheel
+	    _zoomMin = _zoomFill;
 	    window._zoomMin = _zoomFill;
 	  }
 	  cursors = this.input.keyboard.createCursorKeys();
