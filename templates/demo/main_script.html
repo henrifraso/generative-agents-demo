@@ -299,6 +299,9 @@
 	      dbg.style.cssText = 'position:fixed;top:0;left:0;background:rgba(0,0,0,0.7);color:#0f0;font:12px monospace;padding:4px 6px;z-index:9999;pointer-events:none;';
 	      document.body.appendChild(dbg);
 	      window._dbg = dbg;
+	      // marcador vermelho no call center para diagnóstico
+	      window._phaserScene.add.rectangle(4480+256, 1600, 512, 400, 0xff0000, 0.5).setDepth(50);
+	      window._phaserScene.add.text(4480+256, 1600, 'CALL\nCENTER', {fontSize:'96px',color:'#ffffff',fontFamily:'monospace'}).setOrigin(0.5).setDepth(51);
 	    });
 	  }
 	  cursors = this.input.keyboard.createCursorKeys();
