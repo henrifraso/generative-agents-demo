@@ -284,7 +284,7 @@
 	  var _zoomMin = Math.min(_CANVAS_W / _GAME_W, _CANVAS_H / map.heightInPixels); // fit-all (pinch-out mínimo)
 	  var _zoomMax = 2.0;
 	  var _isPortrait = _CANVAS_H > _CANVAS_W;
-	  var _initZoom = _isPortrait ? 0.25 : _zoomMin;
+	  var _initZoom = _zoomMin;
 	  camera.setZoom(_initZoom);
 	  camera.setBounds(0, 0, _worldW, _GAME_H);
 	  if (_isPortrait) {
@@ -292,6 +292,18 @@
 	    camera.scrollY = 0;
 	  } else {
 	    camera.centerOn(_GAME_W / 2, _GAME_H / 2);
+	  }
+	  if (_isPortrait) {
+	    var _zoomTarget = Math.min(0.25, _zoomMax);
+	    this.tweens.add({
+	      targets: camera,
+	      zoom: _zoomTarget,
+	      duration: 800,
+	      ease: 'Power2',
+	      onUpdate: function() {
+	        camera.scrollX = Math.max(0, _worldW - _CANVAS_W / camera.zoom);
+	      }
+	    });
 	  }
 	  cursors = this.input.keyboard.createCursorKeys();
 	  window._camera = camera;
