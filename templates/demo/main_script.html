@@ -45,6 +45,7 @@
 	  height: _CANVAS_H,
 	  parent: "game-container",
 	  pixelArt: true,
+	  input: { activePointers: 3 },
 	  physics: {
 	    default: "arcade",
 	    arcade: {
@@ -302,7 +303,6 @@
 	  // stopFollow() no primeiro toque para que o pinch zoom funcione sem conflito com startFollow
 	  var _pinchDist = null;
 	  var _touchStarted = false;
-	  this.input.addPointer(1);
 	  this.input.on('pointerdown', function() {
 	    if (!_touchStarted) { _touchStarted = true; camera.stopFollow(); }
 	  }, this);
