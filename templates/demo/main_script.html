@@ -1281,6 +1281,13 @@
 		if (window._dbg) {
 			var _ccScreenX = Math.round((4480 - _cam.scrollX) * _cam.zoom);
 			window._dbg.textContent = 'z=' + _cam.zoom.toFixed(3) + ' sx=' + Math.round(_cam.scrollX) + '/' + Math.round(_GAME_W - _cvw) + ' cw=' + _CANVAS_W + ' cc@' + _ccScreenX + 'px';
+			// linha HTML vermelha na posição do call center
+			if (!window._ccLine) {
+				window._ccLine = document.createElement('div');
+				window._ccLine.style.cssText = 'position:fixed;top:0;bottom:0;width:3px;background:red;z-index:9998;pointer-events:none;';
+				document.body.appendChild(window._ccLine);
+			}
+			window._ccLine.style.left = _ccScreenX + 'px';
 		}
 
 		// *** SETUP PLAY AND PAUSE BUTTON *** 
