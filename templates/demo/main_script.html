@@ -284,13 +284,21 @@
 	  // Setting up the camera.
 	  const camera = this.cameras.main;
 	  var _worldW  = _GAME_W;
-	  // fit-all: mostra o mapa inteiro — espaços ao redor viram oceano (backgroundColor)
 	  var _zoomMin = Math.min(_CANVAS_W / _GAME_W, _CANVAS_H / map.heightInPixels);
 	  var _zoomMax = 2.0;
+	  // Altura virtual do mundo — estende até cobrir 100% da tela ao zoom mínimo
+	  // Elimina o espaço preto abaixo do mapa desenhando océano de Phaser real
+	  var _WORLD_H = Math.max(_GAME_H, Math.ceil(_CANVAS_H / _zoomMin));
+	  window._WORLD_H = _WORLD_H;
+	  if (_WORLD_H > _GAME_H) {
+	    this.add.graphics()
+	      .fillStyle(0x1a4a6e, 1)
+	      .fillRect(0, _GAME_H, _worldW, _WORLD_H - _GAME_H)
+	      .setDepth(0);
+	  }
 	  camera.setZoom(_zoomMin);
-	  camera.setBounds(0, 0, _worldW, _GAME_H);
-	  camera.centerOn(_GAME_W / 2, _GAME_H / 2);
-	  // Canvas é transparent; fundo oceano vem do CSS body (base.html)
+	  camera.setBounds(0, 0, _worldW, _WORLD_H);
+	  camera.centerOn(_GAME_W / 2, _WORLD_H / 2);
 	  cursors = this.input.keyboard.createCursorKeys();
 	  window._camera = camera;
 	  window._phaserScene = this;
@@ -1257,10 +1265,11 @@
 		// Força câmera dentro dos limites a cada frame
 		var _cam = this.cameras.main;
 		var _cvw = _CANVAS_W / _cam.zoom, _cvh = _CANVAS_H / _cam.zoom;
+		var _WH = window._WORLD_H || _GAME_H;
 		if (_cvw >= _GAME_W) _cam.scrollX = 0;
 		else _cam.scrollX = Phaser.Math.Clamp(_cam.scrollX, 0, _GAME_W - _cvw);
-		if (_cvh >= _GAME_H) _cam.scrollY = 0;
-		else _cam.scrollY = Phaser.Math.Clamp(_cam.scrollY, 0, _GAME_H - _cvh);
+		if (_cvh >= _WH) _cam.scrollY = 0;
+		else _cam.scrollY = Phaser.Math.Clamp(_cam.scrollY, 0, _WH - _cvh);
 
 		// *** SETUP PLAY AND PAUSE BUTTON *** 
 		let play_context = this;
