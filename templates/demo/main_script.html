@@ -288,6 +288,9 @@
 	  camera.setZoom(_initZoom);
 	  camera.setBounds(0, 0, _worldW, _GAME_H);
 	  camera.centerOn(_GAME_W / 2, _GAME_H / 2);
+	  if (_isPortrait) {
+	    this.time.delayedCall(500, function() { camera.setZoom(0.25); });
+	  }
 	  cursors = this.input.keyboard.createCursorKeys();
 	  window._camera = camera;
 	  window._phaserScene = this;
