@@ -25,7 +25,7 @@
  	let step_size = {{sec_per_step}} * 1000; // 10 seconds = 10000
 
 	// Calcula largura do canvas para preencher a tela sem borda preta
-	var _GAME_H = 3200;
+	var _GAME_H = 3328;
 	var _GAME_W = Math.max(4480, Math.ceil(window.innerWidth * _GAME_H / window.innerHeight / 32) * 32);
 	window._GAME_W = _GAME_W;
 	window._GAME_H = _GAME_H;
@@ -363,8 +363,9 @@
 	    var _bsc = this;
 	    var _bMW = 140 * 32; // 4480px
 	    var _beachStartRow = 83; // edifícios terminam em row 82, praia começa em 83
-	    var _BY = _beachStartRow * 32; // Y=2656
-	    var _BEACH_H = map.heightInPixels - _BY; // 544px (17 linhas)
+	    var _BY  = _beachStartRow * 32; // Y=2656
+	    var _AVH = 128;                  // altura da avenida
+	    var _BEACH_H = map.heightInPixels - _BY; // 544px
 	    window._BEACH_H = _BEACH_H;
 	    window._BEACH_Y  = _BY;
 
@@ -409,14 +410,43 @@
 	        _bsc.add.image(96 + _ti * 448, _BY, '_beach_tree_sprite').setDepth(1.6).setOrigin(0, 0);
 	    }
 
-	    // Gradiente grama→areia
+	    // Gradiente grama→avenida
 	    var _edgeCols = [0x4a5438,0x7a7048,0xb8a06a,0xd4b882];
 	    _edgeCols.forEach(function(col, i) {
 	      _bsc.add.graphics().setDepth(1.1).fillStyle(col,1)
 	        .fillRect(0, _BY + _grassH + i * 4, _bMW, 4);
 	    });
 
-	    var _sandY = _BY + _grassH + _gradH;
+	    // ── AVENIDA PIXEL ART — entre grama e areia, largura total ──
+	    var _avStartY = _BY + _grassH + _gradH; // Y=2704
+	    {
+	      var _avRd = _bsc.add.graphics().setDepth(1.3);
+	      // Asfalto base (cinza escuro NES)
+	      _avRd.fillStyle(0x484040,1); _avRd.fillRect(0,_avStartY,_GAME_W,_AVH);
+	      // Calçadas
+	      _avRd.fillStyle(0x888070,1);
+	      _avRd.fillRect(0,_avStartY,          _GAME_W,10);
+	      _avRd.fillRect(0,_avStartY+_AVH-10,  _GAME_W,10);
+	      // Meio-fios
+	      _avRd.fillStyle(0xBBB090,1);
+	      _avRd.fillRect(0,_avStartY,          _GAME_W,2);
+	      _avRd.fillRect(0,_avStartY+_AVH-2,   _GAME_W,2);
+	      // Faixas brancas laterais
+	      _avRd.fillStyle(0xDDCCAA,0.9);
+	      _avRd.fillRect(0,_avStartY+12,_GAME_W,3);
+	      _avRd.fillRect(0,_avStartY+_AVH-15,_GAME_W,3);
+	      // Faixa central amarela tracejada
+	      _avRd.fillStyle(0xFFCC00,1);
+	      for(var _rx=0;_rx<_GAME_W;_rx+=48)
+	        _avRd.fillRect(_rx,_avStartY+_AVH/2-2,28,4);
+	      // Faixas de pedestres a cada 512px
+	      _avRd.fillStyle(0xEEDDBB,0.9);
+	      for(var _cx=192;_cx<_GAME_W;_cx+=512)
+	        for(var _cs=0;_cs<_AVH;_cs+=16)
+	          _avRd.fillRect(_cx,_avStartY+_cs,32,8);
+	    }
+
+	    var _sandY = _BY + _grassH + _gradH + _AVH; // Y=2832
 	    var _wetY  = _sandY + _sandH;
 	    var _waveY = _wetY  + _wetH;
 	    var _oceanY = _waveY + _waveH;
@@ -480,6 +510,11 @@
 	  var _EXT_W = _GAME_W - _MAP_W;
 	  if (_EXT_W > 0) {
 	    var _BY2  = window._BEACH_Y || 2656;
+	    // Avenida fica após grama(32)+gradiente(16) da praia = _BY2+48
+	    var _avH  = 128;
+	    var _avY  = _BY2 + 48; // Y=2704 — depois da grama e gradiente
+	    var _offH = 256;
+	    var _offY = _avY - _offH - 32; // Y=2416 — escritório acima da avenida
 	    var _fbSrc = this.textures.get('CuteRPG_Field_B').getSourceImage();
 
 	    // Fundo: grama Field_B em tile sprite (depth baixo)
@@ -489,89 +524,261 @@
 	      _gpx.drawImage(_fbSrc,32,0,32,32,_gx*32,_gy*32,32,32);
 	    this.textures.addCanvas('_ext_grass',_gpc);
 	    this.add.tileSprite(_MAP_W+_EXT_W/2,_GAME_H/2,_EXT_W,_GAME_H,'_ext_grass')
-	      .setDepth(0.4).setOrigin(0.5,0.5);
+	      .setDepth(-0.6).setOrigin(0.5,0.5);
 
-	    // ── MARINA: bacia de água do Y=0 até _BY2 ──
-	    var _mrY0 = 0;              // topo da marina (até o teto)
-	    var _mrH  = _BY2 - _mrY0;  // altura total da bacia
-	    var _mrG  = this.add.graphics().setDepth(0.6);
+	    // ── ESCRITÓRIO / COMPANY BUILDING ──
+	    (function(_sc) {
+	      var W = _EXT_W, X = _MAP_W;
+	      var wSrc  = _sc.textures.get('walls').getSourceImage();
+	      var fcSrc = _sc.textures.get('CuteRPG_Field_C').getSourceImage();
+	      var i1Src = _sc.textures.get('interiors_pt1').getSourceImage();
+	      var i2Src = _sc.textures.get('interiors_pt2').getSourceImage();
 
-	    // Bacia d'água (azul marina, ligeiramente diferente do oceano)
-	    _mrG.fillStyle(0x1a4a6e,1); _mrG.fillRect(_MAP_W, _mrY0, _EXT_W, _mrH);
-	    // Reflexos
-	    _mrG.fillStyle(0x2a6b99,1);
-	    for (var _ri=0;_ri<50;_ri++) {
-	      _mrG.fillRect(_MAP_W+6+(_ri*73)%(_EXT_W-14), _mrY0+10+(_ri*47)%(_mrH-20), 30+(_ri%4)*12, 2);
-	    }
-	    _mrG.fillStyle(0xc8ecf8,0.4);
-	    for (var _ri=0;_ri<25;_ri++)
-	      _mrG.fillRect(_MAP_W+6+(_ri*97)%(_EXT_W-14), _mrY0+8+(_ri*53)%(_mrH-16), 30+(_ri%4)*12, 1);
+	      var BX = X;
+	      var BY = 288;                             // call center começa após jardim
+	      var BW = W;
+	      var BH = Math.max(800, _offY - 32 - BY); // call center vai até cima do escritório
 
-	    // Margem de grama/areia entre mapa e água (8px)
-	    _mrG.fillStyle(0x88bb44,1); _mrG.fillRect(_MAP_W, _mrY0, 8, _mrH);
+	      // Canvas único para o edifício inteiro (paredes + pisos + móveis)
+	      var bC = document.createElement('canvas');
+	      bC.width = BW; bC.height = BH;
+	      var bc = bC.getContext('2d');
 
-	    // ── Cais principal (N-S): corre ao longo da borda esquerda da marina ──
-	    var _mkDock = function(g, x, y, w, h) {
-	      g.fillStyle(0xC8A060,1); g.fillRect(x,y,w,h);
-	      // tábuas verticais
-	      for (var _t=x+10;_t<x+w-4;_t+=14) {
-	        g.fillStyle(0xA07840,1); g.fillRect(_t,y+2,2,h-4);
+	      // Helpers canvas
+	      function T(src,sx,sy,dx,dy){ bc.drawImage(src,sx,sy,32,32,dx,dy,32,32); }
+	      function F(src,sx,sy,x,y,w,h){
+	        for(var fy=y;fy<y+h;fy+=32) for(var fx=x;fx<x+w;fx+=32)
+	          bc.drawImage(src,sx,sy,32,32,fx,fy,32,32);
 	      }
-	      g.fillStyle(0x6B4520,1); g.fillRect(x,y,w,4);       // borda topo
-	      g.fillStyle(0x5C3A14,1); g.fillRect(x,y+h-4,w,4);   // borda baixo
-	    };
-	    var _dkG = this.add.graphics().setDepth(0.8);
-	    var _mainDockX = _MAP_W + 8;
-	    var _mainDockW = 18; // cais principal N-S
-	    _mkDock(_dkG, _mainDockX, _mrY0, _mainDockW, _mrH);
-	    // Pilings do cais principal a cada 80px
-	    for (var _pi=_mrY0+20; _pi<_mrY0+_mrH; _pi+=80) {
-	      _dkG.fillStyle(0x4A2E0A,1);
-	      _dkG.fillRect(_mainDockX-4, _pi, 6, 12);
-	      _dkG.fillRect(_mainDockX+_mainDockW-2, _pi, 6, 12);
-	    }
 
-	    // ── Finger piers (E-W): saem do cais principal para dentro da bacia ──
-	    var _fingerLen = Math.min(_EXT_W - _mainDockW - 20, 180);
-	    var _fingerH   = 12;
-	    var _slotH     = 90; // espaço entre fingers (vaga de barco)
-	    var _fingers   = [];
-	    var _fy = _mrY0 + 40;
-	    while (_fy + _fingerH < _mrY0 + _mrH - 40) {
-	      _mkDock(_dkG, _mainDockX + _mainDockW, _fy, _fingerLen, _fingerH);
-	      _fingers.push(_fy);
-	      _fy += _fingerH + _slotH;
-	    }
+	      // ── Pisos ──
+	      // Room_Builder row54 warm=px(32,1728) teal=px(288,1728) cool=px(544,1728)
+	      // CuteRPG_Field_C wooden floor GID490 = px(288,448)
+	      var FW=[32,1728], FT=[288,1728], FC=[544,1728], FV=[288,448];
 
-	    // ── Barcos nas vagas (entre fingers, ancorados no cais) ──
-	    var _boatCols = [
-	      [0xD8CFBA, 0xCC3333, 0xB8AF96],
-	      [0x3A5C80, 0x2A4460, 0x4A7090],
-	      [0xEAE2CC, 0xCC6622, 0xD4C8A8],
-	      [0x3A6040, 0x2A4830, 0x4A7050],
-	      [0xC04040, 0xA02020, 0xD06060],
-	      [0x806030, 0x604010, 0xA08050],
-	    ];
-	    var _bkG = this.add.graphics().setDepth(1.0);
-	    _fingers.forEach(function(fy, idx) {
-	      var col = _boatCols[idx % _boatCols.length];
-	      var bx  = _mainDockX + _mainDockW + 6;
-	      var by  = fy + _fingerH + 8;
-	      var bw  = Math.min(80, _fingerLen - 12);
-	      var bh  = Math.min(_slotH - 20, 52);
-	      // casco
-	      _bkG.fillStyle(col[0],1); _bkG.fillRect(bx, by, bw, bh);
-	      // faixa/proa/popa
-	      _bkG.fillStyle(col[1],1);
-	      _bkG.fillRect(bx+4, by, bw-8, 5);
-	      _bkG.fillRect(bx+4, by+bh-5, bw-8, 5);
-	      // convés
-	      _bkG.fillStyle(col[2],1); _bkG.fillRect(bx+6, by+5, bw-12, bh-10);
-	      // mastro
-	      _bkG.fillStyle(0x2A1800,1); _bkG.fillRect(bx+bw/2-2, by+bh/2-2, 4, 4);
-	      // amarra ao finger de cima
-	      _bkG.fillStyle(0x9A7A3A,1); _bkG.fillRect(bx+bw/2-1, by-8, 2, 8);
-	    });
+	      // ── Tiles de parede exterior (Room_Builder) ──
+	      // North row61: TL px(1728,1952), mid px(1760,1952)/(1792,1952), TR px(1824,1952)
+	      // Side  row63: L  px(1728,2016), R px(1824,2016)
+	      // South row1 row62: BL px(1696,1984), mid px(1760,2016)/(1792,2016), BR px(1824,1984)
+	      // South row2 row64: BL2 px(1696,2016), mid px(1760,2048)/(1792,2048)
+
+	      // Tile de divisória interna: usar faixa de parede norte (1 linha)
+	      function wallH(y, x0, w, gapX) { // horizontal 1 tile de altura
+	        for(var fx=x0;fx<x0+w;fx+=32){
+	          if(gapX!==undefined && fx>=gapX && fx<gapX+64) continue;
+	          T(wSrc, fx%64===32?1760:1792, 1952, fx, y);
+	        }
+	      }
+	      function wallV(x, y0, h, gapY) { // vertical 1 tile de largura
+	        for(var fy=y0;fy<y0+h;fy+=32){
+	          if(gapY!==undefined && fy>=gapY && fy<gapY+64) continue;
+	          T(wSrc, 1728, 2016, x, fy);
+	        }
+	      }
+
+	      // ── Layout (coordenadas relativas ao canvas) ──
+	      var WS=32; // espessura parede exterior (1 tile)
+	      var IW=BW-2*WS, IX=WS;
+	      var col1=Math.floor(IW*0.58), col2=IW-col1;
+
+	      // Alturas de sala (múltiplos de 32)
+	      var hLob=224, hWrk=480, hOff=288, hDev=352, hBrk=192;
+	      var hRst=Math.max(64, BH-WS-64-hLob-hWrk-hOff-hDev-hBrk);
+
+	      var yLob=WS, yWrk=yLob+hLob, yOff=yWrk+hWrk,
+	          yDev=yOff+hOff, yBrk=yDev+hDev, yRst=yBrk+hBrk;
+	      var yBot=yRst+hRst; // início da parede sul
+
+	      // PISOS
+	      F(fcSrc,FV[0],FV[1], IX,yLob, IW,hLob);          // Lobby: madeira
+	      F(wSrc,FW[0],FW[1],  IX,yWrk, col1,hWrk);        // Workspace: warm
+	      F(wSrc,FT[0],FT[1],  IX+col1,yWrk, col2,hWrk/2); // Meeting A: teal
+	      F(wSrc,FT[0],FT[1],  IX+col1,yWrk+hWrk/2, col2,hWrk/2); // Meeting B
+	      F(wSrc,FW[0],FW[1],  IX,yOff, IW,hOff);          // Offices: warm
+	      F(wSrc,FC[0],FC[1],  IX,yDev, col1,hDev);         // Dev: cool
+	      F(wSrc,FC[0],FC[1],  IX+col1,yDev, col2,hDev);    // Server: cool
+	      F(wSrc,FW[0],FW[1],  IX,yBrk, IW,hBrk);          // Break: warm
+	      F(fcSrc,FV[0],FV[1], IX,yRst, IW,hRst);          // Storage: madeira
+
+	      // PAREDES EXTERIORES
+	      // Norte (topo)
+	      T(wSrc,1728,1952, 0,0);
+	      T(wSrc,1824,1952, BW-32,0);
+	      for(var fx=32;fx<BW-32;fx+=32) T(wSrc,fx%64===32?1760:1792,1952, fx,0);
+	      // Lados
+	      for(var fy=WS;fy<yBot;fy+=32){
+	        T(wSrc,1728,2016, 0,fy);
+	        T(wSrc,1824,2016, BW-32,fy);
+	      }
+	      // Sul - linha 1 (row62)
+	      T(wSrc,1696,1984, 0,yBot);
+	      T(wSrc,1824,1984, BW-32,yBot);
+	      for(var fx=32;fx<BW-32;fx+=32) T(wSrc,fx%64===32?1760:1792,2016, fx,yBot);
+	      // Sul - linha 2 (row64)
+	      T(wSrc,1696,2016, 0,yBot+32);
+	      T(wSrc,1824,2016, BW-32,yBot+32);
+	      for(var fx=32;fx<BW-32;fx+=32) T(wSrc,fx%64===32?1760:1792,2048, fx,yBot+32);
+
+	      // DIVISÓRIAS INTERNAS
+	      wallH(yWrk, IX, IW, IX+Math.floor(col1/2)-32);          // Lobby→Work
+	      wallH(yWrk+hWrk/2, IX+col1, col2, IX+col1+Math.floor(col2/2)-32); // Meeting A/B
+	      wallH(yOff, IX, IW, IX+Math.floor(col1/2)-32);          // Work→Office
+	      wallH(yDev, IX, IW, IX+Math.floor(col1/2)-32);          // Office→Dev
+	      wallH(yBrk, IX, IW, IX+Math.floor(IW/2)-32);            // Dev→Break
+	      wallH(yRst, IX, IW, IX+Math.floor(IW/2)-32);            // Break→Storage
+	      wallV(IX+col1, yWrk, hWrk, yWrk+Math.floor(hWrk/4)-32); // col split work
+	      wallV(IX+col1, yOff, hOff, yOff+Math.floor(hOff/2)-32); // col split off
+	      wallV(IX+col1, yDev, hDev, yDev+Math.floor(hDev/2)-32); // col split dev
+
+	      // ── MÓVEIS CALL CENTER ──
+	      // Monitor flat panel: ip2 px(384,1824) 2×2 tiles = 64×64px
+	      // Cadeira office: ip2 px(352,1760) 1×1 tile = 32×32px
+	      // Estante/shelf ip1: px(256,0) 2×3 tiles
+	      function monitor(dx,dy){
+	        bc.drawImage(i2Src,384,1824,64,64,dx,dy,64,64);
+	      }
+	      function chair(dx,dy){
+	        bc.drawImage(i2Src,352,1760,32,32,dx,dy,32,32);
+	      }
+	      function shelf(dx,dy){
+	        for(var r=0;r<3;r++) for(var c=0;c<2;c++)
+	          bc.drawImage(i1Src,256+c*32,r*32,32,32,dx+c*32,dy+r*32,32,32);
+	      }
+	      // Workstation callcenter: monitor 2×2 + cadeira 1×1 centrada abaixo
+	      function ws(dx,dy){
+	        monitor(dx,dy);
+	        chair(dx+16,dy+64);
+	      }
+	      // Preenche bloco com fileiras densas de workstations (call center style)
+	      // slotW=64(monitor) + 8(gap), rowH=96(ws)+16(gap)
+	      function fillCallCenter(x0,y0,w,h){
+	        var slotW=72, rowH=112;
+	        for(var ry=y0+16; ry+96<=y0+h-16; ry+=rowH){
+	          for(var rx=x0+8; rx+64<=x0+w-8; rx+=slotW){
+	            ws(rx,ry);
+	          }
+	        }
+	      }
+
+	      // ── Lobby: balcão de recepção central ──
+	      shelf(IX+Math.floor(IW/2)-32, yLob+48);
+
+	      // ── CALL CENTER: workspace = fileiras de workstations ──
+	      fillCallCenter(IX, yWrk, col1, hWrk);
+
+	      // ── Meeting rooms: estantes + monitores de apresentação ──
+	      shelf(IX+col1+16, yWrk+48);
+	      monitor(IX+col1+16, yWrk+hWrk/2+48);
+	      shelf(IX+col1+16, yWrk+hWrk/2+120);
+
+	      // ── Offices CEO + HR: mesas com monitor ──
+	      monitor(IX+32, yOff+64);  chair(IX+48, yOff+128);
+	      shelf(IX+32, yOff+180);
+	      monitor(IX+col1+32, yOff+64); chair(IX+col1+48, yOff+128);
+	      shelf(IX+col1+32, yOff+180);
+
+	      // ── Dev/Server: mais workstations call center ──
+	      fillCallCenter(IX, yDev, col1, hDev);
+	      // Server: estantes (racks)
+	      shelf(IX+col1+16, yDev+32);
+	      shelf(IX+col1+16, yDev+128);
+	      shelf(IX+col1+16, yDev+224);
+
+	      // ── Break: shelf de cozinha ──
+	      shelf(IX+16, yBrk+48); shelf(IX+16, yBrk+144);
+
+	      // Registra e coloca no mundo
+	      _sc.textures.addCanvas('_office_bld', bC);
+	      _sc.add.image(BX, BY, '_office_bld').setOrigin(0,0).setDepth(0.65);
+
+	      // Árvores no jardim de entrada (acima do call center)
+	      [[X+8,32],[X+Math.floor(W*0.4),60],[X+W-80,24]
+	      ].forEach(function(t){
+	        _sc.add.image(t[0],t[1],'_beach_tree_sprite').setOrigin(0,0).setDepth(0.9);
+	      });
+
+	    })(this);
+
+	    // ── ESCRITÓRIO CORPORATIVO — ao lado/abaixo do call center ──
+	    (function(_sc2) {
+	      var W2=_EXT_W, X2=_MAP_W;
+	      var oW=W2, oH=_offH, oX=X2, oY=_offY;
+	      var wSrc2 = _sc2.textures.get('walls').getSourceImage();
+	      var fcSrc2= _sc2.textures.get('CuteRPG_Field_C').getSourceImage();
+	      var i1Src2= _sc2.textures.get('interiors_pt1').getSourceImage();
+	      var i2Src2= _sc2.textures.get('interiors_pt2').getSourceImage();
+
+	      var oC=document.createElement('canvas'); oC.width=oW; oC.height=oH;
+	      var oc=oC.getContext('2d');
+	      function oT(src,sx,sy,dx,dy){oc.drawImage(src,sx,sy,32,32,dx,dy,32,32);}
+	      function oF(src,sx,sy,x,y,w,h){
+	        for(var fy=y;fy<y+h;fy+=32) for(var fx=x;fx<x+w;fx+=32)
+	          oc.drawImage(src,sx,sy,32,32,fx,fy,32,32);
+	      }
+
+	      // Pisos: recepção = madeira, salas = warm, passagem sul = teal
+	      var WS=32, IW=oW-2*WS, IX=WS;
+	      var hRec=96, hSal=oH-WS-64-hRec, hPas=0;
+	      var yRec=WS, ySal=yRec+hRec;
+	      var col1=Math.floor(IW*0.5);
+
+	      oF(fcSrc2,288,448, IX,yRec, IW,hRec);       // Recepção: madeira
+	      oF(wSrc2,32,1728,  IX,ySal, col1,hSal);     // Sala A: warm
+	      oF(wSrc2,288,1728, IX+col1,ySal, IW-col1,hSal); // Sala B: teal
+
+	      // Paredes exteriores
+	      // Norte (topo) — 1 linha
+	      oT(wSrc2,1728,1952,0,0); oT(wSrc2,1824,1952,oW-32,0);
+	      for(var fx=32;fx<oW-32;fx+=32) oT(wSrc2,fx%64===32?1760:1792,1952,fx,0);
+	      // Lados
+	      for(var fy=WS;fy<oH-64;fy+=32){
+	        oT(wSrc2,1728,2016,0,fy); oT(wSrc2,1824,2016,oW-32,fy);
+	      }
+	      // Sul — 2 linhas (fachada com saída para avenida)
+	      oT(wSrc2,1696,1984,0,oH-64); oT(wSrc2,1824,1984,oW-32,oH-64);
+	      for(var fx=32;fx<oW-32;fx+=32) oT(wSrc2,fx%64===32?1760:1792,2016,fx,oH-64);
+	      oT(wSrc2,1696,2016,0,oH-32); oT(wSrc2,1824,2016,oW-32,oH-32);
+	      for(var fx=32;fx<oW-32;fx+=32) oT(wSrc2,fx%64===32?1760:1792,2048,fx,oH-32);
+
+	      // Divisória recepção/salas + porta central
+	      var dw=64, gx=Math.floor(IW/2)-dw/2;
+	      for(var fx=0;fx<IW;fx+=32){
+	        if(fx>=gx && fx<gx+dw) continue;
+	        oT(wSrc2,fx%64===32?1760:1792,1952,IX+fx,ySal);
+	      }
+	      // Divisória vertical entre salas (col1) com porta
+	      var gy=Math.floor(hSal/2)-32;
+	      for(var fy=0;fy<hSal;fy+=32){
+	        if(fy>=gy && fy<gy+64) continue;
+	        oT(wSrc2,1728,2016,IX+col1,ySal+fy);
+	      }
+	      // PORTA PRINCIPAL SUL (saída para avenida) — vão de 64px centrado
+	      var psx=Math.floor(oW/2)-32;
+	      oc.clearRect(psx,oH-64,64,64);
+	      oF(fcSrc2,288,448, psx,oH-64, 64,64); // piso no vão da porta
+
+	      // Móveis: recepção com balcão, salas com monitores
+	      for(var r=0;r<3;r++) for(var c=0;c<2;c++)
+	        oc.drawImage(i1Src2,256+c*32,r*32,32,32,IX+IW/2-32+c*32,yRec+16+r*32,32,32);
+	      // Monitor + cadeira sala A
+	      oc.drawImage(i2Src2,384,1824,64,64, IX+32,ySal+32,64,64);
+	      oc.drawImage(i2Src2,352,1760,32,32, IX+48,ySal+96,32,32);
+	      oc.drawImage(i2Src2,384,1824,64,64, IX+32,ySal+hSal-128,64,64);
+	      oc.drawImage(i2Src2,352,1760,32,32, IX+48,ySal+hSal-64,32,32);
+	      // Monitor + cadeira sala B
+	      oc.drawImage(i2Src2,384,1824,64,64, IX+col1+32,ySal+32,64,64);
+	      oc.drawImage(i2Src2,352,1760,32,32, IX+col1+48,ySal+96,32,32);
+
+	      _sc2.textures.addCanvas('_office2_bld', oC);
+	      _sc2.add.image(oX,oY,'_office2_bld').setOrigin(0,0).setDepth(0.65);
+
+	      // Árvore entre os dois edifícios
+	      _sc2.add.image(X2+8, _offY-56, '_beach_tree_sprite').setOrigin(0,0).setDepth(0.9);
+	      _sc2.add.image(X2+W2-72, _offY-56, '_beach_tree_sprite').setOrigin(0,0).setDepth(0.9);
+
+	    })(this);
+
+	    // (avenida desenhada globalmente no bloco de praia, largura total)
 
 	    // ── Praia direita — grama + gradiente idênticos à esquerda ──
 	    var _pb2 = this.add.graphics().setDepth(1);
@@ -581,7 +788,7 @@
 	    [0x4a5438,0x7a7048,0xb8a06a,0xd4b882].forEach(function(c,i){
 	      _pb2.fillStyle(c,1); _pb2.fillRect(_MAP_W,_BY2+32+i*4,_EXT_W,4);
 	    });
-	    var _s0 = _BY2+32+16;
+	    var _s0 = _BY2+32+16+_avH; // pula grama+gradiente+avenida → Y=2832
 	    _pb2.fillStyle(0xd4b882,1); _pb2.fillRect(_MAP_W,_s0,     _EXT_W,64);
 	    _pb2.fillStyle(0xb8a07a,1); _pb2.fillRect(_MAP_W,_s0+64,  _EXT_W,32);
 	    _pb2.fillStyle(0x3a8ec4,1); _pb2.fillRect(_MAP_W,_s0+96,  _EXT_W,96);
@@ -594,12 +801,12 @@
 	    // ── Passarela com luzes — do fim da areia seca até o fim da praia ──
 	    var _pwG = this.add.graphics().setDepth(1.15);
 	    var _pwY = _s0 + 64;          // começa na curva (areia→molhado)
-	    var _pwH = _GAME_H - _pwY;    // até o fim da tela
-	    var _pwW = 28;                 // largura da passarela
+	    var _pwH = 192;                // altura do deck
+	    var _pwW = 10;                 // largura da passarela
 	    var _pwX = _MAP_W;             // encosta na borda do mapa
 
 	    // Tábuas da passarela (listras horizontais alternadas)
-	    for (var _py = _pwY; _py < _GAME_H; _py += 8) {
+	    for (var _py = _pwY; _py < _pwY+_pwH; _py += 8) {
 	      _pwG.fillStyle((_py - _pwY) % 16 < 8 ? 0xC8A060 : 0xAD8C48, 1);
 	      _pwG.fillRect(_pwX, _py, _pwW, 8);
 	    }
@@ -610,7 +817,7 @@
 
 	    // Postes de luz a cada 64px (top-down: poste = pixel escuro + halo amarelo)
 	    var _lgG = this.add.graphics().setDepth(1.4);
-	    for (var _ly = _pwY + 16; _ly < _GAME_H - 8; _ly += 64) {
+	    for (var _ly = _pwY + 16; _ly < _pwY+_pwH - 8; _ly += 64) {
 	      // lado esquerdo
 	      _lgG.fillStyle(0xFFEE88, 0.15); _lgG.fillCircle(_pwX - 1, _ly, 14);
 	      _lgG.fillStyle(0xFFDD44, 0.35); _lgG.fillCircle(_pwX - 1, _ly, 7);
@@ -632,7 +839,7 @@
 	    var _rkW  = Math.min(_EXT_W - _pwW - 8, 90); // zona de pedras
 	    for (var _ri = 0; _ri < 40; _ri++) {
 	      var _rx = _rkX0 + (_ri * 53) % (_rkW - 8);
-	      var _ry = _pwY  + (_ri * 71) % (_pwH - 8);
+	      var _ry = _pwY  + (_ri * 71) % Math.max(8, _pwH - 8);
 	      var _rw = 6  + (_ri % 5) * 4;
 	      var _rh = 5  + (_ri % 4) * 3;
 	      _rkG.fillStyle(_rkCols[_ri % 5], 1); _rkG.fillRect(_rx, _ry, _rw, _rh);
