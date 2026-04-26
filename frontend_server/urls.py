@@ -23,19 +23,25 @@ import os
 
 from translator import views as translator_views
 
+def _find_static(filename):
+    for d in settings.STATICFILES_DIRS:
+        p = os.path.join(d, filename)
+        if os.path.exists(p):
+            return p
+    return os.path.join(settings.STATIC_ROOT, filename)
+
 def serve_sw(request):
-    path = os.path.join(settings.STATIC_ROOT, 'sw.js')
-    return FileResponse(open(path, 'rb'), content_type='application/javascript')
+    return FileResponse(open(_find_static('sw.js'), 'rb'), content_type='application/javascript')
 
 def serve_manifest(request):
-    path = os.path.join(settings.STATIC_ROOT, 'manifest.json')
-    return FileResponse(open(path, 'rb'), content_type='application/manifest+json')
+    return FileResponse(open(_find_static('manifest.json'), 'rb'), content_type='application/manifest+json')
 
 SIM  = 'July1_the_ville_isabella_maria_klaus-step-3-20'
 STEP = '1'
 SPEED = '3'
 
 urlpatterns = [
+    url(r'^version/$', lambda req: HttpResponse('DEPLOY-OK-v2', content_type='text/plain'), name='version'),
     url(r'^sw\.js$', serve_sw, name='sw'),
     url(r'^manifest\.json$', serve_manifest, name='manifest'),
     url(r'^api/room/create/$', translator_views.mp_room_create, name='mp_create'),
