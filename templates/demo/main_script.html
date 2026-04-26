@@ -306,6 +306,11 @@
 	      }
 	    });
 	  }
+	  // DIAG: força scroll para o call center após 2s
+	  this.time.delayedCall(2000, function() {
+	    camera.setZoom(0.25);
+	    camera.setScroll(4000, 0);
+	  });
 	  cursors = this.input.keyboard.createCursorKeys();
 	  window._camera = camera;
 	  window._phaserScene = this;
