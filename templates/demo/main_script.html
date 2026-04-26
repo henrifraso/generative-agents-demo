@@ -329,10 +329,14 @@
 	      if (_vw < _worldW) {
 	        camera.scrollX -= (tx - _panX) / camera.zoom;
 	        camera.scrollX = Phaser.Math.Clamp(camera.scrollX, 0, _worldW - _vw);
+	      } else {
+	        camera.scrollX = 0;
 	      }
 	      if (_vh < _GAME_H) {
 	        camera.scrollY -= (ty - _panY) / camera.zoom;
 	        camera.scrollY = Phaser.Math.Clamp(camera.scrollY, 0, _GAME_H - _vh);
+	      } else {
+	        camera.scrollY = 0;
 	      }
 	      _panX = tx; _panY = ty;
 	    }
@@ -1248,6 +1252,14 @@
 
 
 	function update(time, delta) {
+		// Força câmera dentro dos limites a cada frame
+		var _cam = this.cameras.main;
+		var _cvw = _CANVAS_W / _cam.zoom, _cvh = _CANVAS_H / _cam.zoom;
+		if (_cvw >= _GAME_W) _cam.scrollX = 0;
+		else _cam.scrollX = Phaser.Math.Clamp(_cam.scrollX, 0, _GAME_W - _cvw);
+		if (_cvh >= _GAME_H) _cam.scrollY = 0;
+		else _cam.scrollY = Phaser.Math.Clamp(_cam.scrollY, 0, _GAME_H - _cvh);
+
 		// *** SETUP PLAY AND PAUSE BUTTON *** 
 		let play_context = this;
 		function game_resume() {  
