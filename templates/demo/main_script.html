@@ -283,9 +283,9 @@
 	  var _worldW  = _GAME_W;
 	  var _zoomMin = Math.min(_CANVAS_W / _GAME_W, _CANVAS_H / map.heightInPixels); // fit-all (pinch-out mínimo)
 	  var _zoomMax = 2.0;
-	  // Mobile retrato: inicia em fill-height (mapa preenche tela), pode pinch-out até fit-all
+	  // Mobile retrato: zoom encaixa largura do mapa (call center visível, oceano abaixo em azul)
 	  var _initZoom = (window.screen.width < window.screen.height)
-	    ? _CANVAS_H / map.heightInPixels
+	    ? Math.max(_zoomMin, _CANVAS_W / map.widthInPixels)
 	    : _zoomMin;
 	  camera.setZoom(_initZoom);
 	  camera.setBounds(0, 0, _worldW, _GAME_H);
