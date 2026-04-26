@@ -291,7 +291,7 @@
 	    // setScroll no create() é sobrescrito; usa delayedCall após init completa
 	    this.time.delayedCall(500, function() {
 	      camera.setZoom(0.25);
-	      var _ccCX = _MAP_BASE_W + 256; // centro do call center building (x=4480+256=4736)
+	      var _ccCX = _MAP_BASE_W + (_worldW - _MAP_BASE_W) / 2; // centro do building (metade da extensao)
 	      var _vpW = _CANVAS_W / 0.25;
 	      camera.setScroll(Phaser.Math.Clamp(_ccCX - _vpW / 2, 0, _worldW - _vpW), 0);
 	    });
