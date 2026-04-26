@@ -275,8 +275,8 @@
 	  const camera = this.cameras.main;
 	  camera.startFollow(player);
 	  var _worldW = _GAME_W;
-	  // Zoom inicial: mobile começa mais próximo (1.5×), desktop mantém 1×
-	  var _initZoom = 0.6;
+	  // Zoom: encaixa toda a altura do mapa na viewport (sem scroll vertical)
+	  var _initZoom = _CANVAS_H / map.heightInPixels;
 	  camera.setZoom(_initZoom);
 	  camera.setBounds(0, 0, _worldW, map.heightInPixels);
 	  camera.startFollow(player);
