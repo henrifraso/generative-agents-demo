@@ -1,20 +1,7 @@
-const CACHE = 'tbg-v1';
-const SHELL = ['/', '/static/assets/splash_bg.jpeg'];
-
-self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)));
-  self.skipWaiting();
-});
-
-self.addEventListener('activate', e => {
-  e.waitUntil(caches.keys().then(keys =>
-    Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
-  ));
+self.addEventListener('install', function() { self.skipWaiting(); });
+self.addEventListener('activate', function(event) {
+  event.waitUntil(caches.keys().then(function(names) {
+    return Promise.all(names.map(function(name) { return caches.delete(name); }));
+  }));
   self.clients.claim();
-});
-
-self.addEventListener('fetch', e => {
-  e.respondWith(
-    fetch(e.request).catch(() => caches.match(e.request))
-  );
 });
