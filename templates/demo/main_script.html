@@ -280,17 +280,11 @@
 	  var _worldW  = _GAME_W;
 	  var _zoomMin = Math.min(_CANVAS_W / _GAME_W, _CANVAS_H / map.heightInPixels); // fit-all
 	  var _zoomMax = 2.0;
-	  // Desktop: fit-all (mapa inteiro visível). Mobile: fit-height (altura toda, pan horizontal)
-	  var _isMobile = _CANVAS_W < 900;
-	  var _initZoom = _isMobile ? (_CANVAS_H / map.heightInPixels) : _zoomMin;
+	  // Inicia mostrando o mapa inteiro (fit-all). Usuário pode pinch-zoom para aproximar.
+	  var _initZoom = _zoomMin;
 	  camera.setZoom(_initZoom);
 	  camera.setBounds(0, 0, _worldW, _GAME_H);
-	  camera.startFollow(player);
-	  // DEBUG — remover depois
-	  var _dbg = document.createElement('div');
-	  _dbg.style.cssText = 'position:fixed;top:4px;left:4px;z-index:9999;background:rgba(0,0,0,0.7);color:#0f0;font:12px monospace;padding:4px 8px;pointer-events:none;';
-	  _dbg.innerText = 'W:'+_CANVAS_W+' H:'+_CANVAS_H+' GW:'+_GAME_W+' GH:'+_GAME_H+' Z:'+_initZoom.toFixed(3)+' mapH:'+map.heightInPixels;
-	  document.body.appendChild(_dbg);
+	  camera.centerOn(_GAME_W / 2, _GAME_H / 2);
 	  cursors = this.input.keyboard.createCursorKeys();
 	  window._camera = camera;
 	  window._phaserScene = this;
@@ -300,8 +294,13 @@
 	  game.canvas.focus();
 
 	  // ── Touch: 1 dedo = pan, 2 dedos = pinch zoom ──
+	  // stopFollow() no primeiro toque para que o pinch zoom funcione sem conflito com startFollow
 	  var _pinchDist = null;
+	  var _touchStarted = false;
 	  this.input.addPointer(1);
+	  this.input.on('pointerdown', function() {
+	    if (!_touchStarted) { _touchStarted = true; camera.stopFollow(); }
+	  }, this);
 	  this.input.on('pointermove', function(ptr) {
 	    var p1 = this.input.pointer1, p2 = this.input.pointer2;
 	    if (p1.isDown && p2.isDown) {
@@ -312,9 +311,8 @@
 	        camera.setZoom(newZoom);
 	      }
 	      _pinchDist = d;
-	    } else if (ptr.isDown && !(this.input.pointer2 && this.input.pointer2.isDown)) {
-	      // drag to pan
-	      camera.stopFollow();
+	    } else if (ptr.isDown && !(p2 && p2.isDown)) {
+	      // drag para pan
 	      camera.scrollX -= (ptr.x - ptr.prevPosition.x) / camera.zoom;
 	      camera.scrollY -= (ptr.y - ptr.prevPosition.y) / camera.zoom;
 	    }
