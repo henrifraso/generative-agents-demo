@@ -285,6 +285,8 @@
 	  camera.setZoom(_initZoom);
 	  camera.setBounds(0, 0, _worldW, _GAME_H);
 	  camera.centerOn(_GAME_W / 2, _GAME_H / 2);
+	  // DEBUG temporário
+	  (function(){var d=document.createElement('div');d.style.cssText='position:fixed;top:4px;left:4px;z-index:9999;background:rgba(0,0,0,.8);color:#0f0;font:11px monospace;padding:4px 8px;pointer-events:none';d.id='_dbg';document.body.appendChild(d);function upd(){d.textContent='W:'+_CANVAS_W+' H:'+_CANVAS_H+' GW:'+_GAME_W+' Z:'+camera.zoom.toFixed(3)+' mapH:'+map.heightInPixels;}upd();setInterval(upd,500);})();
 	  cursors = this.input.keyboard.createCursorKeys();
 	  window._camera = camera;
 	  window._phaserScene = this;
