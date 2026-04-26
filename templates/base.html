@@ -1764,18 +1764,6 @@ Author: Joon Sung Park (joonspk@stanford.edu)
       else updateDayNight();
     })();
   </script>
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      document.body.style.backgroundColor = '#1a4a6e';
-      var allDivs = document.querySelectorAll('div');
-      for (var i = 0; i < allDivs.length; i++) {
-        var bg = window.getComputedStyle(allDivs[i]).backgroundColor;
-        if (bg === 'rgb(0, 0, 0)' || bg === 'rgba(0, 0, 0, 0)' || bg === '') {
-          allDivs[i].style.backgroundColor = '#1a4a6e';
-        }
-      }
-    });
-  </script>
 </body>
 </html>
 
