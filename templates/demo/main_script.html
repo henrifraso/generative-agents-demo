@@ -294,23 +294,11 @@
 	    camera.centerOn(_GAME_W / 2, _GAME_H / 2);
 	  }
 	  if (_isPortrait) {
-	    var _zoomTarget = Math.min(0.25, _zoomMax);
-	    this.tweens.add({
-	      targets: camera,
-	      zoom: _zoomTarget,
-	      duration: 800,
-	      ease: 'Power2',
-	      onUpdate: function() {
-	        var _sx2 = Math.max(0, _worldW - _CANVAS_W / camera.zoom);
-	        camera.setScroll(_sx2, camera.scrollY);
-	      }
+	    this.time.delayedCall(200, function() {
+	      camera.setZoom(0.25);
+	      camera.setScroll(Math.max(0, _worldW - _CANVAS_W / 0.25), 0);
 	    });
 	  }
-	  // DIAG: força scroll para o call center após 2s
-	  this.time.delayedCall(2000, function() {
-	    camera.setZoom(0.25);
-	    camera.setScroll(4000, 0);
-	  });
 	  cursors = this.input.keyboard.createCursorKeys();
 	  window._camera = camera;
 	  window._phaserScene = this;
