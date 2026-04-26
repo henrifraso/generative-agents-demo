@@ -289,11 +289,16 @@
 	  camera.setZoom(_initZoom);
 	  camera.setBounds(0, 0, _worldW, _GAME_H);
 	  camera.centerOn(_GAME_W / 2, _GAME_H / 2);
-	  // Botões de zoom criados via JS (evita conflito com CSS do template)
+	  // Botões de zoom criados via JS
 	  (function(){
 	    function _doZoom(factor){
 	      var nz=Phaser.Math.Clamp(camera.zoom*factor,_zoomMin,_zoomMax);
 	      camera.setZoom(nz);
+	      // Se mapa cabe inteiro na tela, centraliza para evitar trava nos limites
+	      var vw=_CANVAS_W/nz, vh=_CANVAS_H/nz;
+	      if(vw>=_worldW || vh>=_GAME_H){
+	        camera.centerOn(_worldW/2, _GAME_H/2);
+	      }
 	    }
 	    var s='position:fixed;z-index:9999;cursor:pointer;font-size:22px;font-weight:bold;'+
 	          'color:#fff;background:rgba(0,0,0,0.65);border:1px solid rgba(255,255,255,0.3);'+
@@ -308,6 +313,16 @@
 	    document.body.appendChild(bi);
 	    document.body.appendChild(bo);
 	  })();
+
+	  // Recentra câmera ao fazer pinch zoom também
+	  var _lastZoom = _initZoom;
+	  this.events.on('postupdate', function(){
+	    if(Math.abs(camera.zoom - _lastZoom) > 0.001){
+	      _lastZoom = camera.zoom;
+	      var vw=_CANVAS_W/camera.zoom, vh=_CANVAS_H/camera.zoom;
+	      if(vw>=_worldW || vh>=_GAME_H) camera.centerOn(_worldW/2, _GAME_H/2);
+	    }
+	  });
 	  cursors = this.input.keyboard.createCursorKeys();
 	  window._camera = camera;
 	  window._phaserScene = this;
