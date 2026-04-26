@@ -281,12 +281,9 @@
 	  // Setting up the camera.
 	  const camera = this.cameras.main;
 	  var _worldW  = _GAME_W;
-	  // fit-height: preenche a tela verticalmente, pan horizontal para ver call center
-	  // fit-width ficaria com preto embaixo pois o mapa é paisagem e celular é retrato
-	  var _zoomFitH = _CANVAS_H / map.heightInPixels;
-	  var _zoomFitW = _CANVAS_W / _GAME_W;
-	  var _zoomMin  = _zoomFitH; // ocupa 100% da altura, pan horizontal
-	  var _zoomMax  = 2.0;
+	  // fit-all: mostra o mapa inteiro — espaços ao redor viram oceano (backgroundColor)
+	  var _zoomMin = Math.min(_CANVAS_W / _GAME_W, _CANVAS_H / map.heightInPixels);
+	  var _zoomMax = 2.0;
 	  camera.setZoom(_zoomMin);
 	  camera.setBounds(0, 0, _worldW, _GAME_H);
 	  camera.centerOn(_GAME_W / 2, _GAME_H / 2);
