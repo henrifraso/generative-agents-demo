@@ -285,7 +285,7 @@
 	  var _zoomMax = 2.0;
 	  var _isPortrait = window.screen.width < window.screen.height;
 	  var _initZoom = _isPortrait
-	    ? Math.max(_zoomMin, _CANVAS_W / map.widthInPixels)
+	    ? _CANVAS_H / map.heightInPixels
 	    : _zoomMin;
 	  camera.setZoom(_initZoom);
 	  camera.setBounds(0, 0, _worldW, _GAME_H);
