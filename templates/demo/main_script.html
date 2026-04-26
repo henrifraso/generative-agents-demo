@@ -24,13 +24,13 @@
 	let sim_code = "{{sim_code}}";
  	let step_size = {{sec_per_step}} * 1000; // 10 seconds = 10000
 
-	// Mundo do jogo (dimensões do mundo, não do canvas)
+	// Mundo do jogo — mínimo 5120 para garantir extensão visível em todos os devices
 	var _GAME_H = 3328;
-	var _GAME_W = Math.max(4480, Math.ceil(window.innerWidth * _GAME_H / window.innerHeight / 32) * 32);
+	var _GAME_W = Math.max(5120, Math.ceil(window.innerWidth * _GAME_H / window.innerHeight / 32) * 32);
 	window._GAME_W = _GAME_W;
 	window._GAME_H = _GAME_H;
 
-	// Canvas = viewport — o mundo é maior e a câmera navega nele
+	// Canvas = viewport — a câmera navega pelo mundo
 	var _CANVAS_W = window.innerWidth  || 800;
 	var _CANVAS_H = window.innerHeight || 600;
 
@@ -276,7 +276,8 @@
 	  camera.startFollow(player);
 	  var _worldW = _GAME_W;
 	  // Zoom inicial: mobile começa mais próximo (1.5×), desktop mantém 1×
-	  var _initZoom = ('ontouchstart' in window) ? 0.7 : 1;
+	  // Zoom inicial: cabe toda a largura do mundo na tela
+	  var _initZoom = Math.min(1, _CANVAS_W / _GAME_W);
 	  camera.setZoom(_initZoom);
 	  camera.setBounds(0, 0, _worldW, map.heightInPixels);
 	  camera.startFollow(player);
