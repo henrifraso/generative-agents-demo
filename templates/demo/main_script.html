@@ -290,8 +290,11 @@
 	  var _screenRatio = window.innerHeight / window.innerWidth;
 	  var _WORLD_H = Math.max(_GAME_H, Math.ceil(_GAME_W * _screenRatio));
 	  window._WORLD_H = _WORLD_H;
-	  // Retângulo oceano cobrindo o mundo inteiro — depth -100 fica abaixo de tudo
-	  this.add.rectangle(_worldW / 2, _WORLD_H / 2, _worldW + 200, _WORLD_H + 200, 0x1a4a6e).setDepth(-100);
+	  // Graphics oceano preenchendo a área abaixo do tilemap (y=3200 até _WORLD_H)
+	  var _oceanGfx = this.add.graphics();
+	  _oceanGfx.fillStyle(0x1a4a6e, 1);
+	  _oceanGfx.fillRect(0, _GAME_H, _worldW, _WORLD_H - _GAME_H);
+	  _oceanGfx.setDepth(0);
 	  camera.setZoom(_zoomMin);
 	  camera.setBounds(0, 0, _worldW, _WORLD_H);
 	  camera.centerOn(_GAME_W / 2, _WORLD_H / 2);
