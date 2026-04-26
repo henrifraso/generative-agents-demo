@@ -281,9 +281,12 @@
 	  // Setting up the camera.
 	  const camera = this.cameras.main;
 	  var _worldW  = _GAME_W;
-	  var _zoomMin = Math.min(_CANVAS_W / _GAME_W, _CANVAS_H / map.heightInPixels); // fit-all
+	  var _zoomMin = Math.min(_CANVAS_W / _GAME_W, _CANVAS_H / map.heightInPixels); // fit-all (pinch-out mínimo)
 	  var _zoomMax = 2.0;
-	  var _initZoom = _zoomMin;
+	  // Mobile retrato: inicia em fill-height (mapa preenche tela), pode pinch-out até fit-all
+	  var _initZoom = (window.screen.width < window.screen.height)
+	    ? _CANVAS_H / map.heightInPixels
+	    : _zoomMin;
 	  camera.setZoom(_initZoom);
 	  camera.setBounds(0, 0, _worldW, _GAME_H);
 	  camera.centerOn(_GAME_W / 2, _GAME_H / 2);
