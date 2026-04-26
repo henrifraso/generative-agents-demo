@@ -45,7 +45,7 @@
 	  width: _CANVAS_W,
 	  height: _CANVAS_H,
 	  parent: "game-container",
-	  backgroundColor: '#000000',
+	  backgroundColor: '#1a4a6e',
 	  pixelArt: true,
 	  input: { activePointers: 3 },
 	  scale: { mode: Phaser.Scale.NONE },
@@ -173,7 +173,7 @@
 	}
 
 	function create() {
-	  this.add.rectangle(0, 0, 20000, 20000, 0x1a4a6e).setOrigin(0, 0).setDepth(-999).setScrollFactor(1);
+	  this.add.rectangle(-5000, -5000, 40000, 40000, 0x1a4a6e).setOrigin(0, 0).setDepth(-999).setScrollFactor(1);
 	  const map = this.make.tilemap({ key: "map" });
 	  // Joon: Logging map is really helpful for debugging here: 
 	  //       console.log(map);

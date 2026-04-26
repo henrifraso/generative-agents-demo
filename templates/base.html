@@ -1766,23 +1766,6 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     })();
   </script>
 
-  <script>
-    (function() {
-      var cover = document.createElement('div');
-      cover.id = 'black-killer';
-      cover.style.cssText = 'position:fixed;bottom:0;left:0;width:100vw;height:60vh;pointer-events:none;z-index:1;background:linear-gradient(to bottom, transparent 0%, #1a4a6e 15%, #0d2e4a 100%);';
-      function check() {
-        if (window.innerWidth >= window.innerHeight) {
-          cover.style.display = 'none';
-        } else {
-          cover.style.display = 'block';
-        }
-      }
-      document.body.appendChild(cover);
-      check();
-      window.addEventListener('resize', check);
-    })();
-  </script>
 </body>
 </html>
 
