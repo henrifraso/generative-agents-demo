@@ -276,7 +276,7 @@
 	  camera.startFollow(player);
 	  var _worldW = _GAME_W;
 	  // Zoom inicial: mobile começa mais próximo (1.5×), desktop mantém 1×
-	  var _initZoom = 1;
+	  var _initZoom = 0.6;
 	  camera.setZoom(_initZoom);
 	  camera.setBounds(0, 0, _worldW, map.heightInPixels);
 	  camera.startFollow(player);
@@ -285,12 +285,7 @@
 	  window._phaserScene = this;
 	  window._remoteSprites = {}; // { player_id: {sprite, label, tx, ty} }
 
-	  // Zoom com scroll do mouse
-	  this.input.on('wheel', function(pointer, gameObjects, deltaX, deltaY) {
-	    var newZoom = camera.zoom - deltaY * 0.001;
-	    camera.setZoom(Math.max(0.25, Math.min(4, newZoom)));
-	    game.canvas.focus();
-	  });
+	  // Zoom desativado — zoom fixo em 0.6
 	  game.canvas.setAttribute('tabindex', '0');
 	  game.canvas.focus();
 
@@ -301,14 +296,7 @@
 	  this.input.on('pointermove', function(ptr) {
 	    var p1 = this.input.pointer1, p2 = this.input.pointer2;
 	    if (p1.isDown && p2.isDown) {
-	      // pinch zoom
-	      var dx = p1.x - p2.x, dy = p1.y - p2.y;
-	      var dist = Math.sqrt(dx*dx + dy*dy);
-	      if (_pinchDist !== null) {
-	        var nz = camera.zoom + (dist - _pinchDist) * 0.008;
-	        camera.setZoom(Math.max(0.25, Math.min(4, nz)));
-	      }
-	      _pinchDist = dist;
+	      _pinchDist = null; // pinch desativado
 	    } else if (ptr.isDown && this.input.pointer2 && !this.input.pointer2.isDown) {
 	      // drag to pan — solta o follow temporariamente
 	      camera.stopFollow();
