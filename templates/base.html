@@ -1664,7 +1664,8 @@ Author: Joon Sung Park (joonspk@stanford.edu)
 
     function fitCanvas() {
       var c = document.querySelector('#game-container canvas');
-      if (!c || !c.width) { setTimeout(fitCanvas, 200); return; }
+      // Aguarda canvas Phaser (>= 80% da viewport), não o canvas HTML padrão (300×150)
+      if (!c || c.width < window.innerWidth * 0.8) { setTimeout(fitCanvas, 200); return; }
       _CW = c.width;
       _CH = c.height;
       _s = Math.min(window.innerWidth / _CW, window.innerHeight / _CH);
