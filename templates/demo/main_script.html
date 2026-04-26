@@ -24,9 +24,12 @@
 	let sim_code = "{{sim_code}}";
  	let step_size = {{sec_per_step}} * 1000; // 10 seconds = 10000
 
-	// Mundo do jogo — mínimo 5120 para garantir extensão visível em todos os devices
-	var _GAME_H = 3328;
-	var _GAME_W = Math.max(5120, Math.ceil(window.innerWidth * _GAME_H / window.innerHeight / 32) * 32);
+	// Mundo do jogo — usa o tamanho real do mapa (4480x3200) como base
+	// IMPORTANTE: não forçar 5120 em mobile pois _zoomMin = 390/5120 = 0.076
+	// resultaria em tiles de 2.4px CSS (sub-pixel, invisível)
+	var _GAME_H = 3200; // altura real do mapa Tiled (100 tiles * 32px)
+	var _MAP_BASE_W = 4480; // largura real do mapa Tiled (140 tiles * 32px)
+	var _GAME_W = Math.max(_MAP_BASE_W, Math.ceil(window.innerWidth * _GAME_H / window.innerHeight / 32) * 32);
 	window._GAME_W = _GAME_W;
 	window._GAME_H = _GAME_H;
 
@@ -277,7 +280,10 @@
 	  var _worldW  = _GAME_W;
 	  var _zoomMin = Math.min(_CANVAS_W / _GAME_W, _CANVAS_H / map.heightInPixels); // fit-all
 	  var _zoomMax = 1.0;
-	  var _initZoom = _zoomMin; // começa com o mapa inteiro visível
+	  // Zoom inicial: mostra ~48 tiles de largura (confortável para mobile e desktop)
+	  // _zoomMin fica disponível via pinch-out; não iniciar nele pois seria
+	  // 0.076 em iPhone (tiles de 2.4px CSS — imperceptíveis)
+	  var _initZoom = Math.max(_zoomMin, Math.min(_CANVAS_W / (32 * 48), _CANVAS_H / (32 * 48)));
 	  camera.setZoom(_initZoom);
 	  camera.setBounds(0, 0, _worldW, _GAME_H);
 	  camera.startFollow(player);
