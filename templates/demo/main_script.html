@@ -288,10 +288,11 @@
 	  camera.setZoom(_initZoom);
 	  camera.setBounds(0, 0, _worldW, _GAME_H);
 	  if (_isPortrait) {
-	    var _sx = Math.max(0, _worldW - _CANVAS_W / _initZoom);
-	    camera.setScroll(_sx, 0);
-	    // força scroll portrait nos primeiros frames do update (setScroll no create é sobrescrito pelo Phaser)
-	    window._portraitInitScroll = { x: _sx, frames: 0 };
+	    // setScroll no create() é sobrescrito; usa delayedCall após init completa
+	    this.time.delayedCall(500, function() {
+	      camera.setZoom(0.25);
+	      camera.setScroll(Math.max(0, _worldW - _CANVAS_W / 0.25), 0);
+	    });
 	  } else {
 	    camera.centerOn(_GAME_W / 2, _GAME_H / 2);
 	  }
@@ -1265,14 +1266,8 @@
 	function update(time, delta) {
 		var _cam = this.cameras.main;
 		var _cvw = _CANVAS_W / _cam.zoom, _cvh = _CANVAS_H / _cam.zoom;
-		// portrait: força scrollX alvo nos primeiros 10 frames para garantir que Phaser não sobrescreva o create()
-		if (window._portraitInitScroll && window._portraitInitScroll.frames < 10) {
-			_cam.scrollX = window._portraitInitScroll.x;
-			window._portraitInitScroll.frames++;
-		} else {
-			if (_cvw >= _GAME_W) _cam.scrollX = 0;
-			else _cam.scrollX = Phaser.Math.Clamp(_cam.scrollX, 0, _GAME_W - _cvw);
-		}
+		if (_cvw >= _GAME_W) _cam.scrollX = 0;
+		else _cam.scrollX = Phaser.Math.Clamp(_cam.scrollX, 0, _GAME_W - _cvw);
 		if (_cvh >= _GAME_H) _cam.scrollY = 0;
 		else _cam.scrollY = Phaser.Math.Clamp(_cam.scrollY, 0, _GAME_H - _cvh);
 
