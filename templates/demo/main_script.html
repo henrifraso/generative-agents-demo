@@ -172,7 +172,6 @@
 	}
 
 	function create() {
-	  this.add.rectangle(-5000, -5000, 40000, 40000, 0x1a4a6e).setOrigin(0, 0).setDepth(-999).setScrollFactor(1);
 	  const map = this.make.tilemap({ key: "map" });
 	  // Joon: Logging map is really helpful for debugging here: 
 	  //       console.log(map);
@@ -296,7 +295,11 @@
 	  camera.setZoom(_initZoom);
 	  camera.setRoundPixels(true);
 	  camera.setBounds(0, 0, _worldW, _GAME_H);
-	  camera.centerOn(_GAME_W / 2, _GAME_H / 2);
+	  if (window.screen.width < window.screen.height) {
+	    camera.setScroll(0, 0);
+	  } else {
+	    camera.centerOn(_GAME_W / 2, _GAME_H / 2);
+	  }
 	  cursors = this.input.keyboard.createCursorKeys();
 	  window._camera = camera;
 	  window._phaserScene = this;
