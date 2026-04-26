@@ -777,6 +777,7 @@
 	      // Registra e coloca no mundo
 	      _sc.textures.addCanvas('_office_bld', bC);
 	      _sc.add.image(BX, BY, '_office_bld').setOrigin(0,0).setDepth(0.65);
+	      _sc.add.rectangle(BX + BW/2, BY + BH/2, BW, BH, 0xff0000, 0.5).setOrigin(0.5,0.5).setDepth(99); // DIAG
 
 	      // Árvores no jardim de entrada (acima do call center)
 	      [[X+8,32],[X+Math.floor(W*0.4),60],[X+W-80,24]
