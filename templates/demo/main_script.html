@@ -283,18 +283,28 @@
 	  var _worldW  = _GAME_W;
 	  var _zoomMin = Math.min(_CANVAS_W / _GAME_W, _CANVAS_H / map.heightInPixels); // fit-all (pinch-out mínimo)
 	  var _zoomMax = 2.0;
-	  // Mobile retrato: zoom encaixa largura do mapa (call center visível, oceano abaixo em azul)
-	  var _initZoom = (window.screen.width < window.screen.height)
+	  var _isPortrait = window.screen.width < window.screen.height;
+	  var _initZoom = _isPortrait
 	    ? Math.max(_zoomMin, _CANVAS_W / map.widthInPixels)
 	    : _zoomMin;
 	  camera.setZoom(_initZoom);
 	  camera.setBounds(0, 0, _worldW, _GAME_H);
-	  if (window.screen.width < window.screen.height) {
-	    // Mobile: mostra lado direito (call center visível), pan esquerda pra ver cidade
+	  if (_isPortrait) {
 	    camera.scrollX = Math.max(0, _GAME_W - _CANVAS_W / _initZoom);
 	    camera.scrollY = 0;
 	  } else {
 	    camera.centerOn(_GAME_W / 2, _GAME_H / 2);
+	  }
+	  // DEBUG TEMPORÁRIO — mostra valores reais no mobile
+	  if (_isPortrait) {
+	    var _dbg = document.createElement('div');
+	    _dbg.style.cssText = 'position:fixed;top:0;left:0;background:rgba(0,0,0,0.7);color:#fff;font:11px monospace;padding:6px;z-index:99999;pointer-events:none;';
+	    _dbg.innerHTML = 'sw='+window.screen.width+' sh='+window.screen.height
+	      +'<br>iw='+window.innerWidth+' ih='+window.innerHeight
+	      +'<br>GAME_W='+_GAME_W+' mapW='+map.widthInPixels
+	      +'<br>zoom='+_initZoom.toFixed(4)
+	      +'<br>scrollX='+Math.round(camera.scrollX);
+	    document.body.appendChild(_dbg);
 	  }
 	  cursors = this.input.keyboard.createCursorKeys();
 	  window._camera = camera;
