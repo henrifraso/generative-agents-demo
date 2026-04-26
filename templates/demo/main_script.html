@@ -286,7 +286,7 @@
 	  var _isPortrait = _CANVAS_H > _CANVAS_W;
 	  var _initZoom = _zoomMin;
 	  camera.setZoom(_initZoom);
-	  camera.setBounds(0, 0, _worldW, _GAME_H);
+	  camera.removeBounds();
 	  if (_isPortrait) {
 	    camera.scrollX = Math.max(0, _worldW - _CANVAS_W / _initZoom);
 	    camera.scrollY = 0;
