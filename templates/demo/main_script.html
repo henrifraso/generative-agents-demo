@@ -1268,8 +1268,9 @@
 	    }
 	  }
 
-	  // marcador diagnóstico: retângulo vermelho no call center
-	  this.add.rectangle(4480+256, 1600, 512, 400, 0xff0000).setDepth(200);
+	  // marcador diagnóstico: um dentro do tilemap, um no call center
+	  this.add.rectangle(4000, 1600, 200, 200, 0x00ff00).setDepth(200); // verde x=4000
+	  this.add.rectangle(4480+256, 1600, 512, 400, 0xff0000).setDepth(200); // vermelho x=4736
 
 	}
 
