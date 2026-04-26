@@ -45,7 +45,7 @@
 	  width: _CANVAS_W,
 	  height: _CANVAS_H,
 	  parent: "game-container",
-	  backgroundColor: '#1a4a6e',
+	  backgroundColor: '#000000',
 	  pixelArt: true,
 	  input: { activePointers: 3 },
 	  scale: { mode: Phaser.Scale.NONE },
@@ -172,7 +172,8 @@
 	  this.load.image('beach_grass', "{% static 'assets/beach_grass.png' %}");
 	}
 
-	function create() {  
+	function create() {
+	  this.add.rectangle(0, 0, 20000, 20000, 0x1a4a6e).setOrigin(0, 0).setDepth(-999).setScrollFactor(1);
 	  const map = this.make.tilemap({ key: "map" });
 	  // Joon: Logging map is really helpful for debugging here: 
 	  //       console.log(map);
@@ -281,7 +282,6 @@
 	  window._following = {};
 	  // Setting up the camera.
 	  const camera = this.cameras.main;
-	  camera.setBackgroundColor('#1a4a6e');
 	  var _worldW  = _GAME_W;
 	  var _zoomMin = Math.min(_CANVAS_W / _GAME_W, _CANVAS_H / map.heightInPixels); // fit-all
 	  var _zoomMax = 2.0;
