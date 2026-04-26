@@ -45,7 +45,10 @@
 	  width: _CANVAS_W,
 	  height: _CANVAS_H,
 	  parent: "game-container",
-	  backgroundColor: '#1a4a6e',
+	  render: {
+	    transparent: true,
+	    clearBeforeRender: true,
+	  },
 	  pixelArt: true,
 	  input: { activePointers: 3 },
 	  physics: {
@@ -287,8 +290,7 @@
 	  camera.setZoom(_zoomMin);
 	  camera.setBounds(0, 0, _worldW, _GAME_H);
 	  camera.centerOn(_GAME_W / 2, _GAME_H / 2);
-	  // Cor de fundo da câmera = oceano — elimina preto ao redor do mapa em zoom baixo (mobile)
-	  camera.setBackgroundColor(0x1a4a6e);
+	  // Canvas é transparent; fundo oceano vem do CSS body (base.html)
 	  cursors = this.input.keyboard.createCursorKeys();
 	  window._camera = camera;
 	  window._phaserScene = this;
