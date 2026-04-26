@@ -42,10 +42,13 @@
 	// Configuration meant to be passed to the main Phaser game instance.
 	const config = {
 	  type: Phaser.AUTO,
-	  width: _CANVAS_W,
-	  height: _CANVAS_H,
-	  parent: "game-container",
-	  backgroundColor: '#1a4a6e',
+	  backgroundColor: 0x1a4a6e,
+	  scale: {
+	    mode: Phaser.Scale.NONE,
+	    parent: "game-container",
+	    width: _CANVAS_W,
+	    height: _CANVAS_H,
+	  },
 	  pixelArt: true,
 	  input: { activePointers: 3 },
 	  physics: {
@@ -278,8 +281,13 @@
 	  window._playerMoving = false;
 	  window._chatOpen = false;
 	  window._following = {};
+	  // Força cor de fundo oceano no WebGL e na câmera — múltiplas camadas de defesa
+	  if (this.sys.game.renderer && this.sys.game.renderer.gl) {
+	    this.sys.game.renderer.gl.clearColor(0x1a/255, 0x4a/255, 0x6e/255, 1.0);
+	  }
 	  // Setting up the camera.
 	  const camera = this.cameras.main;
+	  camera.setBackgroundColor(0x1a4a6e);
 	  var _worldW  = _GAME_W;
 	  var _zoomMin = Math.min(_CANVAS_W / _GAME_W, _CANVAS_H / map.heightInPixels);
 	  var _zoomMax = 2.0;
