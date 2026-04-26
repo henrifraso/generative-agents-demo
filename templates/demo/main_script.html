@@ -290,9 +290,13 @@
 	  var _zoomFitH = _screenH / map.heightInPixels;
 	  var _zoomFitAll = Math.min(_CANVAS_W / _GAME_W, _CANVAS_H / map.heightInPixels);
 	  var _zoomMin = _isPortrait ? _zoomFitH : _zoomFitAll;
-	  window._WORLD_H = _GAME_H;
+	  var _screenRatio = window.screen.height / window.screen.width;
+	  var _minWorldH = Math.ceil(_GAME_W * _screenRatio);
+	  var _WORLD_H = Math.max(_GAME_H, _minWorldH);
+	  window._WORLD_H = _WORLD_H;
 	  camera.setZoom(_zoomMin);
-	  camera.setBounds(0, 0, _worldW, _GAME_H);
+	  camera.setBounds(0, 0, _worldW, _WORLD_H);
+	  camera.setBackgroundColor(0x1a4a6e);
 	  // Começa mostrando a cidade (esquerda do mapa), não o centro
 	  camera.setScroll(0, 0);
 	  cursors = this.input.keyboard.createCursorKeys();
@@ -1261,10 +1265,11 @@
 		// Força câmera dentro dos limites a cada frame
 		var _cam = this.cameras.main;
 		var _cvw = _CANVAS_W / _cam.zoom, _cvh = _CANVAS_H / _cam.zoom;
+		var _WH = window._WORLD_H || _GAME_H;
 		if (_cvw >= _GAME_W) _cam.scrollX = 0;
 		else _cam.scrollX = Phaser.Math.Clamp(_cam.scrollX, 0, _GAME_W - _cvw);
-		if (_cvh >= _GAME_H) _cam.scrollY = 0;
-		else _cam.scrollY = Phaser.Math.Clamp(_cam.scrollY, 0, _GAME_H - _cvh);
+		if (_cvh >= _WH) _cam.scrollY = 0;
+		else _cam.scrollY = Phaser.Math.Clamp(_cam.scrollY, 0, _WH - _cvh);
 
 		// *** SETUP PLAY AND PAUSE BUTTON *** 
 		let play_context = this;

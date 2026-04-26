@@ -1764,6 +1764,16 @@ Author: Joon Sung Park (joonspk@stanford.edu)
       else updateDayNight();
     })();
   </script>
+
+  <!-- Força canvas a cobrir 100vw/100vh — Phaser Scale Manager pode sobrescrever o CSS com inline styles -->
+  <script>
+    setInterval(function() {
+      var c = document.querySelector('#game-container canvas');
+      if (c) {
+        c.style.cssText = 'position:fixed!important;top:0!important;left:0!important;width:100vw!important;height:100vh!important;display:block!important;touch-action:none!important;image-rendering:pixelated!important;';
+      }
+    }, 500);
+  </script>
 </body>
 </html>
 
