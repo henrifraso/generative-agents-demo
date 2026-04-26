@@ -6,10 +6,14 @@
       "src": "api/index.py",
       "use": "@vercel/python",
       "config": { "maxLambdaSize": "100mb" }
+    },
+    {
+      "src": "staticfiles/**",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
+    { "src": "/static/(.*)", "dest": "/staticfiles/$1" },
     { "src": "/(.*)", "dest": "api/index.py" }
-  ],
-  "buildCommand": "python manage.py collectstatic --noinput --settings=frontend_server.settings.production"
+  ]
 }
