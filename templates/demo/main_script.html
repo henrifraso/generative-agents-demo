@@ -289,11 +289,12 @@
 	  // Desktop: fit-all (mapa inteiro visível)
 	  // No mobile retrato, trava zoom mínimo em fill-height pra não mostrar oceano demais
 	  if (window.screen.width < window.screen.height) {
-	    _zoomMin = _CANVAS_H / map.heightInPixels;
+	    _zoomMin = (_CANVAS_H / map.heightInPixels) * 0.82;
 	    window._zoomMin = _zoomMin;
 	  }
 	  var _initZoom = _zoomMin;
 	  camera.setZoom(_initZoom);
+	  camera.setRoundPixels(true);
 	  camera.setBounds(0, 0, _worldW, _GAME_H);
 	  camera.centerOn(_GAME_W / 2, _GAME_H / 2);
 	  cursors = this.input.keyboard.createCursorKeys();
