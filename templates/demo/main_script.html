@@ -273,11 +273,8 @@
 	  window._following = {};
 	  // Setting up the camera.
 	  const camera = this.cameras.main;
-	  var _worldW = _GAME_W;
-	  // Zoom responsivo: desktop = fit-all (mapa inteiro); mobile = 0.45 (visão próxima + pan)
-	  var _isMobile = _CANVAS_W < 900;
-	  var _fitAll   = Math.min(_CANVAS_W / _GAME_W, _CANVAS_H / _GAME_H);
-	  var _initZoom = _isMobile ? 0.45 : _fitAll;
+	  var _worldW  = _GAME_W;
+	  var _initZoom = _CANVAS_H / _GAME_H;   // fit-height: mapa inteiro em altura, pan horizontal
 	  camera.setZoom(_initZoom);
 	  camera.setBounds(0, 0, _worldW, _GAME_H);
 	  camera.startFollow(player);
