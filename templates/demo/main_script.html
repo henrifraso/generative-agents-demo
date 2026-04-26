@@ -29,7 +29,8 @@
 	// resultaria em tiles de 2.4px CSS (sub-pixel, invisível)
 	var _GAME_H = 3200; // altura real do mapa Tiled (100 tiles * 32px)
 	var _MAP_BASE_W = 4480; // largura real do mapa Tiled (140 tiles * 32px)
-	var _GAME_W = Math.max(_MAP_BASE_W, Math.ceil(window.innerWidth * _GAME_H / window.innerHeight / 32) * 32);
+	// Mínimo de 512px de extensão além do mapa para o call center aparecer em qualquer device
+	var _GAME_W = Math.max(_MAP_BASE_W + 512, Math.ceil(window.innerWidth * _GAME_H / window.innerHeight / 32) * 32);
 	window._GAME_W = _GAME_W;
 	window._GAME_H = _GAME_H;
 
