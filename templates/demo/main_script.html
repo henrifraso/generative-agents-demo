@@ -36,7 +36,7 @@
 
 	// Canvas = viewport — a câmera navega pelo mundo
 	var _CANVAS_W = window.innerWidth  || 800;
-	var _CANVAS_H = window.innerHeight || 600;
+	var _CANVAS_H = (window.screen.width < window.screen.height ? window.screen.height : window.innerHeight) || 600;
 
 	// Phaser 3.0 global settings.
 	// Configuration meant to be passed to the main Phaser game instance.
