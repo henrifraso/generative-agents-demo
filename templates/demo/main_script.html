@@ -41,11 +41,12 @@
 	// Phaser 3.0 global settings.
 	// Configuration meant to be passed to the main Phaser game instance.
 	const config = {
-	  type: (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) ? Phaser.CANVAS : Phaser.AUTO,
+	  type: Phaser.AUTO,
 	  width: _CANVAS_W,
 	  height: _CANVAS_H,
 	  parent: "game-container",
 	  backgroundColor: '#1a4a6e',
+	  render: { transparent: true },
 	  pixelArt: true,
 	  input: { activePointers: 3 },
 	  physics: {
@@ -293,13 +294,8 @@
 	  }
 	  var _initZoom = _zoomMin;
 	  camera.setZoom(_initZoom);
-	  camera.setRoundPixels(true);
 	  camera.setBounds(0, 0, _worldW, _GAME_H);
-	  if (window.screen.width < window.screen.height) {
-	    camera.setScroll(0, 0);
-	  } else {
-	    camera.centerOn(_GAME_W / 2, _GAME_H / 2);
-	  }
+	  camera.centerOn(_GAME_W / 2, _GAME_H / 2);
 	  cursors = this.input.keyboard.createCursorKeys();
 	  window._camera = camera;
 	  window._phaserScene = this;
