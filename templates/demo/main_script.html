@@ -286,6 +286,11 @@
 	  camera.setZoom(_initZoom);
 	  camera.setBounds(0, 0, _worldW, _GAME_H);
 	  camera.startFollow(player);
+	  // DEBUG — remover depois
+	  var _dbg = document.createElement('div');
+	  _dbg.style.cssText = 'position:fixed;top:4px;left:4px;z-index:9999;background:rgba(0,0,0,0.7);color:#0f0;font:12px monospace;padding:4px 8px;pointer-events:none;';
+	  _dbg.innerText = 'W:'+_CANVAS_W+' H:'+_CANVAS_H+' GW:'+_GAME_W+' GH:'+_GAME_H+' Z:'+_initZoom.toFixed(3)+' mapH:'+map.heightInPixels;
+	  document.body.appendChild(_dbg);
 	  cursors = this.input.keyboard.createCursorKeys();
 	  window._camera = camera;
 	  window._phaserScene = this;
