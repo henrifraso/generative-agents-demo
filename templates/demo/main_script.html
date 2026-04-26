@@ -30,7 +30,7 @@
 	var _GAME_H = 3200; // altura real do mapa Tiled (100 tiles * 32px)
 	var _MAP_BASE_W = 4480; // largura real do mapa Tiled (140 tiles * 32px)
 	// Mínimo de 512px de extensão além do mapa para o call center aparecer em qualquer device
-	var _GAME_W = Math.max(_MAP_BASE_W + 1536, Math.ceil(window.innerWidth * _GAME_H / window.innerHeight / 32) * 32);
+	var _GAME_W = Math.max(_MAP_BASE_W + 512, Math.ceil(window.innerWidth * _GAME_H / window.innerHeight / 32) * 32);
 	window._GAME_W = _GAME_W;
 	window._GAME_H = _GAME_H;
 
@@ -284,20 +284,10 @@
 	  var _zoomMin = Math.min(_CANVAS_W / _GAME_W, _CANVAS_H / map.heightInPixels); // fit-all (pinch-out mínimo)
 	  var _zoomMax = 2.0;
 	  var _isPortrait = _CANVAS_H > _CANVAS_W;
-	  var _initZoom = _isPortrait ? Math.min(0.25, _zoomMax) : _zoomMin;
+	  var _initZoom = _zoomMin;
 	  camera.setZoom(_initZoom);
 	  camera.setBounds(0, 0, _worldW, _GAME_H);
-	  if (_isPortrait) {
-	    // setScroll no create() é sobrescrito; usa delayedCall após init completa
-	    this.time.delayedCall(500, function() {
-	      camera.setZoom(0.25);
-	      var _ccCX = _MAP_BASE_W + (_worldW - _MAP_BASE_W) / 2; // centro do building (metade da extensao)
-	      var _vpW = _CANVAS_W / 0.25;
-	      camera.setScroll(Phaser.Math.Clamp(_ccCX - _vpW / 2, 0, _worldW - _vpW), 0);
-	    });
-	  } else {
-	    camera.centerOn(_GAME_W / 2, _GAME_H / 2);
-	  }
+	  camera.centerOn(_GAME_W / 2, _GAME_H / 2);
 	  cursors = this.input.keyboard.createCursorKeys();
 	  window._camera = camera;
 	  window._phaserScene = this;
