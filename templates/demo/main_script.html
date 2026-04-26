@@ -325,8 +325,15 @@
 	      _pinchDist = d; _panX = null;
 	    } else if (e.touches.length === 1 && _panX !== null) {
 	      var tx = e.touches[0].clientX, ty = e.touches[0].clientY;
-	      camera.scrollX -= (tx - _panX) / camera.zoom;
-	      camera.scrollY -= (ty - _panY) / camera.zoom;
+	      var _vw = _CANVAS_W / camera.zoom, _vh = _CANVAS_H / camera.zoom;
+	      if (_vw < _worldW) {
+	        camera.scrollX -= (tx - _panX) / camera.zoom;
+	        camera.scrollX = Phaser.Math.Clamp(camera.scrollX, 0, _worldW - _vw);
+	      }
+	      if (_vh < _GAME_H) {
+	        camera.scrollY -= (ty - _panY) / camera.zoom;
+	        camera.scrollY = Phaser.Math.Clamp(camera.scrollY, 0, _GAME_H - _vh);
+	      }
 	      _panX = tx; _panY = ty;
 	    }
 	  }, { passive: false });
