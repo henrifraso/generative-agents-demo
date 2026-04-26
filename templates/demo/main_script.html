@@ -227,15 +227,16 @@
 	  //        in Tiled. Take a look at this guy's tutorial: 
 	  //        https://www.youtube.com/watch?v=MR2CvWxOEsw&ab_channel=MattWilber
 	  collisionsLayer.setCollisionByProperty({ collide: true });
-	  // By default, everything gets depth sorted on the screen in the order we 
-	  // created things. Here, we want the "Above Player" layer to sit on top of 
-	  // the player, so we explicitly give it a depth. Higher depths will sit on 
-	  // top of lower depth objects.
-	  // Collisions layer should get a negative depth since we do not want to see
-	  // it. 
 	  collisionsLayer.setDepth(-1);
 	  foregroundL1Layer.setDepth(2);
 	  foregroundL2Layer.setDepth(2);
+
+	  // Cull padding: evita tiles desaparecendo a zooms baixos (bug de culling do Phaser)
+	  var _layers = [bottomGroundLayer, exteriorGroundLayer, exteriorDecorationL1Layer,
+	    exteriorDecorationL2Layer, interiorGroundLayer, wallLayer,
+	    interiorFurnitureL1Layer, interiorFurnitureL2Layer,
+	    foregroundL1Layer, foregroundL2Layer, collisionsLayer];
+	  _layers.forEach(function(l) { l.setCullPadding(8, 8); });
 
 
 	  // *** NIGHT OVERLAY — só tiles externos (sem RenderTexture) ***
@@ -274,7 +275,10 @@
 	  // Setting up the camera.
 	  const camera = this.cameras.main;
 	  var _worldW  = _GAME_W;
-	  var _initZoom = _CANVAS_H / _GAME_H;   // fit-height: mapa inteiro em altura, pan horizontal
+	  // Desktop: fit-height mostra o mapa inteiro (tiles visíveis com setCullPadding)
+	  // Mobile (<900px): zoom maior (0.45) para ver detalhes, drag-to-pan para explorar
+	  var _isMobile = _CANVAS_W < 900;
+	  var _initZoom = _isMobile ? 0.45 : (_CANVAS_H / map.heightInPixels);
 	  camera.setZoom(_initZoom);
 	  camera.setBounds(0, 0, _worldW, _GAME_H);
 	  camera.startFollow(player);
