@@ -46,7 +46,6 @@
 	  height: _CANVAS_H,
 	  parent: "game-container",
 	  backgroundColor: '#1a4a6e',
-	  render: { transparent: true },
 	  pixelArt: true,
 	  input: { activePointers: 3 },
 	  physics: {
@@ -284,14 +283,6 @@
 	  var _worldW  = _GAME_W;
 	  var _zoomMin = Math.min(_CANVAS_W / _GAME_W, _CANVAS_H / map.heightInPixels); // fit-all
 	  var _zoomMax = 2.0;
-	  // Mobile: inicia em fit-height (vê o mapa inteiro na vertical, rola horizontal)
-	  //         pode pinch-zoom OUT até fit-all e IN até 2x
-	  // Desktop: fit-all (mapa inteiro visível)
-	  // No mobile retrato, trava zoom mínimo em fill-height pra não mostrar oceano demais
-	  if (window.screen.width < window.screen.height) {
-	    _zoomMin = (_CANVAS_H / map.heightInPixels) * 0.82;
-	    window._zoomMin = _zoomMin;
-	  }
 	  var _initZoom = _zoomMin;
 	  camera.setZoom(_initZoom);
 	  camera.setBounds(0, 0, _worldW, _GAME_H);
@@ -1260,7 +1251,6 @@
 
 	function update(time, delta) {
 		var _cam = this.cameras.main;
-		if (window._zoomMin && _cam.zoom < window._zoomMin) _cam.setZoom(window._zoomMin);
 		var _cvw = _CANVAS_W / _cam.zoom, _cvh = _CANVAS_H / _cam.zoom;
 		if (_cvw >= _GAME_W) _cam.scrollX = 0;
 		else _cam.scrollX = Phaser.Math.Clamp(_cam.scrollX, 0, _GAME_W - _cvw);
