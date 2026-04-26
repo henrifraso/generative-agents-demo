@@ -34,9 +34,9 @@
 	window._GAME_W = _GAME_W;
 	window._GAME_H = _GAME_H;
 
-	// Canvas = tamanho da tela física — câmera navega pelo mundo do mapa
-	var _CANVAS_W = window.screen.width  || window.innerWidth  || 800;
-	var _CANVAS_H = window.screen.height || window.innerHeight || 600;
+	// Canvas = viewport do browser
+	var _CANVAS_W = window.innerWidth  || 800;
+	var _CANVAS_H = window.innerHeight || 600;
 
 	// Phaser 3.0 global settings.
 	// Configuration meant to be passed to the main Phaser game instance.
