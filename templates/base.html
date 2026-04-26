@@ -69,7 +69,8 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     #game-container canvas {
       position:fixed !important;
       top:0 !important; left:0 !important;
-      transform-origin:top left !important;
+      width:100vw !important; height:100vh !important;
+      transform:none !important;
       image-rendering:pixelated;
     }
     /* Forçar cores fiéis no mobile */
@@ -1646,38 +1647,7 @@ Author: Joon Sung Park (joonspk@stanford.edu)
 	{% endblock js_content %}
 
   <script>
-    var _s = 0, _sMin = 1;
-    var _ox = 0, _oy = 0;
-    var _CW = window._GAME_W || 4480, _CH = 3200; // tamanho físico do canvas Phaser
-
-    function _apply() {
-      var c = document.querySelector('#game-container canvas');
-      if (!c) return;
-      var sw = _s * _CW;
-      var sh = _s * _CH;
-      c.style.position = 'fixed';
-      c.style.top  = Math.round((window.innerHeight - sh) / 2) + 'px';
-      c.style.left = Math.round((window.innerWidth  - sw) / 2) + 'px';
-      c.style.transform = 'scale(' + _s + ')';
-      c.style.transformOrigin = 'top left';
-    }
-
-    function fitCanvas() {
-      var c = document.querySelector('#game-container canvas');
-      // Aguarda canvas Phaser (>= 80% da viewport), não o canvas HTML padrão (300×150)
-      if (!c || c.width < window.innerWidth * 0.8) { setTimeout(fitCanvas, 200); return; }
-      _CW = c.width;
-      _CH = c.height;
-      _s = Math.min(window.innerWidth / _CW, window.innerHeight / _CH);
-      _apply();
-    }
-
-    // Touch desativado aqui — Phaser (main_script.html) controla todo o touch input
-
-    window.addEventListener('resize', fitCanvas);
-    setTimeout(fitCanvas, 500);
-    setTimeout(fitCanvas, 1500);
-    setTimeout(fitCanvas, 3000);
+    // Canvas dimensionado pelo CSS (100vw × 100vh) — sem JS de scale/transform
 
     // Atualiza alpha do overlay Phaser usando tempo da simulação (window.start_datetime)
     function updateDayNight() {
