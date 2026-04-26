@@ -287,6 +287,10 @@
 	  camera.setZoom(_zoomMin);
 	  camera.setBounds(0, 0, _worldW, _GAME_H);
 	  camera.centerOn(_GAME_W / 2, _GAME_H / 2);
+	  // Fundo oceano fixo à câmera — cobre qualquer preto ao redor do mapa
+	  var _bgOcean = this.add.graphics();
+	  _bgOcean.fillStyle(0x1a4a6e, 1).fillRect(0, 0, _CANVAS_W, _CANVAS_H);
+	  _bgOcean.setScrollFactor(0).setDepth(-100);
 	  cursors = this.input.keyboard.createCursorKeys();
 	  window._camera = camera;
 	  window._phaserScene = this;
