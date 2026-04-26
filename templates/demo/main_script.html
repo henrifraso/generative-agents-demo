@@ -34,9 +34,9 @@
 	window._GAME_W = _GAME_W;
 	window._GAME_H = _GAME_H;
 
-	// Canvas = viewport — a câmera navega pelo mundo
-	var _CANVAS_W = window.innerWidth  || 800;
-	var _CANVAS_H = (window.screen.width < window.screen.height ? window.screen.height : window.innerHeight) || 600;
+	// Canvas = tamanho da tela física — câmera navega pelo mundo do mapa
+	var _CANVAS_W = window.screen.width  || window.innerWidth  || 800;
+	var _CANVAS_H = window.screen.height || window.innerHeight || 600;
 
 	// Phaser 3.0 global settings.
 	// Configuration meant to be passed to the main Phaser game instance.
@@ -48,6 +48,7 @@
 	  backgroundColor: 0x1a4a6e,
 	  pixelArt: true,
 	  input: { activePointers: 3 },
+	  scale: { mode: Phaser.Scale.NONE },
 	  physics: {
 	    default: "arcade",
 	    arcade: {
