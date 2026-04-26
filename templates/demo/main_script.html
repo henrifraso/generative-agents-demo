@@ -285,45 +285,10 @@
 	  // Mobile: inicia em fit-height (vê o mapa inteiro na vertical, rola horizontal)
 	  //         pode pinch-zoom OUT até fit-all e IN até 2x
 	  // Desktop: fit-all (mapa inteiro visível)
-	  var _isMobile = _CANVAS_W < 900;
-	  var _initZoom = _isMobile ? (_CANVAS_H / map.heightInPixels) : _zoomMin;
+	  var _initZoom = _zoomMin; // fit-all: mapa inteiro + call center visível
 	  camera.setZoom(_initZoom);
 	  camera.setBounds(0, 0, _worldW, _GAME_H);
 	  camera.centerOn(_GAME_W / 2, _GAME_H / 2);
-	  // Botões de zoom criados via JS
-	  (function(){
-	    function _doZoom(factor){
-	      var nz=Phaser.Math.Clamp(camera.zoom*factor,_zoomMin,_zoomMax);
-	      camera.setZoom(nz);
-	      // Se mapa cabe inteiro na tela, centraliza para evitar trava nos limites
-	      var vw=_CANVAS_W/nz, vh=_CANVAS_H/nz;
-	      if(vw>=_worldW || vh>=_GAME_H){
-	        camera.centerOn(_worldW/2, _GAME_H/2);
-	      }
-	    }
-	    var s='position:fixed;z-index:9999;cursor:pointer;font-size:22px;font-weight:bold;'+
-	          'color:#fff;background:rgba(0,0,0,0.65);border:1px solid rgba(255,255,255,0.3);'+
-	          'border-radius:6px;width:44px;height:44px;display:flex;align-items:center;'+
-	          'justify-content:center;user-select:none;touch-action:manipulation;right:14px;';
-	    var bi=document.createElement('div'); bi.textContent='+'; bi.style.cssText=s+'bottom:66px;';
-	    var bo=document.createElement('div'); bo.textContent='−'; bo.style.cssText=s+'bottom:14px;';
-	    bi.addEventListener('click',function(e){e.stopPropagation();_doZoom(1.25);});
-	    bo.addEventListener('click',function(e){e.stopPropagation();_doZoom(0.8);});
-	    bi.addEventListener('touchend',function(e){e.preventDefault();e.stopPropagation();_doZoom(1.25);});
-	    bo.addEventListener('touchend',function(e){e.preventDefault();e.stopPropagation();_doZoom(0.8);});
-	    document.body.appendChild(bi);
-	    document.body.appendChild(bo);
-	  })();
-
-	  // Recentra câmera ao fazer pinch zoom também
-	  var _lastZoom = _initZoom;
-	  this.events.on('postupdate', function(){
-	    if(Math.abs(camera.zoom - _lastZoom) > 0.001){
-	      _lastZoom = camera.zoom;
-	      var vw=_CANVAS_W/camera.zoom, vh=_CANVAS_H/camera.zoom;
-	      if(vw>=_worldW || vh>=_GAME_H) camera.centerOn(_worldW/2, _GAME_H/2);
-	    }
-	  });
 	  cursors = this.input.keyboard.createCursorKeys();
 	  window._camera = camera;
 	  window._phaserScene = this;
