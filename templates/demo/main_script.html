@@ -24,18 +24,22 @@
 	let sim_code = "{{sim_code}}";
  	let step_size = {{sec_per_step}} * 1000; // 10 seconds = 10000
 
-	// Calcula largura do canvas para preencher a tela sem borda preta
+	// Mundo do jogo (dimensões do mundo, não do canvas)
 	var _GAME_H = 3328;
 	var _GAME_W = Math.max(4480, Math.ceil(window.innerWidth * _GAME_H / window.innerHeight / 32) * 32);
 	window._GAME_W = _GAME_W;
 	window._GAME_H = _GAME_H;
 
+	// Canvas = viewport — o mundo é maior e a câmera navega nele
+	var _CANVAS_W = window.innerWidth  || 800;
+	var _CANVAS_H = window.innerHeight || 600;
+
 	// Phaser 3.0 global settings.
 	// Configuration meant to be passed to the main Phaser game instance.
 	const config = {
 	  type: Phaser.AUTO,
-	  width: _GAME_W,
-	  height: _GAME_H,
+	  width: _CANVAS_W,
+	  height: _CANVAS_H,
 	  parent: "game-container",
 	  pixelArt: true,
 	  physics: {
@@ -271,7 +275,9 @@
 	  const camera = this.cameras.main;
 	  camera.startFollow(player);
 	  var _worldW = _GAME_W;
-	  camera.setZoom(1);
+	  // Zoom inicial: mobile começa mais próximo (1.5×), desktop mantém 1×
+	  var _initZoom = ('ontouchstart' in window) ? 1.5 : 1;
+	  camera.setZoom(_initZoom);
 	  camera.setBounds(0, 0, _worldW, map.heightInPixels);
 	  camera.startFollow(player);
 	  cursors = this.input.keyboard.createCursorKeys();
