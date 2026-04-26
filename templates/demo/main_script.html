@@ -300,6 +300,7 @@
 	    camera.setZoom(_zoomFill);
 	    camera.setBounds(0, 0, _mapW, _mapH);
 	    camera.centerOn(_mapW / 2, _mapH / 2);
+	    _zoomMin = _zoomFill;      // atualiza closure do pinch/wheel
 	    window._zoomMin = _zoomFill;
 	  }
 	  cursors = this.input.keyboard.createCursorKeys();
