@@ -280,8 +280,11 @@
 	  var _worldW  = _GAME_W;
 	  var _zoomMin = Math.min(_CANVAS_W / _GAME_W, _CANVAS_H / map.heightInPixels); // fit-all
 	  var _zoomMax = 2.0;
-	  // Inicia mostrando o mapa inteiro (fit-all). Usuário pode pinch-zoom para aproximar.
-	  var _initZoom = _zoomMin;
+	  // Mobile: inicia em fit-height (vê o mapa inteiro na vertical, rola horizontal)
+	  //         pode pinch-zoom OUT até fit-all e IN até 2x
+	  // Desktop: fit-all (mapa inteiro visível)
+	  var _isMobile = _CANVAS_W < 900;
+	  var _initZoom = _isMobile ? (_CANVAS_H / map.heightInPixels) : _zoomMin;
 	  camera.setZoom(_initZoom);
 	  camera.setBounds(0, 0, _worldW, _GAME_H);
 	  camera.centerOn(_GAME_W / 2, _GAME_H / 2);
