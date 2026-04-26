@@ -290,6 +290,7 @@
 	  camera.centerOn(_GAME_W / 2, _GAME_H / 2);
 	  if (_isPortrait) {
 	    this.time.delayedCall(500, function() {
+	      _zoomMin = 0.25;
 	      camera.setZoom(0.25);
 	      camera.setScroll(Math.max(0, _worldW - _CANVAS_W / 0.25), 0);
 	    });
