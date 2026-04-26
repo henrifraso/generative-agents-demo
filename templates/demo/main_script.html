@@ -284,7 +284,7 @@
 	  var _zoomMin = Math.min(_CANVAS_W / _GAME_W, _CANVAS_H / map.heightInPixels); // fit-all (pinch-out mínimo)
 	  var _zoomMax = 2.0;
 	  var _isPortrait = _CANVAS_H > _CANVAS_W;
-	  var _initZoom = _zoomMin;
+	  var _initZoom = _isPortrait ? Math.min(0.25, _zoomMax) : _zoomMin;
 	  camera.setZoom(_initZoom);
 	  camera.setBounds(0, 0, _worldW, _GAME_H);
 	  if (_isPortrait) {
@@ -295,8 +295,7 @@
 	  }
 	  if (_isPortrait) {
 	    this.time.delayedCall(200, function() {
-	      camera.setZoom(0.25);
-	      camera.setScroll(Math.max(0, _worldW - _CANVAS_W / 0.25), 0);
+	      camera.setScroll(Math.max(0, _worldW - _CANVAS_W / camera.zoom), 0);
 	    });
 	  }
 	  cursors = this.input.keyboard.createCursorKeys();
@@ -771,7 +770,6 @@
 	      // Registra e coloca no mundo
 	      _sc.textures.addCanvas('_office_bld', bC);
 	      _sc.add.image(BX, BY, '_office_bld').setOrigin(0,0).setDepth(0.65);
-	      _sc.add.rectangle(BX + BW/2, BY + BH/2, BW, BH, 0xff0000, 0.5).setOrigin(0.5,0.5).setDepth(99); // DIAG
 
 	      // Árvores no jardim de entrada (acima do call center)
 	      [[X+8,32],[X+Math.floor(W*0.4),60],[X+W-80,24]
