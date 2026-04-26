@@ -276,7 +276,7 @@
 	  camera.startFollow(player);
 	  var _worldW = _GAME_W;
 	  // Zoom inicial: mobile começa mais próximo (1.5×), desktop mantém 1×
-	  var _initZoom = ('ontouchstart' in window) ? 1.5 : 1;
+	  var _initZoom = ('ontouchstart' in window) ? 0.7 : 1;
 	  camera.setZoom(_initZoom);
 	  camera.setBounds(0, 0, _worldW, map.heightInPixels);
 	  camera.startFollow(player);
