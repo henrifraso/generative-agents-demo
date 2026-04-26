@@ -1278,7 +1278,10 @@
 		else _cam.scrollX = Phaser.Math.Clamp(_cam.scrollX, 0, _GAME_W - _cvw);
 		if (_cvh >= _GAME_H) _cam.scrollY = 0;
 		else _cam.scrollY = Phaser.Math.Clamp(_cam.scrollY, 0, _GAME_H - _cvh);
-		if (window._dbg) window._dbg.textContent = 'z=' + _cam.zoom.toFixed(3) + ' sx=' + Math.round(_cam.scrollX) + '/' + Math.round(_GAME_W - _cvw) + ' cw=' + _CANVAS_W;
+		if (window._dbg) {
+			var _ccScreenX = Math.round((4480 - _cam.scrollX) * _cam.zoom);
+			window._dbg.textContent = 'z=' + _cam.zoom.toFixed(3) + ' sx=' + Math.round(_cam.scrollX) + '/' + Math.round(_GAME_W - _cvw) + ' cw=' + _CANVAS_W + ' cc@' + _ccScreenX + 'px';
+		}
 
 		// *** SETUP PLAY AND PAUSE BUTTON *** 
 		let play_context = this;
