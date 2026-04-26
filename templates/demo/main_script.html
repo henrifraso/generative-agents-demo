@@ -41,7 +41,7 @@
 	// Phaser 3.0 global settings.
 	// Configuration meant to be passed to the main Phaser game instance.
 	const config = {
-	  type: Phaser.AUTO,
+	  type: (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) ? Phaser.CANVAS : Phaser.AUTO,
 	  width: _CANVAS_W,
 	  height: _CANVAS_H,
 	  parent: "game-container",
