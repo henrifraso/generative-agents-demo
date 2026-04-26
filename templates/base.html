@@ -246,6 +246,17 @@ Author: Joon Sung Park (joonspk@stanford.edu)
       user-select:none;
     }
     #hud-gear:hover { color:#ffe97a;border-color:rgba(255,220,60,0.6);background:rgba(0,0,0,0.75); }
+    /* Botões zoom */
+    #hud-zoom { position:absolute;bottom:54px;right:14px;display:flex;flex-direction:column;gap:4px;pointer-events:all; }
+    .hud-zoom-btn {
+      cursor:pointer;font-family:'Press Start 2P',monospace;font-size:16px;font-weight:bold;
+      color:rgba(255,255,255,0.7);background:rgba(0,0,0,0.55);
+      border:1px solid rgba(255,255,255,0.2);border-radius:4px;
+      width:32px;height:32px;line-height:30px;text-align:center;
+      user-select:none;-webkit-user-select:none;transition:color 0.15s,background 0.15s;
+      touch-action:manipulation;
+    }
+    .hud-zoom-btn:hover,.hud-zoom-btn:active { color:#fff;background:rgba(255,255,255,0.15); }
     /* Botões bloqueados */
     .sp-btn-locked {
       opacity:0.42 !important;cursor:not-allowed !important;
@@ -845,6 +856,10 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     <div id="hud-mode" class="scripted">&#9654; SCRIPTED</div>
     <div id="hud-chat-btn" onclick="window._aiChatToggle&&window._aiChatToggle()" title="Chat com NPCs [T]">&#x1F4AC;</div>
     <div id="hud-gear" onclick="document.getElementById('cfg-modal').classList.add('open')" title="Configurações">&#9881;</div>
+    <div id="hud-zoom">
+      <div class="hud-zoom-btn" id="hud-zoom-in"  title="Zoom in  [+]">+</div>
+      <div class="hud-zoom-btn" id="hud-zoom-out" title="Zoom out [-]">−</div>
+    </div>
     <div id="hud-ws"><div id="hud-ws-dot"></div><span id="hud-ws-lbl">OFFLINE</span></div>
   </div>
 
