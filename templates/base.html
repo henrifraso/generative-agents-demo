@@ -52,9 +52,11 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     .ai-panel                            { display:none !important; }
     .ai-panel.tab-active                 { display:flex !important; flex-direction:column; }
     #ai-chat-panel-history.tab-active    { display:block !important; }
-    /* Login screen — card é body>div>div, precisa de override */
-    #login-screen #login-card   { display:flex !important; flex-direction:column; }
-    #login-screen #login-social { display:flex !important; }
+    /* Login screen — filhos são body>div>div, precisam de override */
+    #login-screen #login-card  { display:flex !important; flex-direction:column; }
+    #login-screen #lc-actions  { display:flex !important; }
+    #login-screen #lc-social   { display:flex !important; }
+    #login-screen #lc-header   { display:block !important; }
     /* FAB buttons */
     #fab-container { display:flex !important; flex-direction:column; align-items:center; }
     #fab-bell-wrap  { display:flex !important; position:relative; }
@@ -110,131 +112,138 @@ Author: Joon Sung Park (joonspk@stanford.edu)
   <!-- *** TELA DE LOGIN *** -->
   <div id="login-screen">
     <div id="login-card">
-      <div id="login-title">THE BUSINESS GAME</div>
-      <div id="login-sub">Entre para jogar</div>
 
-      <div class="login-field">
-        <input class="login-input" type="text" placeholder="Usuário ou e-mail" autocomplete="off">
-      </div>
-      <div class="login-field">
-        <input class="login-input" type="password" placeholder="Senha">
+      <div id="lc-header">
+        <div id="lc-title">THE BUSINESS GAME</div>
+        <div id="lc-sub">IDENTIFICAÇÃO DO AGENTE</div>
       </div>
 
-      <button class="login-btn-primary" onclick="window._loginEnter()">ENTRAR</button>
-      <button class="login-btn-secondary" onclick="window._loginEnter()">CADASTRAR</button>
+      <input class="lc-input" id="lc-user" type="text"     placeholder="usuário ou e-mail" autocomplete="off">
+      <input class="lc-input" id="lc-pass" type="password" placeholder="senha">
 
-      <div class="login-divider"><span>ou continue com</span></div>
+      <div id="lc-actions">
+        <button class="lc-btn lc-btn-primary"   onclick="window._loginEnter()">ENTRAR</button>
+        <button class="lc-btn lc-btn-secondary" onclick="window._loginEnter()">CADASTRAR</button>
+      </div>
 
-      <div id="login-social">
-        <button class="login-social-btn" onclick="window._loginEnter()" title="Google">
-          <svg viewBox="0 0 24 24" width="20" height="20"><path fill="#fff" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#fff" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#fff" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#fff" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-          <span>Google</span>
+      <div id="lc-divider"><span>continuar com</span></div>
+
+      <div id="lc-social">
+        <button class="lc-social" onclick="window._loginEnter()">
+          <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          Google
         </button>
-        <button class="login-social-btn" onclick="window._loginEnter()" title="Facebook">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-          <span>Facebook</span>
+        <button class="lc-social" onclick="window._loginEnter()">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          Facebook
         </button>
-        <button class="login-social-btn" onclick="window._loginEnter()" title="Apple">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
-          <span>Apple</span>
+        <button class="lc-social" onclick="window._loginEnter()">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+          Apple
         </button>
       </div>
+
     </div>
   </div>
   <style>
-    /* ── LOGIN SCREEN ── */
+    /* ── LOGIN ── */
     #login-screen {
       position:fixed; inset:0; z-index:10500;
       display:flex; align-items:center; justify-content:center;
+      backdrop-filter:blur(5px);
+      -webkit-backdrop-filter:blur(5px);
+      background:rgba(0,0,0,0.25);
+      animation:lc-fade-in 0.5s ease both;
     }
-    #login-screen::before {
-      content:''; position:absolute; inset:0;
-      background:rgba(0,0,0,0.50);
-      backdrop-filter:blur(4px);
-      -webkit-backdrop-filter:blur(4px);
-    }
+    @keyframes lc-fade-in { from{opacity:0} to{opacity:1} }
+
     #login-card {
-      position:relative; z-index:1;
-      width:min(380px,88vw);
-      background:rgba(10,14,20,0.82);
-      backdrop-filter:blur(20px);
-      -webkit-backdrop-filter:blur(20px);
-      border:1px solid rgba(255,255,255,0.18);
-      border-radius:20px;
-      box-shadow:0 16px 56px rgba(0,0,0,0.70), inset 0 1px 0 rgba(255,255,255,0.12);
-      padding:36px 28px 28px;
-      display:flex; flex-direction:column; align-items:stretch; gap:14px;
+      width:min(340px,86vw);
+      background:rgba(255,255,255,0.10);
+      backdrop-filter:blur(18px) saturate(1.6);
+      -webkit-backdrop-filter:blur(18px) saturate(1.6);
+      border:1px solid rgba(255,255,255,0.28);
+      border-radius:16px;
+      padding:28px 24px 24px;
+      display:flex; flex-direction:column; gap:11px;
+      box-shadow:0 8px 40px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.30);
+      animation:lc-slide-up 0.45s cubic-bezier(0.34,1.26,0.64,1) 0.1s both;
     }
-    #login-title {
+    @keyframes lc-slide-up { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+    #lc-header { text-align:center; margin-bottom:4px; }
+    #lc-title {
       font-family:'Press Start 2P',monospace;
-      font-size:clamp(9px,1.8vw,13px); color:#ffffff;
-      text-align:center; letter-spacing:0.10em;
-      margin-bottom:2px;
+      font-size:clamp(8px,1.6vw,11px); color:#fff;
+      letter-spacing:0.10em; margin-bottom:8px;
+      text-shadow:0 1px 8px rgba(0,0,0,0.5);
     }
-    #login-sub {
+    #lc-sub {
       font-family:'Press Start 2P',monospace;
-      font-size:6.5px; color:rgba(255,255,255,0.50);
-      text-align:center; letter-spacing:0.14em; margin-bottom:4px;
+      font-size:5.5px; color:rgba(255,255,255,0.45);
+      letter-spacing:0.20em;
     }
-    .login-input {
+
+    .lc-input {
       width:100%; box-sizing:border-box;
-      background:rgba(255,255,255,0.08);
-      border:1px solid rgba(255,255,255,0.22);
-      border-radius:10px; color:#ffffff;
-      font-family:monospace; font-size:14px; font-weight:500;
-      padding:13px 16px; outline:none;
-      transition:border-color 0.2s, background 0.2s;
+      background:rgba(255,255,255,0.10);
+      border:1px solid rgba(255,255,255,0.25);
+      border-radius:8px; color:#fff;
+      font-family:monospace; font-size:13px;
+      padding:11px 14px; outline:none;
+      transition:border-color 0.18s, background 0.18s;
     }
-    .login-input::placeholder { color:rgba(255,255,255,0.40); }
-    .login-input:focus { border-color:rgba(255,255,255,0.60); background:rgba(255,255,255,0.13); }
-    .login-btn-primary {
-      background:rgba(255,255,255,0.15);
-      border:1.5px solid rgba(255,255,255,0.40);
-      border-radius:10px; color:#ffffff;
-      font-family:'Press Start 2P',monospace; font-size:9px;
-      padding:15px; cursor:pointer; letter-spacing:0.14em;
-      box-shadow:0 2px 12px rgba(0,0,0,0.40), inset 0 1px 0 rgba(255,255,255,0.18);
-      transition:background 0.15s, border-color 0.15s;
-      margin-top:2px;
-    }
-    .login-btn-primary:hover { background:rgba(255,255,255,0.25); border-color:rgba(255,255,255,0.65); }
-    .login-btn-secondary {
-      background:transparent; border:1px solid rgba(255,255,255,0.16);
-      border-radius:10px; color:rgba(255,255,255,0.65);
+    .lc-input::placeholder { color:rgba(255,255,255,0.38); }
+    .lc-input:focus { border-color:rgba(255,255,255,0.60); background:rgba(255,255,255,0.16); }
+
+    #lc-actions { display:flex; gap:8px; }
+    .lc-btn {
+      flex:1; border-radius:8px; cursor:pointer;
       font-family:'Press Start 2P',monospace; font-size:7.5px;
-      padding:12px; cursor:pointer; letter-spacing:0.10em;
-      transition:background 0.15s, color 0.15s;
+      letter-spacing:0.10em; padding:12px 8px;
+      transition:background 0.15s, border-color 0.15s, transform 0.1s;
     }
-    .login-btn-secondary:hover { background:rgba(255,255,255,0.09); color:#fff; border-color:rgba(255,255,255,0.30); }
-    .login-divider {
-      display:flex; align-items:center; gap:12px;
-      color:rgba(255,255,255,0.35);
-      font-family:'Press Start 2P',monospace; font-size:6px; letter-spacing:0.10em;
+    .lc-btn:active { transform:scale(0.97); }
+    .lc-btn-primary {
+      background:rgba(255,255,255,0.20); color:#fff;
+      border:1px solid rgba(255,255,255,0.45);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,0.20);
     }
-    .login-divider::before,.login-divider::after {
-      content:''; flex:1; height:1px; background:rgba(255,255,255,0.14);
-    }
-    #login-social { display:flex; gap:8px; }
-    .login-social-btn {
-      flex:1; display:flex; flex-direction:column; align-items:center; gap:7px;
-      background:rgba(255,255,255,0.07);
+    .lc-btn-primary:hover { background:rgba(255,255,255,0.30); border-color:rgba(255,255,255,0.65); }
+    .lc-btn-secondary {
+      background:transparent; color:rgba(255,255,255,0.65);
       border:1px solid rgba(255,255,255,0.18);
-      border-radius:10px; color:#fff;
-      padding:13px 6px; cursor:pointer;
-      font-family:'Press Start 2P',monospace; font-size:5px; letter-spacing:0.06em;
+    }
+    .lc-btn-secondary:hover { background:rgba(255,255,255,0.08); color:#fff; }
+
+    #lc-divider {
+      display:flex; align-items:center; gap:10px;
+      font-family:'Press Start 2P',monospace; font-size:5.5px;
+      color:rgba(255,255,255,0.30); letter-spacing:0.12em;
+    }
+    #lc-divider::before,#lc-divider::after {
+      content:''; flex:1; height:1px; background:rgba(255,255,255,0.15);
+    }
+
+    #lc-social { display:flex; gap:7px; }
+    .lc-social {
+      flex:1; display:flex; align-items:center; justify-content:center; gap:6px;
+      background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.18);
+      border-radius:8px; color:rgba(255,255,255,0.80);
+      font-family:'Press Start 2P',monospace; font-size:5px; letter-spacing:0.05em;
+      padding:10px 4px; cursor:pointer;
       transition:background 0.15s, border-color 0.15s;
     }
-    .login-social-btn:hover { background:rgba(255,255,255,0.14); border-color:rgba(255,255,255,0.35); }
-    .login-social-btn span { color:rgba(255,255,255,0.85); }
+    .lc-social:hover { background:rgba(255,255,255,0.16); border-color:rgba(255,255,255,0.38); color:#fff; }
   </style>
   <script>
     window._loginEnter = function() {
       window._skipAutoChat = true;
       var ls = document.getElementById('login-screen');
-      ls.style.transition = 'opacity 0.4s ease';
+      ls.style.transition = 'opacity 0.35s ease';
       ls.style.opacity = '0';
       ls.style.pointerEvents = 'none';
-      setTimeout(function(){ ls.style.visibility = 'hidden'; }, 420);
+      setTimeout(function(){ ls.style.visibility = 'hidden'; }, 370);
     };
   </script>
 
