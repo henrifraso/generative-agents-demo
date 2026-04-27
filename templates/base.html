@@ -50,7 +50,8 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     /* AI Chat Modal */
     #ai-chat-modal.open #ai-chat-main         { display:flex !important; flex-direction:column; }
     #ai-chat-modal.open #ai-chat-panel-chat   { display:flex !important; flex-direction:column; }
-    #ai-chat-modal.open #ai-chat-panel-history{ display:block !important; }
+    #ai-chat-modal.open #ai-chat-panel-history  { display:block !important; }
+    #ai-chat-modal.open #ai-chat-panel-settings { display:flex !important; flex-direction:column; }
     /* Login screen */
     #login-screen { display:flex !important; }
     /* FAB buttons */
@@ -143,21 +144,21 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     #login-screen {
       position:fixed; inset:0; z-index:10500;
       display:flex; align-items:center; justify-content:center;
-      background:url('/static/assets/splash_bg.jpeg') center/cover no-repeat;
+      background:transparent;
     }
     #login-screen::before {
       content:''; position:absolute; inset:0;
-      background:rgba(0,0,0,0.55);
-      backdrop-filter:blur(6px);
-      -webkit-backdrop-filter:blur(6px);
+      background:rgba(0,0,0,0.18);
+      backdrop-filter:blur(3px);
+      -webkit-backdrop-filter:blur(3px);
     }
     #login-card {
       position:relative; z-index:1;
       width:min(400px,90vw);
-      background:rgba(255,255,255,0.07);
+      background:rgba(0,0,0,0.45);
       backdrop-filter:blur(24px) saturate(1.4);
       -webkit-backdrop-filter:blur(24px) saturate(1.4);
-      border:1px solid rgba(255,255,255,0.18);
+      border:1.5px solid rgba(255,255,255,0.25);
       border-radius:20px;
       box-shadow:0 8px 48px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.20);
       padding:36px 32px 32px;
@@ -658,6 +659,9 @@ Author: Joon Sung Park (joonspk@stanford.edu)
           <button class="ai-tab" data-tab="history" onclick="window._aiTabSwitch('history')" title="Histórico">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           </button>
+          <button class="ai-tab" data-tab="settings" onclick="window._aiTabSwitch('settings')" title="Configurações">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06-.06a2 2 0 0 1-2.83-2.83l.06.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          </button>
         </div>
         <div id="ai-chat-active-info">
           <div id="ai-chat-active-dot"></div>
@@ -676,6 +680,24 @@ Author: Joon Sung Park (joonspk@stanford.edu)
       </div>
       <div id="ai-chat-panel-history">
         <div id="ai-history-list"><div id="ai-history-empty">Nenhuma conversa anterior.</div></div>
+      </div>
+      <div id="ai-chat-panel-settings">
+        <div class="cfg-glass-title">CONFIGURAÇÕES</div>
+        <div class="cfg-glass-section">
+          <div class="cfg-glass-label">DIFICULDADE</div>
+          <div class="cfg-glass-opts">
+            <button class="cfg-glass-btn active" onclick="window._setDiffGlass(this,'easy')">FÁCIL</button>
+            <button class="cfg-glass-btn" onclick="window._setDiffGlass(this,'hard')">DIFÍCIL</button>
+            <button class="cfg-glass-btn" onclick="window._setDiffGlass(this,'very_hard')">MUITO DIFÍCIL</button>
+          </div>
+        </div>
+        <div class="cfg-glass-section">
+          <div class="cfg-glass-label">SOM</div>
+          <div class="cfg-glass-opts">
+            <button class="cfg-glass-btn active" onclick="window._toggleSound(this)">ATIVADO</button>
+            <button class="cfg-glass-btn" onclick="window._toggleSound(this)">DESATIVADO</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -735,6 +757,36 @@ Author: Joon Sung Park (joonspk@stanford.edu)
       font-size:7px; color:rgba(200,255,215,0.25);
       text-align:center; margin-top:40px; line-height:2.2;
     }
+    /* Settings panel */
+    #ai-chat-panel-settings {
+      flex:1; overflow-y:auto; padding:28px 28px;
+      display:flex; flex-direction:column; gap:24px;
+    }
+    .cfg-glass-title {
+      font-family:'Press Start 2P',monospace;
+      font-size:10px; color:#fff; letter-spacing:0.15em;
+      text-shadow:0 1px 6px rgba(0,0,0,0.8);
+      text-align:center; margin-bottom:4px;
+    }
+    .cfg-glass-section { display:flex; flex-direction:column; gap:10px; }
+    .cfg-glass-label {
+      font-family:'Press Start 2P',monospace;
+      font-size:7px; color:rgba(255,255,255,0.50);
+      letter-spacing:0.12em; text-transform:uppercase;
+    }
+    .cfg-glass-opts { display:flex; gap:10px; flex-wrap:wrap; }
+    .cfg-glass-btn {
+      flex:1; min-width:80px;
+      background:rgba(0,0,0,0.28);
+      border:1.5px solid rgba(255,255,255,0.20);
+      border-radius:12px; color:rgba(255,255,255,0.60);
+      font-family:'Press Start 2P',monospace; font-size:7px;
+      padding:13px 10px; cursor:pointer; letter-spacing:0.08em;
+      transition:background 0.15s, color 0.15s, border-color 0.15s;
+      text-shadow:0 1px 4px rgba(0,0,0,0.7);
+    }
+    .cfg-glass-btn:hover { background:rgba(255,255,255,0.14); color:#fff; border-color:rgba(255,255,255,0.40); }
+    .cfg-glass-btn.active { background:rgba(255,255,255,0.18); color:#fff; border-color:rgba(255,255,255,0.55); box-shadow:0 0 12px rgba(255,255,255,0.12); }
     .ai-history-item {
       padding:14px 16px; margin-bottom:10px;
       background:rgba(255,255,255,0.05);
@@ -967,18 +1019,26 @@ Author: Joon Sung Park (joonspk@stanford.edu)
       };
 
       window._aiTabSwitch = function(tab) {
-        var panelChat    = document.getElementById('ai-chat-panel-chat');
-        var panelHistory = document.getElementById('ai-chat-panel-history');
+        var panelChat     = document.getElementById('ai-chat-panel-chat');
+        var panelHistory  = document.getElementById('ai-chat-panel-history');
+        var panelSettings = document.getElementById('ai-chat-panel-settings');
         document.querySelectorAll('.ai-tab').forEach(function(b){ b.classList.remove('active'); });
-        document.querySelector('.ai-tab[data-tab="'+tab+'"]').classList.add('active');
-        if (tab === 'chat') {
-          panelChat.style.display    = 'flex';
-          panelHistory.style.display = 'none';
-        } else {
-          panelChat.style.display    = 'none';
-          panelHistory.style.display = 'block';
-          _renderHistory();
-        }
+        var activeTab = document.querySelector('.ai-tab[data-tab="'+tab+'"]');
+        if (activeTab) activeTab.classList.add('active');
+        panelChat.style.display     = tab === 'chat'     ? 'flex'  : 'none';
+        panelHistory.style.display  = tab === 'history'  ? 'block' : 'none';
+        panelSettings.style.display = tab === 'settings' ? 'flex'  : 'none';
+        if (tab === 'history') _renderHistory();
+      };
+
+      window._setDiffGlass = function(btn, diff) {
+        btn.closest('.cfg-glass-opts').querySelectorAll('.cfg-glass-btn').forEach(function(b){ b.classList.remove('active'); });
+        btn.classList.add('active');
+        if (window.setDiff) window.setDiff(null, diff);
+      };
+      window._toggleSound = function(btn) {
+        btn.closest('.cfg-glass-opts').querySelectorAll('.cfg-glass-btn').forEach(function(b){ b.classList.remove('active'); });
+        btn.classList.add('active');
       };
 
       function _renderHistory() {
@@ -1054,7 +1114,7 @@ Author: Joon Sung Park (joonspk@stanford.edu)
       </button>
       <div id="fab-bell-badge"></div>
     </div>
-    <button class="fab-btn" id="fab-settings" onclick="document.getElementById('cfg-modal').classList.add('open')" title="Configurações">
+    <button class="fab-btn" id="fab-settings" onclick="window._aiChatOpen();setTimeout(function(){window._aiTabSwitch('settings')},50)" title="Configurações">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
     </button>
   </div>
