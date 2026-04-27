@@ -537,8 +537,11 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     #ai-chat-sidebar {
       width:220px; min-width:180px; flex-shrink:0;
       background:rgba(0,30,12,0.78);
-      border-right:1px solid rgba(0,255,136,0.28);
-      box-shadow:4px 0 20px rgba(0,0,0,0.4);
+      border-top:1px solid rgba(180,255,210,0.55);
+      border-left:1px solid rgba(120,255,180,0.40);
+      border-right:1px solid rgba(0,80,40,0.55);
+      border-bottom:1px solid rgba(0,50,20,0.70);
+      box-shadow:4px 0 20px rgba(0,0,0,0.4), inset 1px 1px 0 rgba(200,255,220,0.18), inset -1px -1px 0 rgba(0,0,0,0.35);
       display:flex; flex-direction:column;
       overflow:hidden;
     }
@@ -581,6 +584,10 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     #ai-chat-main {
       flex:1; display:flex; flex-direction:column;
       background:rgba(0,22,8,0.72);
+      border-top:1px solid rgba(180,255,210,0.50);
+      border-right:1px solid rgba(0,80,40,0.55);
+      border-bottom:1px solid rgba(0,50,20,0.70);
+      box-shadow:inset 1px 1px 0 rgba(200,255,220,0.14), inset -1px -1px 0 rgba(0,0,0,0.30);
       overflow:hidden;
     }
     #ai-chat-topbar {
@@ -635,15 +642,21 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     }
     .ai-msg-row.user .ai-msg-bubble {
       background:rgba(0,120,55,0.42);
-      border:1px solid rgba(0,255,136,0.28);
-      box-shadow:0 2px 12px rgba(0,0,0,0.25);
+      border-top:1px solid rgba(180,255,210,0.50);
+      border-left:1px solid rgba(120,255,180,0.35);
+      border-right:1px solid rgba(0,80,40,0.50);
+      border-bottom:1px solid rgba(0,50,20,0.65);
+      box-shadow:0 4px 16px rgba(0,0,0,0.28), inset 1px 1px 0 rgba(200,255,220,0.15);
       color:#d8ffe8;
       border-bottom-right-radius:3px;
     }
     .ai-msg-row.npc .ai-msg-bubble {
       background:rgba(10,35,16,0.50);
-      border:1px solid rgba(0,255,136,0.16);
-      box-shadow:0 2px 12px rgba(0,0,0,0.25);
+      border-top:1px solid rgba(150,230,180,0.45);
+      border-left:1px solid rgba(100,210,150,0.30);
+      border-right:1px solid rgba(0,60,30,0.50);
+      border-bottom:1px solid rgba(0,40,15,0.65);
+      box-shadow:0 4px 16px rgba(0,0,0,0.28), inset 1px 1px 0 rgba(180,255,210,0.12);
       color:#c8e8cc;
       border-bottom-left-radius:3px;
     }
