@@ -292,6 +292,7 @@
 	    this.time.delayedCall(500, function() {
 	      _zoomMin = 0.25;
 	      camera.setZoom(0.25);
+	      camera.setBounds(0, 0, _worldW, _GAME_H);
 	      camera.centerOn(_GAME_W / 2, _GAME_H / 2);
 	    });
 	  }
