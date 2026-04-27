@@ -48,10 +48,10 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     #cfg-modal #cfg-opts { display: flex !important; flex-direction:column; align-items:center; gap:12px; }
     #cfg-modal #cfg-back { display: inline-block !important; }
     /* AI Chat Modal */
-    #ai-chat-modal.open #ai-chat-main         { display:flex !important; flex-direction:column; }
-    #ai-chat-modal.open #ai-chat-panel-chat   { display:flex !important; flex-direction:column; }
-    #ai-chat-modal.open #ai-chat-panel-history  { display:block !important; }
-    #ai-chat-modal.open #ai-chat-panel-settings { display:flex !important; flex-direction:column; }
+    #ai-chat-modal.open #ai-chat-main    { display:flex !important; flex-direction:column; }
+    .ai-panel                            { display:none !important; }
+    .ai-panel.tab-active                 { display:flex !important; flex-direction:column; }
+    #ai-chat-panel-history.tab-active    { display:block !important; }
     /* Login screen */
     #login-screen { display:flex !important; }
     /* FAB buttons */
@@ -661,7 +661,7 @@ Author: Joon Sung Park (joonspk@stanford.edu)
         </div>
         <button id="ai-chat-close-btn" onclick="window._aiChatClose()">&#x2715;</button>
       </div>
-      <div id="ai-chat-panel-chat">
+      <div id="ai-chat-panel-chat" class="ai-panel tab-active">
         <div id="ai-chat-messages"><div id="ai-chat-welcome"><span>Como posso ajudar?</span></div></div>
         <div id="ai-chat-input-row">
           <textarea id="ai-chat-ta" placeholder="Digite uma mensagem..." rows="1"></textarea>
@@ -670,10 +670,10 @@ Author: Joon Sung Park (joonspk@stanford.edu)
           </button>
         </div>
       </div>
-      <div id="ai-chat-panel-history">
+      <div id="ai-chat-panel-history" class="ai-panel">
         <div id="ai-history-list"><div id="ai-history-empty">Nenhuma conversa anterior.</div></div>
       </div>
-      <div id="ai-chat-panel-settings">
+      <div id="ai-chat-panel-settings" class="ai-panel">
         <div class="cfg-glass-title">CONFIGURAÇÕES</div>
         <div class="cfg-glass-section">
           <div class="cfg-glass-label">DIFICULDADE</div>
@@ -752,9 +752,9 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     #ai-chat-close-btn:hover { background:rgba(239,68,68,0.35); border-color:rgba(239,68,68,0.50); }
 
     /* ── Painéis ── */
-    #ai-chat-panel-chat { flex:1; display:flex; flex-direction:column; overflow:hidden; min-height:0; }
+    #ai-chat-panel-chat    { flex:1; flex-direction:column; overflow:hidden; min-height:0; }
     #ai-chat-panel-history { flex:1; overflow-y:auto; padding:20px 18px; }
-    #ai-chat-panel-settings { flex:1; overflow-y:auto; padding:24px 22px; display:flex; flex-direction:column; gap:22px; }
+    #ai-chat-panel-settings{ flex:1; overflow-y:auto; padding:24px 22px; flex-direction:column; gap:22px; }
 
     /* ── Mensagens ── */
     #ai-chat-messages {
@@ -969,15 +969,12 @@ Author: Joon Sung Park (joonspk@stanford.edu)
       };
 
       window._aiTabSwitch = function(tab) {
-        var panelChat     = document.getElementById('ai-chat-panel-chat');
-        var panelHistory  = document.getElementById('ai-chat-panel-history');
-        var panelSettings = document.getElementById('ai-chat-panel-settings');
         document.querySelectorAll('.ai-tab').forEach(function(b){ b.classList.remove('active'); });
-        var activeTab = document.querySelector('.ai-tab[data-tab="'+tab+'"]');
-        if (activeTab) activeTab.classList.add('active');
-        panelChat.style.display     = tab === 'chat'     ? 'flex'  : 'none';
-        panelHistory.style.display  = tab === 'history'  ? 'block' : 'none';
-        panelSettings.style.display = tab === 'settings' ? 'flex'  : 'none';
+        document.querySelectorAll('.ai-panel').forEach(function(p){ p.classList.remove('tab-active'); });
+        var btn = document.querySelector('.ai-tab[data-tab="'+tab+'"]');
+        if (btn) btn.classList.add('active');
+        var panel = document.getElementById('ai-chat-panel-'+tab);
+        if (panel) panel.classList.add('tab-active');
         if (tab === 'history') _renderHistory();
       };
 
