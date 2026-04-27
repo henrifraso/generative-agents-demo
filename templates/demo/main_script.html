@@ -288,22 +288,9 @@
 	  camera.setZoom(_initZoom);
 	  camera.setBounds(0, 0, _worldW, _GAME_H);
 	  camera.centerOn(_GAME_W / 2, _GAME_H / 2);
-	  if (_isPortrait) {
-	    this.time.delayedCall(500, function() {
-	      _zoomMin = 0.25;
-	      camera.setZoom(0.25);
-	      camera.useBounds = false; // Canvas2D iOS clipa o render com useBounds=true
-	      camera.centerOn(_GAME_W / 2, _GAME_H / 2);
-	      // debug overlay
-	      var dbg = document.createElement('div');
-	      dbg.id = 'cam-dbg';
-	      dbg.style.cssText = 'position:fixed;top:0;left:0;background:rgba(0,0,0,0.7);color:#0f0;font:12px monospace;padding:4px 6px;z-index:9999;pointer-events:none;';
-	      document.body.appendChild(dbg);
-	      window._dbg = dbg;
-	      // marcador vermelho no call center para diagnóstico
-	      camera.scene.add.rectangle(4480+256, 1600, 512, 400, 0xff0000, 0.5).setDepth(50);
-	      camera.scene.add.text(4480+256, 1600, 'CALL\nCENTER', {fontSize:'96px',color:'#ffffff',fontFamily:'monospace'}).setOrigin(0.5).setDepth(51);
-	    });
+	  // Canvas2D (mobile) aplica clip baseado nos bounds — desabilitar para renderizar call center
+	  if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+	    camera.useBounds = false;
 	  }
 	  cursors = this.input.keyboard.createCursorKeys();
 	  window._camera = camera;
@@ -1269,9 +1256,6 @@
 	    }
 	  }
 
-	  // marcador diagnóstico: um dentro do tilemap, um no call center
-	  this.add.rectangle(4000, 1600, 200, 200, 0x00ff00).setDepth(200); // verde x=4000
-	  this.add.rectangle(4400, 1600, 200, 200, 0xff0000).setDepth(200); // vermelho x=4400 (dentro tilemap)
 
 	}
 
@@ -1283,17 +1267,6 @@
 		else _cam.scrollX = Phaser.Math.Clamp(_cam.scrollX, 0, _GAME_W - _cvw);
 		if (_cvh >= _GAME_H) _cam.scrollY = 0;
 		else _cam.scrollY = Phaser.Math.Clamp(_cam.scrollY, 0, _GAME_H - _cvh);
-		if (window._dbg) {
-			var _ccScreenX = Math.round((4480 - _cam.scrollX) * _cam.zoom);
-			window._dbg.textContent = 'z=' + _cam.zoom.toFixed(3) + ' sx=' + Math.round(_cam.scrollX) + '/' + Math.round(_GAME_W - _cvw) + ' cw=' + _CANVAS_W + ' cc@' + _ccScreenX + 'px';
-			// linha HTML vermelha na posição do call center
-			if (!window._ccLine) {
-				window._ccLine = document.createElement('div');
-				window._ccLine.style.cssText = 'position:fixed;top:0;bottom:0;width:3px;background:red;z-index:9998;pointer-events:none;';
-				document.body.appendChild(window._ccLine);
-			}
-			window._ccLine.style.left = _ccScreenX + 'px';
-		}
 
 		// *** SETUP PLAY AND PAUSE BUTTON *** 
 		let play_context = this;
