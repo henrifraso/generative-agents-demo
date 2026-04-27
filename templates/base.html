@@ -525,8 +525,8 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     /* ── AI Chat Modal ── */
     #ai-chat-modal {
       position:fixed;
-      bottom:24px; left:50%;
-      transform:translateX(-50%);
+      top:50%; left:50%;
+      transform:translate(-50%,-50%);
       width:min(560px,92vw);
       height:min(480px,72vh);
       z-index:8500;
@@ -538,7 +538,7 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     /* Painel único */
     #ai-chat-main {
       flex:1; display:flex; flex-direction:column;
-      background:rgba(10,30,15,0.18);
+      background:rgba(10,30,15,0.08);
       backdrop-filter:blur(24px) saturate(1.5);
       -webkit-backdrop-filter:blur(24px) saturate(1.5);
       border:1px solid rgba(255,255,255,0.12);
@@ -646,7 +646,7 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     #ai-chat-send-btn:hover { background:rgba(0,255,136,0.28); box-shadow:0 0 12px rgba(0,255,136,0.2); }
     #ai-chat-send-btn svg { width:17px; height:17px; }
     @media (max-width:600px) {
-      #ai-chat-modal { bottom:16px; width:94vw; height:65vh; border-radius:16px; }
+      #ai-chat-modal { width:94vw; height:65vh; border-radius:16px; }
       .ai-msg-bubble { font-size:12px; }
     }
   </style>
