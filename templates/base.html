@@ -52,8 +52,9 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     .ai-panel                            { display:none !important; }
     .ai-panel.tab-active                 { display:flex !important; flex-direction:column; }
     #ai-chat-panel-history.tab-active    { display:block !important; }
-    /* Login screen */
-    #login-screen { display:flex !important; }
+    /* Login screen — card é body>div>div, precisa de override */
+    #login-screen #login-card   { display:flex !important; flex-direction:column; }
+    #login-screen #login-social { display:flex !important; }
     /* FAB buttons */
     #fab-container { display:flex !important; flex-direction:column; align-items:center; }
     #fab-bell-wrap  { display:flex !important; position:relative; }
@@ -230,9 +231,10 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     window._loginEnter = function() {
       window._skipAutoChat = true;
       var ls = document.getElementById('login-screen');
-      ls.style.transition = 'opacity 0.5s ease';
+      ls.style.transition = 'opacity 0.4s ease';
       ls.style.opacity = '0';
-      setTimeout(function(){ ls.style.display = 'none'; }, 500);
+      ls.style.pointerEvents = 'none';
+      setTimeout(function(){ ls.style.visibility = 'hidden'; }, 420);
     };
   </script>
 
