@@ -51,6 +51,9 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     #ai-chat-modal.open #ai-chat-main         { display:flex !important; flex-direction:column; }
     #ai-chat-modal.open #ai-chat-panel-chat   { display:flex !important; flex-direction:column; }
     #ai-chat-modal.open #ai-chat-panel-history{ display:block !important; }
+    /* FAB buttons */
+    #fab-container { display:flex !important; flex-direction:column; align-items:center; }
+    #fab-bell-wrap  { display:flex !important; position:relative; }
     /* Menu pausa (ENTER) */
     #pause-modal.open { display: flex !important; }
     #pause-modal #pause-inner { display: flex !important; flex-direction:column; align-items:center; }
@@ -801,12 +804,17 @@ Author: Joon Sung Park (joonspk@stanford.edu)
           }
         } catch(e){}
 
+        // Fecha o chat — o trabalho vai acontecer no mapa
+        setTimeout(function(){ if (window._aiChatClose) window._aiChatClose(); }, 600);
+
         window._openclawAsk(_npcActive, text, ctx, function(reply) {
           thinkRow.remove();
           var response = reply || 'Não recebi resposta do servidor. Verifique a conexão OpenClaw.';
           _histories[_npcActive].push({ role:'npc', text:response });
           _renderBubble('npc', response);
           _scrollBottom();
+          // Notifica via sino quando resposta chegar
+          if (window._showBellNotif) window._showBellNotif();
         });
       };
 
@@ -884,6 +892,89 @@ Author: Joon Sung Park (joonspk@stanford.edu)
           this.style.height = Math.min(this.scrollHeight, 120) + 'px';
         });
       });
+    })();
+  </script>
+
+  <!-- *** BOTÕES FLUTUANTES (FAB) *** -->
+  <div id="fab-container">
+    <button class="fab-btn" id="fab-chat" onclick="window._aiChatToggle()" title="Chat">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    </button>
+    <div id="fab-bell-wrap">
+      <button class="fab-btn" id="fab-bell" onclick="window._bellClick()" title="Notificações" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      </button>
+      <div id="fab-bell-badge"></div>
+    </div>
+    <button class="fab-btn" id="fab-settings" onclick="document.getElementById('cfg-modal').classList.add('open')" title="Configurações">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </button>
+  </div>
+  <style>
+    #fab-container {
+      position:fixed; bottom:20px; right:20px;
+      flex-direction:column; gap:10px; z-index:8000;
+    }
+    .fab-btn {
+      width:48px; height:48px; border-radius:50%;
+      background:rgba(10,30,15,0.15);
+      backdrop-filter:blur(14px) saturate(1.3);
+      -webkit-backdrop-filter:blur(14px) saturate(1.3);
+      border:1px solid rgba(255,255,255,0.20);
+      box-shadow:0 4px 20px rgba(0,0,0,0.30), inset 0 1px 0 rgba(255,255,255,0.18);
+      color:rgba(255,255,255,0.85);
+      cursor:pointer; display:flex; align-items:center; justify-content:center;
+      transition:background 0.2s, box-shadow 0.2s, transform 0.15s;
+    }
+    .fab-btn:hover { background:rgba(255,255,255,0.18); transform:scale(1.08); box-shadow:0 6px 28px rgba(0,0,0,0.4); }
+    .fab-btn svg { width:20px; height:20px; }
+    #fab-bell-wrap { position:relative; }
+    #fab-bell-badge {
+      display:none; position:absolute; top:-3px; right:-3px;
+      width:12px; height:12px; border-radius:50%;
+      background:#ff4444; border:2px solid rgba(0,0,0,0.5);
+      animation:badge-pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes badge-pulse { 0%,100%{box-shadow:0 0 0 0 rgba(255,68,68,0.5)} 50%{box-shadow:0 0 0 5px rgba(255,68,68,0)} }
+    #fab-bell.has-notif { color:#fff; }
+  </style>
+  <script>
+    (function(){
+      var _autoCloseTimer = null;
+
+      function _startAutoClose() {
+        clearTimeout(_autoCloseTimer);
+        _autoCloseTimer = setTimeout(function(){
+          if (window._aiChatClose) window._aiChatClose();
+        }, 3 * 60 * 1000);
+      }
+
+      // Abre chat automaticamente quando o jogo carrega
+      var _gameReadyTimer = setInterval(function(){
+        if (window._walkable) {
+          clearInterval(_gameReadyTimer);
+          setTimeout(function(){
+            if (window._aiChatOpen) { window._aiChatOpen(); _startAutoClose(); }
+          }, 800);
+        }
+      }, 500);
+
+      // Sino de notificação
+      window._bellClick = function() {
+        var bell = document.getElementById('fab-bell');
+        var badge = document.getElementById('fab-bell-badge');
+        bell.classList.remove('has-notif');
+        badge.style.display = 'none';
+        if (window._aiChatOpen) window._aiChatOpen();
+      };
+
+      window._showBellNotif = function() {
+        var bell = document.getElementById('fab-bell');
+        var badge = document.getElementById('fab-bell-badge');
+        bell.style.display = 'flex';
+        bell.classList.add('has-notif');
+        badge.style.display = 'block';
+      };
     })();
   </script>
 
