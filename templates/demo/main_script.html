@@ -1259,6 +1259,9 @@
 	    }
 	  }
 
+	  // diagnóstico WebGL: verde dentro tilemap (x=4200), vermelho no call center (x=4736)
+	  this.add.rectangle(4200, 1600, 200, 200, 0x00ff00).setDepth(200);
+	  this.add.rectangle(4736, 1600, 200, 200, 0xff0000).setDepth(200);
 
 	}
 
