@@ -288,10 +288,6 @@
 	  camera.setZoom(_initZoom);
 	  camera.setBounds(0, 0, _worldW, _GAME_H);
 	  camera.centerOn(_GAME_W / 2, _GAME_H / 2);
-	  // Canvas2D (mobile) aplica clip baseado nos bounds — desabilitar para renderizar call center
-	  if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-	    camera.useBounds = false;
-	  }
 	  cursors = this.input.keyboard.createCursorKeys();
 	  window._camera = camera;
 	  window._phaserScene = this;
@@ -329,6 +325,8 @@
 	        camera.scrollX += cx * (1/oldZoom - 1/newZoom);
 	        camera.scrollY += cy * (1/oldZoom - 1/newZoom);
 	        camera.setZoom(newZoom);
+	        if (newZoom > _zoomMin) camera.useBounds = false;
+	        else camera.useBounds = true;
 	      }
 	      _pinchDist = d; _panX = null;
 	    } else if (e.touches.length === 1 && _panX !== null) {
