@@ -476,3 +476,91 @@ def path_tester_update(request):
 
 
 
+
+
+# ── AUTH ─────────────────────────────────────────────────────────────────────
+
+import jwt as _jwt
+from django.contrib.auth import authenticate
+from django.contrib.auth.models import User
+from django.conf import settings as _settings
+
+_JWT_EXP_DAYS = 30
+
+
+def _make_token(user):
+    payload = {
+        'user_id':  user.pk,
+        'username': user.username,
+        'exp':      datetime.datetime.utcnow() + datetime.timedelta(days=_JWT_EXP_DAYS),
+    }
+    return _jwt.encode(payload, _settings.SECRET_KEY, algorithm='HS256')
+
+
+@csrf_exempt
+def auth_login(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST only'}, status=405)
+    try:
+        data = json.loads(request.body)
+    except Exception:
+        return JsonResponse({'error': 'JSON inválido'}, status=400)
+
+    username = str(data.get('username', '')).strip()
+    password = str(data.get('password', '')).strip()
+
+    if not username or not password:
+        return JsonResponse({'error': 'Usuário e senha obrigatórios'}, status=400)
+
+    if '@' in username:
+        try:
+            username = User.objects.get(email__iexact=username).username
+        except User.DoesNotExist:
+            return JsonResponse({'error': 'Credenciais inválidas'}, status=401)
+
+    user = authenticate(username=username, password=password)
+    if not user:
+        return JsonResponse({'error': 'Credenciais inválidas'}, status=401)
+
+    return JsonResponse({'token': _make_token(user), 'username': user.username})
+
+
+@csrf_exempt
+def auth_register(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST only'}, status=405)
+    try:
+        data = json.loads(request.body)
+    except Exception:
+        return JsonResponse({'error': 'JSON inválido'}, status=400)
+
+    username = str(data.get('username', '')).strip()
+    email    = str(data.get('email', '')).strip()
+    password = str(data.get('password', '')).strip()
+
+    if not username or not password:
+        return JsonResponse({'error': 'Usuário e senha obrigatórios'}, status=400)
+    if len(password) < 6:
+        return JsonResponse({'error': 'Senha deve ter ao menos 6 caracteres'}, status=400)
+    if User.objects.filter(username__iexact=username).exists():
+        return JsonResponse({'error': 'Usuário já existe'}, status=409)
+    if email and User.objects.filter(email__iexact=email).exists():
+        return JsonResponse({'error': 'E-mail já cadastrado'}, status=409)
+
+    user = User.objects.create_user(username=username, email=email, password=password)
+    return JsonResponse({'token': _make_token(user), 'username': user.username}, status=201)
+
+
+def auth_verify(request):
+    """Verifica se o token no header Authorization é válido."""
+    auth = request.headers.get('Authorization', '')
+    if not auth.startswith('Bearer '):
+        return JsonResponse({'valid': False}, status=401)
+    token = auth[7:]
+    try:
+        payload = _jwt.decode(token, _settings.SECRET_KEY, algorithms=['HS256'])
+        return JsonResponse({'valid': True, 'username': payload['username']})
+    except _jwt.ExpiredSignatureError:
+        return JsonResponse({'valid': False, 'error': 'token expirado'}, status=401)
+    except Exception:
+        return JsonResponse({'valid': False, 'error': 'token inválido'}, status=401)

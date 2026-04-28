@@ -6,3 +6,4 @@ asgiref==3.7.2
 sqlparse==0.5.0
 pytz==2023.3
 numpy==1.26.4
+PyJWT==2.8.0

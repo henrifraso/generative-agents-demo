@@ -49,14 +49,19 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     #cfg-modal #cfg-back { display: inline-block !important; }
     /* AI Chat Modal */
     #ai-chat-modal.open #ai-chat-main    { display:flex !important; flex-direction:column; }
-    .ai-panel                            { display:none !important; }
-    .ai-panel.tab-active                 { display:flex !important; flex-direction:column; }
-    #ai-chat-panel-history.tab-active    { display:block !important; }
-    /* Login screen — filhos são body>div>div, precisam de override */
-    #login-screen #login-card  { display:flex !important; flex-direction:column; }
-    #login-screen #lc-actions  { display:flex !important; }
-    #login-screen #lc-social   { display:flex !important; }
-    #login-screen #lc-header   { display:block !important; }
+    .ai-panel                           { display:none !important; }
+    .ai-panel.tab-active                { display:flex !important; flex-direction:column; }
+    #ai-chat-panel-history.tab-active   { display:block !important; }
+    #ai-chat-panel-downloads.tab-active { display:flex !important; flex-direction:column; }
+    #ai-chat-panel-login.tab-active     { display:flex !important; flex-direction:column; align-items:center; justify-content:center; }
+    /* Login — filhos internos */
+    #lc-wrap    { display:flex !important; flex-direction:column; gap:11px; width:min(340px,82vw); }
+    #lc-header  { display:block !important; }
+    #lc-actions { display:flex !important; gap:8px; }
+    #lc-social  { display:flex !important; gap:7px; }
+    #lc-error   { display:block !important; }
+    /* Topbar oculta no modo login */
+    #ai-chat-modal.login-mode #ai-chat-topbar { opacity:0 !important; pointer-events:none !important; height:0 !important; padding:0 !important; overflow:hidden !important; border:none !important; }
     /* FAB buttons */
     #fab-container { display:flex !important; flex-direction:column; align-items:center; }
     #fab-bell-wrap  { display:flex !important; position:relative; }
@@ -109,141 +114,58 @@ Author: Joon Sung Park (joonspk@stanford.edu)
 
 <body class="top-navigation" style="background-color: #1a4a6e">
 
-  <!-- *** TELA DE LOGIN *** -->
-  <div id="login-screen">
-    <div id="login-card">
-
-      <div id="lc-header">
-        <div id="lc-title">THE BUSINESS GAME</div>
-        <div id="lc-sub">IDENTIFICAÇÃO DO AGENTE</div>
-      </div>
-
-      <input class="lc-input" id="lc-user" type="text"     placeholder="usuário ou e-mail" autocomplete="off">
-      <input class="lc-input" id="lc-pass" type="password" placeholder="senha">
-
-      <div id="lc-actions">
-        <button class="lc-btn lc-btn-primary"   onclick="window._loginEnter()">ENTRAR</button>
-        <button class="lc-btn lc-btn-secondary" onclick="window._loginEnter()">CADASTRAR</button>
-      </div>
-
-      <div id="lc-divider"><span>continuar com</span></div>
-
-      <div id="lc-social">
-        <button class="lc-social" onclick="window._loginEnter()">
-          <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-          Google
-        </button>
-        <button class="lc-social" onclick="window._loginEnter()">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-          Facebook
-        </button>
-        <button class="lc-social" onclick="window._loginEnter()">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
-          Apple
-        </button>
-      </div>
-
-    </div>
-  </div>
-  <style>
-    /* ── LOGIN ── */
-    #login-screen {
-      position:fixed; inset:0; z-index:10500;
-      display:flex; align-items:center; justify-content:center;
-      backdrop-filter:blur(5px);
-      -webkit-backdrop-filter:blur(5px);
-      background:rgba(0,0,0,0.25);
-      animation:lc-fade-in 0.5s ease both;
-    }
-    @keyframes lc-fade-in { from{opacity:0} to{opacity:1} }
-
-    #login-card {
-      width:min(340px,86vw);
-      background:rgba(255,255,255,0.10);
-      backdrop-filter:blur(18px) saturate(1.6);
-      -webkit-backdrop-filter:blur(18px) saturate(1.6);
-      border:1px solid rgba(255,255,255,0.28);
-      border-radius:16px;
-      padding:28px 24px 24px;
-      display:flex; flex-direction:column; gap:11px;
-      box-shadow:0 8px 40px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.30);
-      animation:lc-slide-up 0.45s cubic-bezier(0.34,1.26,0.64,1) 0.1s both;
-    }
-    @keyframes lc-slide-up { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
-
-    #lc-header { text-align:center; margin-bottom:4px; }
-    #lc-title {
-      font-family:'Press Start 2P',monospace;
-      font-size:clamp(8px,1.6vw,11px); color:#fff;
-      letter-spacing:0.10em; margin-bottom:8px;
-      text-shadow:0 1px 8px rgba(0,0,0,0.5);
-    }
-    #lc-sub {
-      font-family:'Press Start 2P',monospace;
-      font-size:5.5px; color:rgba(255,255,255,0.45);
-      letter-spacing:0.20em;
-    }
-
-    .lc-input {
-      width:100%; box-sizing:border-box;
-      background:rgba(255,255,255,0.10);
-      border:1px solid rgba(255,255,255,0.25);
-      border-radius:8px; color:#fff;
-      font-family:monospace; font-size:13px;
-      padding:11px 14px; outline:none;
-      transition:border-color 0.18s, background 0.18s;
-    }
-    .lc-input::placeholder { color:rgba(255,255,255,0.38); }
-    .lc-input:focus { border-color:rgba(255,255,255,0.60); background:rgba(255,255,255,0.16); }
-
-    #lc-actions { display:flex; gap:8px; }
-    .lc-btn {
-      flex:1; border-radius:8px; cursor:pointer;
-      font-family:'Press Start 2P',monospace; font-size:7.5px;
-      letter-spacing:0.10em; padding:12px 8px;
-      transition:background 0.15s, border-color 0.15s, transform 0.1s;
-    }
-    .lc-btn:active { transform:scale(0.97); }
-    .lc-btn-primary {
-      background:rgba(255,255,255,0.20); color:#fff;
-      border:1px solid rgba(255,255,255,0.45);
-      box-shadow:inset 0 1px 0 rgba(255,255,255,0.20);
-    }
-    .lc-btn-primary:hover { background:rgba(255,255,255,0.30); border-color:rgba(255,255,255,0.65); }
-    .lc-btn-secondary {
-      background:transparent; color:rgba(255,255,255,0.65);
-      border:1px solid rgba(255,255,255,0.18);
-    }
-    .lc-btn-secondary:hover { background:rgba(255,255,255,0.08); color:#fff; }
-
-    #lc-divider {
-      display:flex; align-items:center; gap:10px;
-      font-family:'Press Start 2P',monospace; font-size:5.5px;
-      color:rgba(255,255,255,0.30); letter-spacing:0.12em;
-    }
-    #lc-divider::before,#lc-divider::after {
-      content:''; flex:1; height:1px; background:rgba(255,255,255,0.15);
-    }
-
-    #lc-social { display:flex; gap:7px; }
-    .lc-social {
-      flex:1; display:flex; align-items:center; justify-content:center; gap:6px;
-      background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.18);
-      border-radius:8px; color:rgba(255,255,255,0.80);
-      font-family:'Press Start 2P',monospace; font-size:5px; letter-spacing:0.05em;
-      padding:10px 4px; cursor:pointer;
-      transition:background 0.15s, border-color 0.15s;
-    }
-    .lc-social:hover { background:rgba(255,255,255,0.16); border-color:rgba(255,255,255,0.38); color:#fff; }
-  </style>
   <script>
-    window._loginEnter = function() {
-      window._skipAutoChat = true;
-      var ls = document.getElementById('login-screen');
-      ls.style.transition = 'opacity 0.35s ease';
-      ls.style.opacity = '0';
-      ls.style.pointerEvents = 'none';
-      setTimeout(function(){ ls.style.visibility = 'hidden'; }, 370);
+    window._skipAutoChat = true;
+
+    // Verifica token ao carregar — se válido, pula login
+    (function() {
+      var token = localStorage.getItem('mv_token');
+      if (!token) return; // sem token → modal de login já está aberto por padrão
+
+      fetch('/api/auth/verify/', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        if (d.valid) {
+          // Token ok → fecha modal de login, libera o jogo
+          var modal = document.getElementById('ai-chat-modal');
+          if (modal) {
+            modal.classList.remove('login-mode');
+            modal.classList.remove('open');
+          }
+          // Exibe nome do usuário no HUD se existir
+          var user = localStorage.getItem('mv_user') || '';
+          window._mvUser = user;
+        } else {
+          // Token expirado ou inválido → limpa e mantém login
+          localStorage.removeItem('mv_token');
+          localStorage.removeItem('mv_user');
+        }
+      })
+      .catch(function() {
+        // Falha de rede → mantém login por segurança
+        localStorage.removeItem('mv_token');
+        localStorage.removeItem('mv_user');
+      });
+    })();
+
+    // Logout global
+    window._mvLogout = function() {
+      localStorage.removeItem('mv_token');
+      localStorage.removeItem('mv_user');
+      var modal = document.getElementById('ai-chat-modal');
+      if (modal) {
+        modal.classList.add('login-mode');
+        modal.classList.add('open');
+        if (window._aiTabSwitch) window._aiTabSwitch('login');
+      }
+      var err = document.getElementById('lc-error');
+      if (err) err.textContent = '';
+      var u = document.getElementById('lc-user');
+      var p = document.getElementById('lc-pass');
+      if (u) u.value = '';
+      if (p) p.value = '';
     };
   </script>
 
@@ -652,7 +574,7 @@ Author: Joon Sung Park (joonspk@stanford.edu)
   </div>
 
   <!-- *** CHAT AI (tecla T) *** -->
-  <div id="ai-chat-modal">
+  <div id="ai-chat-modal" class="open login-mode">
     <div id="ai-chat-main">
       <div id="ai-chat-topbar">
         <div id="ai-chat-tabs">
@@ -665,14 +587,47 @@ Author: Joon Sung Park (joonspk@stanford.edu)
           <button class="ai-tab" data-tab="settings" onclick="window._aiTabSwitch('settings')" title="Configurações">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06-.06a2 2 0 0 1-2.83-2.83l.06.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
           </button>
+          <button class="ai-tab" data-tab="downloads" onclick="window._aiTabSwitch('downloads')" title="Downloads">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </button>
         </div>
         <div id="ai-chat-active-info">
           <div id="ai-chat-active-dot"></div>
-          <span id="ai-chat-active-name">ASSISTENTE</span>
+          <span id="ai-chat-active-name"></span>
         </div>
         <button id="ai-chat-close-btn" onclick="window._aiChatClose()">&#x2715;</button>
       </div>
-      <div id="ai-chat-panel-chat" class="ai-panel tab-active">
+      <div id="ai-chat-panel-login" class="ai-panel tab-active">
+        <div id="lc-wrap">
+          <div id="lc-header">
+            <div id="lc-title">MINIVERSO</div>
+          </div>
+          <input class="lc-input" id="lc-user" type="text" placeholder="usuário ou e-mail" autocomplete="off">
+          <input class="lc-input" id="lc-pass" type="password" placeholder="senha">
+          <div id="lc-error"></div>
+          <div id="lc-actions">
+            <button class="lc-btn lc-btn-primary"   id="lc-btn-login"    onclick="window._lcSubmit('login')">ENTRAR</button>
+            <button class="lc-btn lc-btn-secondary" id="lc-btn-register" onclick="window._lcSubmit('register')">CADASTRAR</button>
+          </div>
+          <div id="lc-divider"><span>continuar com</span></div>
+          <div id="lc-social">
+            <button class="lc-social" onclick="window._loginEnter()">
+              <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+              Google
+            </button>
+            <button class="lc-social" onclick="window._loginEnter()">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+              Facebook
+            </button>
+            <button class="lc-social" onclick="window._loginEnter()">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+              Apple
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="ai-chat-panel-chat" class="ai-panel">
         <div id="ai-chat-messages"><div id="ai-chat-welcome"><span>Como posso ajudar?</span></div></div>
         <div id="ai-chat-input-row">
           <textarea id="ai-chat-ta" placeholder="Digite uma mensagem..." rows="1"></textarea>
@@ -701,7 +656,55 @@ Author: Joon Sung Park (joonspk@stanford.edu)
             <button class="cfg-glass-btn" onclick="window._toggleSound(this)">DESATIVADO</button>
           </div>
         </div>
+        <div class="cfg-glass-section">
+          <div class="cfg-glass-label">CONTA</div>
+          <div id="cfg-user-info" style="font-family:monospace;font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:8px;"></div>
+          <button class="cfg-glass-btn" style="color:#f87171;border-color:rgba(248,113,113,0.4);" onclick="window._mvLogout()">SAIR DA CONTA</button>
+        </div>
       </div>
+
+      <div id="ai-chat-panel-downloads" class="ai-panel">
+        <div class="cfg-glass-title">DOWNLOADS</div>
+        <div class="dl-list">
+          <div class="dl-card">
+            <div class="dl-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </div>
+            <div class="dl-info">
+              <div class="dl-name">Guia do Jogador</div>
+              <div class="dl-meta">PDF · 2.4 MB</div>
+            </div>
+            <button class="dl-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            </button>
+          </div>
+          <div class="dl-card">
+            <div class="dl-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            </div>
+            <div class="dl-info">
+              <div class="dl-name">Mapa da Cidade</div>
+              <div class="dl-meta">PNG · 8.1 MB</div>
+            </div>
+            <button class="dl-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            </button>
+          </div>
+          <div class="dl-card">
+            <div class="dl-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            </div>
+            <div class="dl-info">
+              <div class="dl-name">Trilha Sonora</div>
+              <div class="dl-meta">MP3 · 14.7 MB</div>
+            </div>
+            <button class="dl-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
   <style>
@@ -717,9 +720,9 @@ Author: Joon Sung Park (joonspk@stanford.edu)
 
     #ai-chat-main {
       flex:1; display:flex; flex-direction:column;
-      background:rgba(6,14,10,0.72);
-      backdrop-filter:blur(16px) saturate(1.4);
-      -webkit-backdrop-filter:blur(16px) saturate(1.4);
+      background:rgba(8,22,14,0.40);
+      backdrop-filter:blur(10px) saturate(1.3);
+      -webkit-backdrop-filter:blur(10px) saturate(1.3);
       border:1px solid rgba(255,255,255,0.16);
       border-radius:20px;
       box-shadow:0 12px 48px rgba(0,0,0,0.60), inset 0 1px 0 rgba(255,255,255,0.14);
@@ -762,10 +765,105 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     }
     #ai-chat-close-btn:hover { background:rgba(239,68,68,0.35); border-color:rgba(239,68,68,0.50); }
 
+    /* ── Login panel ── */
+    #ai-chat-panel-login { flex:1; }
+    #lc-header { text-align:center; margin-bottom:4px; }
+    #lc-title {
+      font-family:'Press Start 2P',monospace;
+      font-size:clamp(8px,1.6vw,11px); color:#fff;
+      letter-spacing:0.10em; margin-bottom:8px;
+      text-shadow:0 1px 8px rgba(0,0,0,0.5);
+    }
+    #lc-sub {
+      font-family:'Press Start 2P',monospace;
+      font-size:5.5px; color:rgba(255,255,255,0.45); letter-spacing:0.20em;
+    }
+    .lc-input {
+      width:100%; box-sizing:border-box;
+      background:rgba(255,255,255,0.10); border:1px solid rgba(255,255,255,0.25);
+      border-radius:8px; color:#fff; font-family:monospace; font-size:13px;
+      padding:11px 14px; outline:none;
+      transition:border-color 0.18s, background 0.18s;
+    }
+    .lc-input::placeholder { color:rgba(255,255,255,0.38); }
+    .lc-input:focus { border-color:rgba(255,255,255,0.60); background:rgba(255,255,255,0.16); }
+    .lc-btn {
+      flex:1; border-radius:8px; cursor:pointer;
+      font-family:'Press Start 2P',monospace; font-size:7.5px;
+      letter-spacing:0.10em; padding:12px 8px;
+      transition:background 0.15s, border-color 0.15s, transform 0.1s;
+    }
+    .lc-btn:active { transform:scale(0.97); }
+    .lc-btn-primary {
+      background:rgba(255,255,255,0.20); color:#fff;
+      border:1px solid rgba(255,255,255,0.45);
+    }
+    .lc-btn-primary:hover { background:rgba(255,255,255,0.30); border-color:rgba(255,255,255,0.65); }
+    .lc-btn-secondary {
+      background:transparent; color:rgba(255,255,255,0.65);
+      border:1px solid rgba(255,255,255,0.18);
+    }
+    .lc-btn-secondary:hover { background:rgba(255,255,255,0.08); color:#fff; }
+    #lc-divider {
+      display:flex; align-items:center; gap:10px;
+      font-family:'Press Start 2P',monospace; font-size:5.5px;
+      color:rgba(255,255,255,0.30); letter-spacing:0.12em;
+    }
+    #lc-divider::before,#lc-divider::after { content:''; flex:1; height:1px; background:rgba(255,255,255,0.15); }
+    .lc-social {
+      flex:1; display:flex; align-items:center; justify-content:center; gap:6px;
+      background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.18);
+      border-radius:8px; color:rgba(255,255,255,0.80);
+      font-family:'Press Start 2P',monospace; font-size:5px; letter-spacing:0.05em;
+      padding:10px 4px; cursor:pointer;
+      transition:background 0.15s, border-color 0.15s;
+    }
+    .lc-social:hover { background:rgba(255,255,255,0.16); border-color:rgba(255,255,255,0.38); color:#fff; }
+    #lc-error {
+      font-family:monospace; font-size:11px; color:#f87171;
+      text-align:center; min-height:0; transition:all 0.2s;
+    }
+    #lc-error:not(:empty) { padding:4px 0; }
+    .lc-btn:disabled { opacity:0.5; cursor:not-allowed; }
+
     /* ── Painéis ── */
-    #ai-chat-panel-chat    { flex:1; flex-direction:column; overflow:hidden; min-height:0; }
-    #ai-chat-panel-history { flex:1; overflow-y:auto; padding:20px 18px; }
-    #ai-chat-panel-settings{ flex:1; overflow-y:auto; padding:24px 22px; flex-direction:column; gap:22px; }
+    #ai-chat-panel-chat      { flex:1; flex-direction:column; overflow:hidden; min-height:0; }
+    #ai-chat-panel-history   { flex:1; overflow-y:auto; padding:20px 18px; }
+    #ai-chat-panel-settings  { flex:1; overflow-y:auto; padding:24px 22px; flex-direction:column; gap:22px; }
+    #ai-chat-panel-downloads { flex:1; overflow-y:auto; padding:24px 22px; flex-direction:column; gap:16px; }
+
+    /* ── Downloads ── */
+    .dl-list { display:flex; flex-direction:column; gap:10px; }
+    .dl-card {
+      display:flex; align-items:center; gap:14px;
+      background:rgba(255,255,255,0.06);
+      border:1px solid rgba(255,255,255,0.14);
+      border-radius:12px; padding:14px 16px;
+      transition:background 0.15s;
+    }
+    .dl-card:hover { background:rgba(255,255,255,0.11); }
+    .dl-icon {
+      width:40px; height:40px; border-radius:9px;
+      background:rgba(255,255,255,0.10);
+      border:1px solid rgba(255,255,255,0.18);
+      display:flex; align-items:center; justify-content:center;
+      color:rgba(255,255,255,0.75); flex-shrink:0;
+    }
+    .dl-info { flex:1; min-width:0; }
+    .dl-name {
+      font-family:'Press Start 2P',monospace; font-size:7px;
+      color:#fff; letter-spacing:0.08em; margin-bottom:5px;
+    }
+    .dl-meta { font-size:11px; color:rgba(255,255,255,0.45); font-family:monospace; }
+    .dl-btn {
+      width:34px; height:34px; border-radius:8px;
+      background:rgba(255,255,255,0.10);
+      border:1px solid rgba(255,255,255,0.22);
+      color:#fff; cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+      transition:background 0.15s; flex-shrink:0;
+    }
+    .dl-btn:hover { background:rgba(74,222,128,0.25); border-color:rgba(74,222,128,0.50); }
 
     /* ── Mensagens ── */
     #ai-chat-messages {
@@ -979,6 +1077,63 @@ Author: Joon Sung Park (joonspk@stanford.edu)
         });
       };
 
+      function _lcDone() {
+        var modal = document.getElementById('ai-chat-modal');
+        modal.classList.remove('login-mode');
+        modal.classList.remove('open');
+        window._aiTabSwitch('chat');
+      }
+
+      function _lcSetLoading(on) {
+        ['lc-btn-login','lc-btn-register'].forEach(function(id){
+          var b = document.getElementById(id);
+          if (b) b.disabled = on;
+        });
+      }
+
+      function _lcShowError(msg) {
+        var el = document.getElementById('lc-error');
+        if (el) el.textContent = msg;
+      }
+
+      window._lcSubmit = function(mode) {
+        var user = (document.getElementById('lc-user') || {}).value || '';
+        var pass = (document.getElementById('lc-pass') || {}).value || '';
+        _lcShowError('');
+
+        if (!user.trim() || !pass.trim()) {
+          _lcShowError('Preencha usuário e senha.');
+          return;
+        }
+
+        var endpoint = mode === 'register' ? '/api/auth/register/' : '/api/auth/login/';
+        var body = { password: pass };
+        if (user.indexOf('@') !== -1) { body.email = user; body.username = user.split('@')[0]; }
+        else { body.username = user; }
+
+        _lcSetLoading(true);
+        fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        })
+        .then(function(r) { return r.json().then(function(d){ return { ok: r.ok, data: d }; }); })
+        .then(function(res) {
+          _lcSetLoading(false);
+          if (!res.ok) { _lcShowError(res.data.error || 'Erro ao autenticar.'); return; }
+          localStorage.setItem('mv_token', res.data.token);
+          localStorage.setItem('mv_user',  res.data.username);
+          _lcDone();
+        })
+        .catch(function() {
+          _lcSetLoading(false);
+          _lcShowError('Erro de conexão. Tente novamente.');
+        });
+      };
+
+      // Compatibilidade com botões sociais (demo)
+      window._loginEnter = function() { _lcDone(); };
+
       window._aiTabSwitch = function(tab) {
         document.querySelectorAll('.ai-tab').forEach(function(b){ b.classList.remove('active'); });
         document.querySelectorAll('.ai-panel').forEach(function(p){ p.classList.remove('tab-active'); });
@@ -1018,9 +1173,13 @@ Author: Joon Sung Park (joonspk@stanford.edu)
       window._aiChatOpen = function() {
         if (!_modal) _init();
         _modal.classList.add('open');
-        setTimeout(function(){ document.getElementById('ai-chat-ta').focus(); }, 100);
+        // Atualiza nome do usuário no painel de config
+        var uinfo = document.getElementById('cfg-user-info');
+        if (uinfo) uinfo.textContent = 'Logado como: ' + (localStorage.getItem('mv_user') || '—');
+        setTimeout(function(){ var ta = document.getElementById('ai-chat-ta'); if(ta) ta.focus(); }, 100);
       };
       window._aiChatClose = function() {
+        if (_modal && _modal.classList.contains('login-mode')) return;
         if (_modal) _modal.classList.remove('open');
         document.getElementById('ai-chat-main').classList.remove('chatting');
         var cv = document.querySelector('#game-container canvas');
@@ -1128,9 +1287,8 @@ Author: Joon Sung Park (joonspk@stanford.edu)
   <script>
     window._fabOpen = function(target) {
       if (target === 'home') {
-        var s = document.getElementById('splash');
-        if (s) { s.style.display='flex'; s.style.opacity='1'; }
-        if (window._aiChatClose) window._aiChatClose();
+        if (window._aiChatOpen) window._aiChatOpen();
+        setTimeout(function(){ if (window._aiTabSwitch) window._aiTabSwitch('downloads'); }, 60);
       } else if (target === 'chat') {
         window._aiChatToggle();
       } else if (target === 'settings') {
@@ -1227,7 +1385,12 @@ Author: Joon Sung Park (joonspk@stanford.edu)
   <script>
     // ── OpenClaw WebSocket Gateway ──
     (function() {
-      var _wsUrl = (new URLSearchParams(window.location.search)).get('ws') || 'ws://localhost:3001/ws';
+      // Auto-detecção: ?ws=URL > variável de build > localhost em dev
+      var _wsUrl = (new URLSearchParams(window.location.search)).get('ws')
+        || (window._OPENCLAW_URL || null)   // injetado pelo servidor em produção
+        || (location.hostname === 'localhost' || location.hostname === '127.0.0.1'
+            ? 'ws://localhost:3001'
+            : null);                        // produção sem ?ws= → WS desabilitado (scripted fallback)
       var _ws = null;
       var _pending = {}; // { id: { cb, timer } }
       var _msgId = 0;
@@ -1241,6 +1404,7 @@ Author: Joon Sung Park (joonspk@stanford.edu)
       }
 
       function _wsConnect() {
+        if (!_wsUrl) return; // sem URL configurada → scripted fallback
         try {
           _ws = new WebSocket(_wsUrl);
         } catch(e) { _ws = null; return; }
@@ -1972,28 +2136,150 @@ Author: Joon Sung Park (joonspk@stanford.edu)
       } catch(e) { return '👋 Olá! É bom te ver por aqui!'; }
     };
 
+    // ── Personas: personalidade, papel e falas por NPC ──
+    var _NPC_PERSONAS = {
+      'Isabella Rodriguez': {
+        role: 'dona do café', emoji: '☕',
+        trait: 'calorosa e empreendedora',
+        greet:   ['Bem-vindo ao meu café! Posso te oferecer algo?', 'Oi! Que bom te ver por aqui hoje!', 'Entre, entre! O café está fresquinho.'],
+        doing:   ['Estou preparando o cardápio especial de hoje.', 'Acabei de fazer um lote de pão de queijo — vem experimentar!', 'Organizando as mesas antes do rush do almoço.'],
+        where:   ['No meu café, o melhor da cidade!', 'Aqui no café, como sempre. É minha segunda casa.'],
+        help:    ['Claro! Se precisar de um café ou um conselho, estou aqui.', 'É só falar! Aqui no café a gente resolve tudo.'],
+        money:   ['O segredo é tratar o cliente como família. Lucro vem depois.', 'Faturamento tá crescendo devagar, mas o cliente fiel vale ouro.'],
+        business:['Abri esse café do zero. Foi difícil, mas valeu cada centavo.', 'Dica de negócio: produto bom e atendimento melhor ainda.'],
+        bye:     ['Volte sempre! Deixo um café guardado pra você.', 'Até mais! Cuida-se!'],
+        generic: ['Aqui no café a gente ouve de tudo. Me conta mais.', 'Interessante. Enquanto preparo seu pedido, me explica melhor?', 'Boa questão! Deixa eu pensar enquanto limpo as mesas.']
+      },
+      'Maria Lopez': {
+        role: 'estudante', emoji: '📚',
+        trait: 'curiosa e determinada',
+        greet:   ['Oi! Tava estudando aqui, mas posso dar uma pausa.', 'Olá! Que bom ter companhia. Estudar sozinha cansa.'],
+        doing:   ['Estudando economia para a prova de amanhã.', 'Lendo sobre startups — quero abrir uma empresa algum dia.', 'Fazendo resumo de administração.'],
+        where:   ['Na biblioteca. Melhor lugar pra focar.', 'Aqui na praça, arejando a cabeça entre um estudo e outro.'],
+        help:    ['Posso tentar ajudar! Aprendi bastante coisa estudando.', 'Depende do assunto, mas pode perguntar!'],
+        money:   ['Tô estudando finanças justamente pra entender isso melhor.', 'Investimento é assunto que me fascina. Você investe em algo?'],
+        business:['Meu sonho é ter uma startup de impacto social.', 'Estou montando um plano de negócios como trabalho da faculdade.'],
+        bye:     ['Tchau! Preciso voltar aos estudos.', 'Até mais! Vai estudar também, tá?'],
+        generic: ['Que pergunta interessante! Vou pesquisar isso depois.', 'Hmm, me faz pensar. Na faculdade a gente debate isso às vezes.', 'Anota aí, parece um bom tema de TCC!']
+      },
+      'Klaus Mueller': {
+        role: 'pesquisador', emoji: '🔬',
+        trait: 'analítico e meticuloso',
+        greet:   ['Ah, uma visita! Raro, mas bem-vindo.', 'Bom dia. Estou no meio de uma análise, mas pode falar.'],
+        doing:   ['Analisando dados do meu último experimento.', 'Escrevendo um artigo sobre comportamento econômico em comunidades.', 'Revisando minha metodologia de pesquisa.'],
+        where:   ['No laboratório de pesquisa, onde mais?', 'No escritório. Os dados não analisam a si mesmos.'],
+        help:    ['Se for algo baseado em dados, posso ajudar.', 'Depende da questão. Seja específico — precisão é tudo.'],
+        money:   ['Economicamente falando, há três variáveis principais aqui...', 'Os dados mostram um padrão claro: quem reinveste cresce 3x mais rápido.'],
+        business:['Minha pesquisa mostra que 78% das empresas falham por falta de planejamento.', 'Do ponto de vista acadêmico, seu maior ativo é o conhecimento acumulado.'],
+        bye:     ['Preciso voltar à análise. Até mais.', 'Interessante conversa. Vá com dados — sempre.'],
+        generic: ['Necessito de mais informações para opinar com rigor.', 'Segundo minha pesquisa, isso depende de múltiplos fatores.', 'Hipótese interessante. Você tem dados que suportam isso?']
+      },
+      'Adam Smith': {
+        role: 'empresário', emoji: '💼',
+        trait: 'direto e ambicioso',
+        greet:   ['Oi. Seja rápido, minha agenda está lotada.', 'Olá! Pode falar, mas seja objetivo.'],
+        doing:   ['Fechando uma negociação importante.', 'Revisando o balanço trimestral.', 'Numa call com investidores.'],
+        where:   ['No escritório central. Onde mais eu estaria?', 'Saindo de uma reunião. Caminhando e pensando.'],
+        help:    ['Se for sobre negócios, posso orientar.', 'Depende. O que você precisa exatamente?'],
+        money:   ['Fluxo de caixa é tudo. Sem isso, não existe empresa.', 'Regra número um: nunca misture conta pessoal com a da empresa.'],
+        business:['Foco no produto, delegue o resto.', 'Escale o que funciona, mate o que não funciona. Simples assim.'],
+        bye:     ['Até mais. Vai trabalhar!', 'Bom papo. Agora preciso correr.'],
+        generic: ['Interessante. Qual o ROI disso?', 'Me convence em 30 segundos — é assim que funciona no mercado.', 'Simples: qual o problema e qual a solução? Isso é tudo.']
+      },
+      'Giorgio Rossi': {
+        role: 'artista e designer', emoji: '🎨',
+        trait: 'criativo e expressivo',
+        greet:   ['Ciao! Que bom ver alguém por aqui!', 'Oi! Você chegou na hora — estava precisando de inspiração.'],
+        doing:   ['Trabalhando num projeto de identidade visual.', 'Esboçando ideias para um novo cliente.', 'Fazendo aquarela da praça central.'],
+        where:   ['No ateliê. A luz aqui é perfeita hoje.', 'Na praça, desenhando o movimento das pessoas.'],
+        help:    ['Com identidade visual e branding, posso muito!', 'Se for sobre criatividade, pode contar comigo.'],
+        money:   ['Preço justo é preço que valoriza o trabalho criativo.', 'Cobrar barato devalua todo o mercado. Aprendi isso na marra.'],
+        business:['A estética vende. Empresa feia perde cliente antes de abrir a boca.', 'Branding não é luxo, é necessidade. O mercado sabe a diferença.'],
+        bye:     ['Arrivederci! Vai criar algo hoje!', 'Tchau! Pensa bonito!'],
+        generic: ['Hmm, isso me dá uma ideia visual...', 'A forma como você coloca isso tem uma estética interessante.', 'Criatividade resolve. Sempre tem um ângulo diferente pra ver.']
+      },
+      'Ryan Park': {
+        role: 'chef de cozinha', emoji: '👨‍🍳',
+        trait: 'apaixonado e perfeccionista',
+        greet:   ['Oi! Acabei de sair da cozinha, tô no intervalo.', 'Olá! Veio provar algo ou só conversar?'],
+        doing:   ['Criando uma receita nova para o menu de inverno.', 'Organizando o mise en place para o jantar.', 'Testando um molho que ainda não tá perfeito.'],
+        where:   ['No restaurante. Meu quartel-general.', 'Na cozinha do restaurante, claro.'],
+        help:    ['Se for sobre alimentação ou gestão de cozinha, posso ajudar!', 'Culinária, logística de restaurante — pode perguntar.'],
+        money:   ['Desperdício de ingrediente é dinheiro no lixo. Controlo tudo.', 'Margem de restaurante é apertada. Cada detalhe conta.'],
+        business:['Qualidade constante é o que faz cliente voltar.', 'Fornecedor confiável vale mais que fornecedor barato.'],
+        bye:     ['Tchau! Vai comer bem!', 'Até mais! Tenho que voltar pro fogo.'],
+        generic: ['Interessante. Na cozinha a gente aprende que paciência é ingrediente.', 'Tudo tem um timing. Apressar estraga qualquer coisa.', 'Boa ideia. Como um prato novo — precisa testar antes de servir.']
+      },
+      'Eddy Lin': {
+        role: 'músico', emoji: '🎵',
+        trait: 'sensível e colaborativo',
+        greet:   ['Oi! Tava ensaiando agora pouco.', 'Olá! A música pode esperar. Me conta.'],
+        doing:   ['Compondo uma música nova.', 'Ensaiando para o show do fim de semana.', 'Gravando uma demo no estúdio caseiro.'],
+        where:   ['No estúdio. A acústica aqui é boa.', 'Na praça, tocando pra quem passa.'],
+        help:    ['Se for sobre música ou expressão criativa, pode contar.', 'Posso ajudar! Música resolve muita coisa.'],
+        money:   ['Monetizar arte é um desafio. Mas tem como — aprendi a diversificar.', 'Shows, aulas, licenciamento... músico vive de várias fontes.'],
+        business:['A música me ensinou a ouvir antes de falar. Isso vale em qualquer negócio.', 'Colaboração bate competição. Sempre.'],
+        bye:     ['Tchau! Vai ouvir uma boa música hoje.', 'Até mais! Cria algo hoje!'],
+        generic: ['Isso soa bem. Me conta mais.', 'Tem uma melodia nessa ideia. Desenvolve.', 'Interessante ritmo de pensamento. Vai fundo.']
+      },
+      'Tom Moreno': {
+        role: 'advogado', emoji: '⚖️',
+        trait: 'cauteloso e metódico',
+        greet:   ['Olá. Em que posso ajudar?', 'Boa tarde. Pode falar, estou ouvindo.'],
+        doing:   ['Revisando um contrato importante.', 'Preparando uma petição para amanhã.', 'Estudando um caso novo.'],
+        where:   ['No escritório de advocacia, claro.', 'Na biblioteca jurídica — pesquisa é tudo.'],
+        help:    ['Na área jurídica posso orientar, sim.', 'Depende da questão, mas posso pelo menos indicar o caminho.'],
+        money:   ['Contrato mal feito custa caro. Sempre revise antes de assinar.', 'Planejamento tributário legal é obrigação, não opção.'],
+        business:['Formalizar a empresa cedo evita dor de cabeça depois.', 'Sociedade sem contrato social claro é bomba relógio.'],
+        bye:     ['Até mais. Qualquer dúvida jurídica, pode procurar.', 'Tchau. Leia os contratos antes de assinar.'],
+        generic: ['Juridicamente falando, isso depende de muitos fatores.', 'Interessante. Há precedentes para isso?', 'Preciso analisar com mais calma. Nada se resolve sem análise.']
+      }
+    };
+
     window._npcResponse = function(personaKey, playerMsg) {
       var name = personaKey.replace(/_/g, ' ');
       try {
-        var sd = (typeof all_movement!=='undefined' && typeof step!=='undefined') ? all_movement[step][name] : null;
-        var emoji = sd ? sd.pronunciatio : '💬';
-        var act  = sd ? sd.description.split('@')[0].trim() : 'my routine';
-        var loc  = sd && sd.description.includes('@') ? sd.description.split('@')[1].split(':').pop().trim() : 'town';
+        var sd  = (typeof all_movement!=='undefined' && typeof step!=='undefined') ? all_movement[step][name] : null;
+        var p   = _NPC_PERSONAS[name];
+        var emoji = (p && p.emoji) || (sd ? sd.pronunciatio : '💬');
+        var act   = sd ? sd.description.split('@')[0].trim() : (p ? 'minha rotina' : 'my routine');
+        var loc   = sd && sd.description.includes('@') ? sd.description.split('@')[1].split(':').pop().trim() : 'aqui';
         var m = playerMsg.toLowerCase();
-        if (m.match(/ol[aá]|^oi$|^hi$|hello/))          return emoji+' Olá! É sempre bom ver alguém novo por aqui!';
-        if (m.match(/fazendo|doing|what.*you|o que/))     return emoji+' Estou '+act+' agora. É minha rotina hoje.';
-        if (m.match(/onde|where|local|place|fica/))       return emoji+' Estou em '+loc+'. Venha me visitar quando quiser!';
-        if (m.match(/nome|name|quem é|who are/))          return emoji+' Sou '+name+'! Moro aqui em Smallville há anos.';
-        if (m.match(/tudo bem|como vai|how are|all good/))return emoji+' Tudo bem! Só '+act+' como de costume.';
-        if (m.match(/tchau|bye|adeus|xau|até/))           return emoji+' Até logo! Cuide-se por aí!';
-        if (m.match(/ajuda|help|preciso/))                return emoji+' Claro, posso tentar ajudar! O que você precisa?';
-        var generic = [
-          emoji+' Interessante! Estava pensando nisso também enquanto '+act+'.',
-          emoji+' Hmm, boa pergunta. Aqui em '+loc+' a gente acaba refletindo sobre tudo.',
-          emoji+' '+act+' me deixa com tempo pra pensar nessas coisas...',
-          emoji+' Que ideia! Vou pensar nisso enquanto continuo meu dia.'
+
+        function _pick(arr) { return arr[Math.floor(Math.random()*arr.length)]; }
+        function _pfx(arr)  { return emoji + ' ' + _pick(arr); }
+
+        if (p) {
+          if (m.match(/ol[aá]|^oi$|^hi$|hello|e aí|boa/))          return _pfx(p.greet);
+          if (m.match(/fazendo|doing|o que|what.*you|ocupad/))       return _pfx(p.doing);
+          if (m.match(/onde|where|local|place|fica|tá/))             return _pfx(p.where);
+          if (m.match(/nome|name|quem (é|és)|who are|se apresenta/)) return emoji + ' Sou ' + name + ', ' + p.role + '. ' + _pick(p.greet);
+          if (m.match(/tudo bem|como vai|how are|tá bem|okay/))      return emoji + ' ' + _pick(['Tudo ótimo!','Bem, obrigado!','Indo bem!']) + ' ' + _pick(p.doing);
+          if (m.match(/dinheiro|grana|dinheiro|lucro|faturar|ganhar|financ/)) return _pfx(p.money);
+          if (m.match(/negócio|empresa|negoc|trabalh|empreend|startup|mercado/)) return _pfx(p.business);
+          if (m.match(/ajuda|help|preciso|conselho|dica/))           return _pfx(p.help);
+          if (m.match(/tchau|bye|adeus|xau|até|até mais/))           return _pfx(p.bye);
+          var gens = p.generic.map(function(g){ return emoji+' '+g; });
+          gens.push(emoji+' Interessante! Isso tem tudo a ver com ser '+p.role+'.');
+          gens.push(emoji+' Enquanto '+act+', fico pensando em coisas assim...');
+          return _pick(gens);
+        }
+
+        // Fallback genérico para NPCs sem persona definida
+        if (m.match(/ol[aá]|^oi$|^hi$|hello/))           return emoji+' Olá! Bom te ver por aqui!';
+        if (m.match(/fazendo|doing|o que/))               return emoji+' Estou '+act+'. É minha rotina hoje.';
+        if (m.match(/onde|where|local/))                  return emoji+' Estou em '+loc+'.';
+        if (m.match(/nome|name|quem/))                    return emoji+' Sou '+name+'! Moro aqui há anos.';
+        if (m.match(/tudo bem|como vai/))                 return emoji+' Tudo bem! Só '+act+' como sempre.';
+        if (m.match(/tchau|bye|adeus/))                   return emoji+' Até logo! Cuide-se!';
+        if (m.match(/ajuda|help/))                        return emoji+' Claro, posso tentar ajudar!';
+        var gen = [
+          emoji+' Interessante! Estava pensando nisso enquanto '+act+'.',
+          emoji+' Aqui em '+loc+' a gente reflete sobre muita coisa.',
+          emoji+' '+act+' me dá tempo pra pensar nessas coisas.',
+          emoji+' Que ideia! Vou carregar isso comigo hoje.'
         ];
-        return generic[Math.floor(Math.random()*generic.length)];
+        return gen[Math.floor(Math.random()*gen.length)];
       } catch(e) { return '💬 Que interessante! Me conta mais.'; }
     };
   </script>
