@@ -1389,37 +1389,6 @@
 	    console.log('[NIGHT] ccBounds:', JSON.stringify(_cc2), '| GAME_W:', _GAME_W);
 	  }
 
-  // ── DEBUG CLICK — coordenadas via document (bypass UI) ──
-  window._dbScene = this;
-  {
-    var _dbEl = document.createElement('div');
-    _dbEl.style.cssText = 'position:fixed;top:8px;left:50%;transform:translateX(-50%);'
-      + 'background:rgba(0,0,0,0.9);color:#0ff;font:bold 14px monospace;'
-      + 'padding:6px 16px;border-radius:6px;border:1px solid #0ff;'
-      + 'pointer-events:none;z-index:99999;display:block;';
-    _dbEl.textContent = '🎯 CLIQUE em qualquer ponto do mapa';
-    document.body.appendChild(_dbEl);
-
-    document.addEventListener('click', function(e) {
-      var sc = window._dbScene;
-      if (!sc || !sc.cameras) return;
-      var cam = sc.cameras.main;
-      var canvas = document.querySelector('canvas');
-      if (!canvas) return;
-      var rect = canvas.getBoundingClientRect();
-      var cx = e.clientX - rect.left;
-      var cy = e.clientY - rect.top;
-      // escala CSS vs resolução interna
-      var scaleX = canvas.width / rect.width;
-      var scaleY = canvas.height / rect.height;
-      var wx = Math.round(cx * scaleX / cam.zoom + cam.scrollX);
-      var wy = Math.round(cy * scaleY / cam.zoom + cam.scrollY);
-      var tx = Math.floor(wx / 32);
-      var ty = Math.floor(wy / 32);
-      _dbEl.textContent = 'px(' + wx + ', ' + wy + ')   tile(' + tx + ', ' + ty + ')';
-      console.log('[DBG] px(' + wx + ',' + wy + ') tile(' + tx + ',' + ty + ')');
-    });
-  }
 
 }
 
