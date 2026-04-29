@@ -245,15 +245,71 @@
 	  _layers.forEach(function(l) { l.setCullPadding(8, 8); });
 
 
-	  // *** NIGHT OVERLAY — só tiles externos (sem RenderTexture) ***
+	  // *** NIGHT OVERLAY — exterior escurece, interiores (interiorGroundLayer) permanecem iluminados ***
 	  var _nightG = this.add.graphics().setDepth(3).setAlpha(0);
 	  _nightG.fillStyle(0x000d47, 1);
+	  // Tilemap (140×100 tiles): cobre todo exterior, pula tiles interiores
 	  for (var _ty = 0; _ty < 100; _ty++) {
 	    for (var _tx = 0; _tx < 140; _tx++) {
 	      if (!interiorGroundLayer.getTileAt(_tx, _ty)) _nightG.fillRect(_tx*32, _ty*32, 32, 32);
 	    }
 	  }
+	  // Rects da extensão direita serão adicionados ao final do create(), após BH ser calculado
 	  window._nightRT = _nightG;
+
+	  // *** ATMOSFERA NOTURNA — Lua, Estrelas, Luzes de Janela ***
+	  {
+	    var _atScene = this;
+
+	    // --- LUA ---
+	    var _moonG = _atScene.add.graphics().setDepth(4).setAlpha(0);
+	    _moonG.fillStyle(0xdde8ff, 1);
+	    _moonG.fillCircle(200, 120, 28);
+	    _moonG.fillStyle(0xc8d8ff, 0.3);
+	    _moonG.fillCircle(200, 120, 46); // halo externo
+	    _moonG.fillStyle(0xffffff, 0.7);
+	    _moonG.fillCircle(194, 114, 8);  // brilho interno
+	    window._moonG = _moonG;
+
+	    // --- ESTRELAS --- pontos brancos/azuis no exterior
+	    var _starsG = _atScene.add.graphics().setDepth(4).setAlpha(0);
+	    var _starRng = new Phaser.Math.RandomDataGenerator(['miniverso-stars']);
+	    var _starData = [];
+	    for (var _si = 0; _si < 180; _si++) {
+	      var _sx = _starRng.integerInRange(0, _GAME_W);
+	      var _sy = _starRng.integerInRange(0, _GAME_H);
+	      // só no exterior (não sobre tiles interiores)
+	      var _stx = Math.floor(_sx/32), _sty = Math.floor(_sy/32);
+	      if (_stx < 140 && _sty < 100 && interiorGroundLayer.getTileAt(_stx,_sty)) continue;
+	      var _sr = _starRng.realInRange(0.5, 2);
+	      var _sa = _starRng.realInRange(0.4, 1.0);
+	      var _sc2 = _starRng.pick([0xffffff, 0xddeeff, 0xc8d8ff, 0xffe8aa]);
+	      _starsG.fillStyle(_sc2, _sa);
+	      _starsG.fillRect(_sx, _sy, _sr*2, _sr*2);
+	      _starData.push({x:_sx, y:_sy, r:_sr, baseA:_sa, col:_sc2, phase:_starRng.realInRange(0,Math.PI*2)});
+	    }
+	    window._starsG = _starsG;
+	    window._starData = _starData;
+
+	    // --- LUZES DE JANELA --- tiles interiores adjacentes ao exterior
+	    var _winG = _atScene.add.graphics().setDepth(0.5).setAlpha(0); // depth 0.5 → atrás das árvores (0.9)
+	    for (var _wy2=1;_wy2<99;_wy2++) {
+	      for (var _wx2=1;_wx2<138;_wx2++) { // exclui borda x=138 que causava quadrados sobre o jardim
+	        if (!interiorGroundLayer.getTileAt(_wx2,_wy2)) continue;
+	        // adjacente a tile com exteriorGroundLayer real (não borda vazia do mapa)
+	        var _adjExt = (exteriorGroundLayer.getTileAt(_wx2-1,_wy2) && !interiorGroundLayer.getTileAt(_wx2-1,_wy2))
+	                   || (exteriorGroundLayer.getTileAt(_wx2+1,_wy2) && !interiorGroundLayer.getTileAt(_wx2+1,_wy2))
+	                   || (exteriorGroundLayer.getTileAt(_wx2,_wy2-1) && !interiorGroundLayer.getTileAt(_wx2,_wy2-1))
+	                   || (exteriorGroundLayer.getTileAt(_wx2,_wy2+1) && !interiorGroundLayer.getTileAt(_wx2,_wy2+1));
+	        if (_adjExt) {
+	          _winG.fillStyle(0xffe97a, 0.28);
+	          _winG.fillRect(_wx2*32+2, _wy2*32+2, 28, 28);
+	        }
+	      }
+	    }
+	    window._winG = _winG;
+	    window._nightTick = 0;
+	  }
 
 	  // *** SET UP CAMERA *** 
 	  // "player" is to be set as the center of mass for our "camera." We 
@@ -768,12 +824,8 @@
 	      // Registra e coloca no mundo
 	      _sc.textures.addCanvas('_office_bld', bC);
 	      _sc.add.image(BX, BY, '_office_bld').setOrigin(0,0).setDepth(0.65);
+	      window._ccBounds = {x:BX, y:BY, w:BW, h:BH}; // guardado para overlay noturno
 
-	      // Árvores no jardim de entrada (acima do call center)
-	      [[X+8,32],[X+Math.floor(W*0.4),60],[X+W-80,24]
-	      ].forEach(function(t){
-	        _sc.add.image(t[0],t[1],'_beach_tree_sprite').setOrigin(0,0).setDepth(0.9);
-	      });
 
 	    })(this);
 
@@ -851,8 +903,9 @@
 	      _sc2.add.image(oX,oY,'_office2_bld').setOrigin(0,0).setDepth(0.65);
 
 	      // Árvore entre os dois edifícios
-	      _sc2.add.image(X2+8, _offY-56, '_beach_tree_sprite').setOrigin(0,0).setDepth(0.9);
-	      _sc2.add.image(X2+W2-72, _offY-56, '_beach_tree_sprite').setOrigin(0,0).setDepth(0.9);
+	      var _ot1 = _sc2.add.image(X2+8, _offY-56, '_beach_tree_sprite').setOrigin(0,0).setDepth(0.9);
+	      var _ot2 = _sc2.add.image(X2+W2-72, _offY-56, '_beach_tree_sprite').setOrigin(0,0).setDepth(0.9);
+	      window._offTrees = [_ot1, _ot2];
 
 	    })(this);
 
@@ -1067,7 +1120,9 @@
 	    _walkable.push([]); _extGrid.push([]);
 	    for (var _wx = 0; _wx < 140; _wx++) {
 	      var _blocked = collisionsLayer.getTileAt(_wx, _wy);
-	      _walkable[_wy].push(!_blocked);
+	      var _ground  = exteriorGroundLayer.getTileAt(_wx, _wy) || interiorGroundLayer.getTileAt(_wx, _wy);
+	      var _decor   = exteriorDecorationL1Layer.getTileAt(_wx, _wy) || exteriorDecorationL2Layer.getTileAt(_wx, _wy);
+	      _walkable[_wy].push(!_blocked && !!_ground && !_decor);
 	      _extGrid[_wy].push(!interiorGroundLayer.getTileAt(_wx, _wy));
 	    }
 	  }
@@ -1114,6 +1169,45 @@
 	  window._clones = _clones;
 	  window._validTiles = _validTiles;
 	  window._occupied = _occupied;
+
+	  // *** INDOOR TILES — slots de descanso noturno por prédio ***
+	  // Tenta tiles interiores caminháveis; fallback: todos os tiles interiores
+	  var _rawIn = [];
+	  for (var _iy=1;_iy<99;_iy++) for (var _ix=1;_ix<139;_ix++)
+	    if (interiorGroundLayer.getTileAt(_ix,_iy) && _walkable[_iy][_ix])
+	      _rawIn.push({tx:_ix,ty:_iy});
+	  if (_rawIn.length === 0) { // fallback: sem exigir walkable
+	    for (var _iy=1;_iy<99;_iy++) for (var _ix=1;_ix<139;_ix++)
+	      if (interiorGroundLayer.getTileAt(_ix,_iy))
+	        _rawIn.push({tx:_ix,ty:_iy});
+	    console.log('[NIGHT] fallback: todos tiles interiores (sem filtro walkable)');
+	  }
+	  // Flood-fill para agrupar por prédio
+	  var _inSeen={}, _inGroups=[];
+	  for (var _ig=0;_ig<_rawIn.length;_ig++){
+	    var _it=_rawIn[_ig], _ik=_it.ty*140+_it.tx;
+	    if(_inSeen[_ik])continue;
+	    var _grp=[],_q2=[_it]; _inSeen[_ik]=true;
+	    while(_q2.length){
+	      var _cur=_q2.shift(); _grp.push(_cur);
+	      [[1,0],[-1,0],[0,1],[0,-1]].forEach(function(d){
+	        var nx=_cur.tx+d[0],ny=_cur.ty+d[1],nk=ny*140+nx;
+	        if(!_inSeen[nk]&&interiorGroundLayer.getTileAt(nx,ny)&&_walkable[ny][nx]){_inSeen[nk]=true;_q2.push({tx:nx,ty:ny});}
+	      });
+	    }
+	    _inGroups.push(_grp);
+	  }
+	  window._inGroups = _inGroups;
+	  console.log('[NIGHT] indoor tiles walkable:', _rawIn.length, '| grupos/predios:', _inGroups.length);
+	  // Distribuir clones pelos prédios proporcionalmente
+	  if (_inGroups.length > 0) {
+	    for (var _nci=0; _nci<_clones.length; _nci++) {
+	      var _gIdx = Math.floor(_nci / _clones.length * _inGroups.length);
+	      _gIdx = Math.min(_gIdx, _inGroups.length-1);
+	      var _grpTiles = _inGroups[_gIdx];
+	      _clones[_nci].nightSlot = _grpTiles[Math.floor(Math.random()*_grpTiles.length)];
+	    }
+	  }
 
 	  // *** ANIMAIS — Canvas 2D (não-bloqueante) + Tweens ***
 	  var _aScene = this;
@@ -1223,6 +1317,27 @@
 	  }
 	  // Somente tiles da maior região — BFS entre eles sempre tem caminho
 	  var _anVt=_anVtRaw.filter(function(t){return _bestComp[t.ty*140+t.tx];});
+	  // BFS completo (exterior + interior) — para navegação noturna dos clones
+	  window._bfsAll=function(sx,sy,ex,ey){
+	    if(sx===ex&&sy===ey)return[];
+	    var par={},q=[sy*140+sx];par[sy*140+sx]=-1;
+	    var nb=[[1,0],[-1,0],[0,1],[0,-1]];
+	    while(q.length){
+	      var cur=q.shift(),cx=cur%140,cy=Math.floor(cur/140);
+	      for(var i=0;i<4;i++){
+	        var ntx=cx+nb[i][0],nty=cy+nb[i][1];
+	        if(ntx<0||ntx>139||nty<0||nty>99)continue;
+	        if(!window._walkable[nty][ntx])continue;
+	        var nk=nty*140+ntx;if(nk in par)continue;
+	        par[nk]=cur;
+	        if(ntx===ex&&nty===ey){
+	          var p=[],k=nk;while(par[k]!==-1){p.unshift({tx:k%140,ty:Math.floor(k/140)});k=par[k];}return p;
+	        }
+	        q.push(nk);
+	      }
+	    }
+	    return null;
+	  };
 	  // BFS exterior — armazenado em window para uso no update()
 	  window._bfs=function(sx,sy,ex,ey){
 	    if(sx===ex&&sy===ey)return[];
@@ -1259,6 +1374,52 @@
 	      window._animals.push({sp:_asp,wps:_wps,wi:1,tx:_avt.tx,ty:_avt.ty,path:[],pi:0,delay:_ai*8+_aj*3});
 	    }
 	  }
+
+	  // Overlay extensão direita — cobre TUDO (x >= 4480, y = 0 até 5000)
+	  {
+	    var _cc2 = window._ccBounds || {x:4480,y:288,w:512,h:2096};
+	    var _extG = this.add.graphics().setDepth(100).setAlpha(0);
+	    _extG.fillStyle(0x000d47,1);
+	    _extG.fillRect(_cc2.x, 0, _GAME_W - _cc2.x, 5000); // cobre extensão inteira
+	    window._nightExt = _extG;
+	    // Log árvores do escritório para debug
+	    if (window._offTrees) window._offTrees.forEach(function(t,i){
+	      console.log('[DBG] offTree'+i+': x='+t.x+' y='+t.y+' tile('+Math.floor(t.x/32)+','+Math.floor(t.y/32)+')');
+	    });
+	    console.log('[NIGHT] ccBounds:', JSON.stringify(_cc2), '| GAME_W:', _GAME_W);
+	  }
+
+  // ── DEBUG CLICK — coordenadas via document (bypass UI) ──
+  window._dbScene = this;
+  {
+    var _dbEl = document.createElement('div');
+    _dbEl.style.cssText = 'position:fixed;top:8px;left:50%;transform:translateX(-50%);'
+      + 'background:rgba(0,0,0,0.9);color:#0ff;font:bold 14px monospace;'
+      + 'padding:6px 16px;border-radius:6px;border:1px solid #0ff;'
+      + 'pointer-events:none;z-index:99999;display:block;';
+    _dbEl.textContent = '🎯 CLIQUE em qualquer ponto do mapa';
+    document.body.appendChild(_dbEl);
+
+    document.addEventListener('click', function(e) {
+      var sc = window._dbScene;
+      if (!sc || !sc.cameras) return;
+      var cam = sc.cameras.main;
+      var canvas = document.querySelector('canvas');
+      if (!canvas) return;
+      var rect = canvas.getBoundingClientRect();
+      var cx = e.clientX - rect.left;
+      var cy = e.clientY - rect.top;
+      // escala CSS vs resolução interna
+      var scaleX = canvas.width / rect.width;
+      var scaleY = canvas.height / rect.height;
+      var wx = Math.round(cx * scaleX / cam.zoom + cam.scrollX);
+      var wy = Math.round(cy * scaleY / cam.zoom + cam.scrollY);
+      var tx = Math.floor(wx / 32);
+      var ty = Math.floor(wy / 32);
+      _dbEl.textContent = 'px(' + wx + ', ' + wy + ')   tile(' + tx + ', ' + ty + ')';
+      console.log('[DBG] px(' + wx + ',' + wy + ') tile(' + tx + ',' + ty + ')');
+    });
+  }
 
 }
 
@@ -1508,8 +1669,38 @@
 	    var _cspd = 3; // levemente mais lento que movement_speed (4)
 	    var _occ = window._occupied;
 	    var _vt = window._validTiles;
+	    var _cgh = window.start_datetime ? (window.start_datetime.getHours() + window.start_datetime.getMinutes()/60) : 12;
+	    var _cIsNight = (_cgh >= 18.0 || _cgh < 6.0);
 	    for (var _ci = 0; _ci < window._clones.length; _ci++) {
 	      var _cl = window._clones[_ci];
+	      // Transição dia→noite: teleporte direto (coberto pelo overlay que já está escurecendo)
+	      if (_cIsNight && !_cl.sleeping && _cl.nightSlot) {
+	        _cl.sleeping = true; _cl.nightArrived = true;
+	        delete _occ[_cl.tileY*140+_cl.tileX];
+	        var _ns=_cl.nightSlot;
+	        // Garantir tile não ocupado — pegar alternativo do mesmo grupo se necessário
+	        var _nsKey=_ns.ty*140+_ns.tx;
+	        if (_occ[_nsKey] && window._inGroups) {
+	          var _grp=window._inGroups[Math.floor(_ci/window._clones.length*window._inGroups.length)%window._inGroups.length];
+	          for (var _gi=0;_gi<_grp.length;_gi++){var _t=_grp[_gi];var _tk=_t.ty*140+_t.tx;if(!_occ[_tk]){_ns=_t;_nsKey=_tk;break;}}
+	        }
+	        _cl.tileX=_ns.tx;_cl.tileY=_ns.ty;_cl.tx=_ns.tx*32+16;_cl.ty=_ns.ty*32+16;
+	        _cl.s.x=_cl.tx;_cl.s.y=_cl.ty;_cl.dtx=_ns.tx;_cl.dty=_ns.ty;
+	        _occ[_nsKey]=true;
+	        _cl.moving=false;_cl.stuck=0;
+	        _cl.s.anims.stop();_cl.s.setFrame('down');
+	      }
+	      // Transição noite→dia: sair do prédio (dest aleatório exterior)
+	      if (!_cIsNight && _cl.sleeping) {
+	        _cl.sleeping=false; _cl.nightPath=null; _cl.nightArrived=false;
+	        var _wakeD=_vt[Math.floor(Math.random()*_vt.length)];
+	        _cl.dtx=_wakeD.tx; _cl.dty=_wakeD.ty; _cl.wait=0; _cl.stuck=0;
+	      }
+	      // Guard: dormindo no destino final → sem movimento
+	      if (_cl.sleeping && _cl.nightArrived) {
+	        if (_cl.bubbleTimer>0){_cl.bubbleTimer--;_cl.bubble.x=_cl.s.x+50;_cl.bubble.y=_cl.s.y-30;_cl.btext.x=_cl.s.x+12;_cl.btext.y=_cl.s.y-50;if(_cl.bubbleTimer===0){_cl.bubble.setAlpha(0);_cl.btext.setAlpha(0);}}
+	        continue;
+	      }
 	      if (_cl.moving) {
 	        var _cdx = _cl.tx - _cl.s.x, _cdy = _cl.ty - _cl.s.y;
 	        if (Math.abs(_cdx) <= _cspd && Math.abs(_cdy) <= _cspd) {
@@ -1517,7 +1708,8 @@
 	          _cl.moving = false; _cl.stuck = 0;
 	          if (_cl.tileX === _cl.dtx && _cl.tileY === _cl.dty) {
 	            _cl.s.anims.stop();
-	            _cl.wait = 180 + Math.floor(Math.random() * 420);
+	            // Modo noite: só trava ao chegar no destino final (nightArrived), waypoints intermediários: wait=0
+	            _cl.wait = (_cl.sleeping && _cl.nightArrived) ? 99999 : (_cl.sleeping ? 0 : 180 + Math.floor(Math.random() * 420));
 	            if (Math.random() < 0.4 && !_cl.bubbleTimer) {
 	              var _e = window._cloneEmojis[Math.floor(Math.random()*window._cloneEmojis.length)];
 	              _cl.btext.setText(_e); _cl.bubble.setAlpha(1); _cl.btext.setAlpha(1);
@@ -1541,8 +1733,18 @@
 	        _cl.wait--;
 	      } else {
 	        if (_cl.tileX === _cl.dtx && _cl.tileY === _cl.dty || _cl.stuck >= 5) {
-	          var _nd = _vt[Math.floor(Math.random() * _vt.length)];
-	          _cl.dtx = _nd.tx; _cl.dty = _nd.ty; _cl.stuck = 0;
+	          if (_cl.sleeping && _cl.nightArrived) { _cl.wait = 99999; } // chegou — não sai
+	          else if (_cl.sleeping && _cl.stuck >= 3 && !_cl.nightArrived && _cl.nightSlot) {
+	            // Travado no caminho → teletransportar direto para o slot
+	            delete _occ[_cl.tileY*140+_cl.tileX];
+	            var _ns2=_cl.nightSlot;
+	            _cl.tileX=_ns2.tx;_cl.tileY=_ns2.ty;_cl.tx=_ns2.tx*32+16;_cl.ty=_ns2.ty*32+16;
+	            _cl.s.x=_cl.tx;_cl.s.y=_cl.ty;_cl.dtx=_ns2.tx;_cl.dty=_ns2.ty;
+	            _occ[_ns2.ty*140+_ns2.tx]=true;
+	            _cl.nightPath=null;_cl.nightArrived=true;_cl.moving=false;_cl.stuck=0;_cl.wait=0;
+	            _cl.s.anims.stop();_cl.s.setFrame('down');
+	          }
+	          else if (!_cl.sleeping) { var _nd = _vt[Math.floor(Math.random() * _vt.length)]; _cl.dtx = _nd.tx; _cl.dty = _nd.ty; _cl.stuck = 0; }
 	        }
 	        var _ddx = _cl.dtx - _cl.tileX, _ddy = _cl.dty - _cl.tileY;
 	        var _sx = _ddx > 0 ? 1 : _ddx < 0 ? -1 : 0;
@@ -1760,6 +1962,41 @@
     }
 
 	  execute_count -= 1;
+
+	  // *** DIA/NOITE — atualiza overlay conforme hora do relógio do jogo ***
+	  if (window._nightRT) {
+	    var _gh = window.start_datetime.getHours() + window.start_datetime.getMinutes() / 60;
+	    var _na = 0;
+	    if      (_gh >= 18.5 || _gh < 5.5) { _na = 0.72; }
+	    else if (_gh >= 18   && _gh < 18.5){ _na = (_gh - 18) / 0.5 * 0.72; }
+	    else if (_gh >= 5.5  && _gh < 6)   { _na = (1 - (_gh - 5.5) / 0.5) * 0.72; }
+	    else                               { _na = 0; }
+
+	    window._nightRT.setAlpha(_na);
+	    if (window._nightExt) window._nightExt.setAlpha(_na);
+
+	    // Lua e estrelas
+	    if (window._moonG) window._moonG.setAlpha(_na);
+	    if (window._winG)  window._winG.setAlpha(0);
+
+	    // Estrelas piscando
+	    if (window._starsG && window._starData && _na > 0.1) {
+	      window._nightTick = (window._nightTick||0) + 1;
+	      if (window._nightTick % 4 === 0) { // atualiza a cada 4 frames
+	        window._starsG.clear();
+	        var _tick = window._nightTick * 0.015;
+	        for (var _sdi=0; _sdi<window._starData.length; _sdi++) {
+	          var _sd = window._starData[_sdi];
+	          var _flicker = 0.6 + 0.4 * Math.sin(_tick + _sd.phase);
+	          window._starsG.fillStyle(_sd.col, _sd.baseA * _flicker * _na);
+	          window._starsG.fillRect(_sd.x, _sd.y, _sd.r*2, _sd.r*2);
+	        }
+	      }
+	      window._starsG.setAlpha(1);
+	    } else if (window._starsG) {
+	      window._starsG.setAlpha(0);
+	    }
+	  }
 	}
 
 	// Control button binders
