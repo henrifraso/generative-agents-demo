@@ -1798,7 +1798,7 @@
     	  continue;
     	}
 
-    	if (curr_persona_name.replace("_", " ") in all_movement[step]) {
+    	if (all_movement[step] && curr_persona_name.replace("_", " ") in all_movement[step]) {
     		if (execute_count == execute_count_max) { 
     			let curr_x = all_movement[step][curr_persona_name.replace("_", " ")]["movement"][0]
 	        let curr_y = all_movement[step][curr_persona_name.replace("_", " ")]["movement"][1]
@@ -1924,6 +1924,7 @@
 	    }
 			execute_count = execute_count_max + 1;
 	    step = step + 1;
+	    if (!all_movement[step]) step = 0; // reinicia ao fim dos dados
 
 	    start_datetime = new Date(start_datetime.getTime() + step_size);
     window.start_datetime = start_datetime;

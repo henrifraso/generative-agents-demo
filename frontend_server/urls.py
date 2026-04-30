@@ -37,7 +37,7 @@ def serve_manifest(request):
     return FileResponse(open(_find_static('manifest.json'), 'rb'), content_type='application/manifest+json')
 
 SIM  = 'July1_the_ville_isabella_maria_klaus-step-3-20'
-STEP = '1'
+STEP = '4320'  # meio-dia (step 0 = meia-noite, +10s/step → 4320*10s = 12h)
 SPEED = '3'
 
 urlpatterns = [
