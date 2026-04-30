@@ -19,7 +19,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.shortcuts import redirect
 from django.http import FileResponse, HttpResponse
-import os
+import os, datetime
 
 from translator import views as translator_views
 
@@ -36,9 +36,14 @@ def serve_sw(request):
 def serve_manifest(request):
     return FileResponse(open(_find_static('manifest.json'), 'rb'), content_type='application/manifest+json')
 
-SIM  = 'July1_the_ville_isabella_maria_klaus-step-3-20'
-STEP = '4320'  # meio-dia (step 0 = meia-noite, +10s/step → 4320*10s = 12h)
+SIM   = 'July1_the_ville_isabella_maria_klaus-step-3-20'
 SPEED = '3'
+
+def _brasilia_step():
+    # UTC-3 — sem depender de pytz
+    now = datetime.datetime.utcnow() - datetime.timedelta(hours=3)
+    secs = now.hour * 3600 + now.minute * 60 + now.second
+    return str(secs // 10)  # sec_per_step = 10
 
 urlpatterns = [
     url(r'^version/$', lambda req: HttpResponse('DEPLOY-OK-v2', content_type='text/plain'), name='version'),
@@ -51,7 +56,7 @@ urlpatterns = [
     url(r'^api/room/join/$',   translator_views.mp_room_join,   name='mp_join'),
     url(r'^api/room/start/$',  translator_views.mp_room_start,  name='mp_start'),
     url(r'^api/sync/$',        translator_views.mp_sync,         name='mp_sync'),
-    url(r'^$', lambda req: redirect(f'/demo/{SIM}/{STEP}/{SPEED}/'), name='landing'),
+    url(r'^$', lambda req: redirect(f'/demo/{SIM}/{_brasilia_step()}/{SPEED}/'), name='landing'),
     url(r'^simulator_home$', translator_views.home, name='home'),
     url(r'^demo/(?P<sim_code>[\w-]+)/(?P<step>[\w-]+)/(?P<play_speed>[\w-]+)/$', translator_views.demo, name='demo'),
     url(r'^replay/(?P<sim_code>[\w-]+)/(?P<step>[\w-]+)/$', translator_views.replay, name='replay'),
