@@ -1389,6 +1389,14 @@
 	    console.log('[NIGHT] ccBounds:', JSON.stringify(_cc2), '| GAME_W:', _GAME_W);
 	  }
 
+  // Inicializa relógio noturno com hora de Brasília (start_datetime já sincronizado)
+  {
+    var _sd = window.start_datetime;
+    window._nightStartMs = _sd
+      ? (_sd.getHours() * 3600 + _sd.getMinutes() * 60 + _sd.getSeconds()) * 1000
+      : 0;
+    window._nightAccumMs = 0;
+  }
 
 }
 
@@ -1638,7 +1646,7 @@
 	    var _cspd = 3; // levemente mais lento que movement_speed (4)
 	    var _occ = window._occupied;
 	    var _vt = window._validTiles;
-	    var _cgh = window.start_datetime ? (window.start_datetime.getHours() + window.start_datetime.getMinutes()/60) : 12;
+	    var _cgh = window._nightStartMs !== undefined ? (((window._nightStartMs + (window._nightAccumMs||0)) % 86400000) / 3600000) : 12;
 	    var _cIsNight = (_cgh >= 18.0 || _cgh < 6.0);
 	    for (var _ci = 0; _ci < window._clones.length; _ci++) {
 	      var _cl = window._clones[_ci];
@@ -1933,9 +1941,11 @@
 
 	  execute_count -= 1;
 
-	  // *** DIA/NOITE — atualiza overlay conforme hora do relógio do jogo ***
+	  // *** DIA/NOITE — relógio próprio a 6x tempo real (1 dia real = 6 dias no jogo) ***
 	  if (window._nightRT) {
-	    var _gh = window.start_datetime.getHours() + window.start_datetime.getMinutes() / 60;
+	    window._nightAccumMs = (window._nightAccumMs || 0) + delta * 6;
+	    var _nightMs = (window._nightStartMs + window._nightAccumMs) % 86400000;
+	    var _gh = _nightMs / 3600000; // horas 0–24
 	    var _na = 0;
 	    if      (_gh >= 18.5 || _gh < 5.5) { _na = 0.72; }
 	    else if (_gh >= 18   && _gh < 18.5){ _na = (_gh - 18) / 0.5 * 0.72; }
