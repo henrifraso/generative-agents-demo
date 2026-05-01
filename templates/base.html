@@ -121,9 +121,7 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     (function() {
       var token = localStorage.getItem('mv_token');
       if (!token) {
-        // Sem token → aguarda mapa base carregar, depois exibe login
-        window._pendingLogin = true;
-        return;
+        return; // modal já está open no HTML com animation-delay
       }
 
       fetch('/api/auth/verify/', {
@@ -580,7 +578,7 @@ Author: Joon Sung Park (joonspk@stanford.edu)
   </div>
 
   <!-- *** CHAT AI (tecla T) *** -->
-  <div id="ai-chat-modal" class="login-mode">
+  <div id="ai-chat-modal" class="login-mode open">
     <div id="ai-chat-main">
       <div id="ai-chat-topbar">
         <div id="ai-chat-tabs">
@@ -1331,10 +1329,22 @@ Author: Joon Sung Park (joonspk@stanford.edu)
       opacity:1 !important; transform:translate(-50%,-50%) scale(1) !important;
       pointer-events:all !important;
     }
+    /* Login inicial: atrasa fade-in para canvas renderizar primeiro */
+    @keyframes mvLoginReveal {
+      from { opacity:0; pointer-events:none; }
+      to   { opacity:1; pointer-events:all; }
+    }
+    #ai-chat-modal.login-mode.open {
+      animation: mvLoginReveal 0.35s ease 1.1s forwards;
+      transition: none;
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
     /* Transição de abertura — mobile (sem translate) */
     @media (max-width:768px) {
-      #ai-chat-modal        { transform:scale(0.96) !important; }
-      #ai-chat-modal.open   { transform:scale(1)    !important; }
+      #ai-chat-modal             { transform:scale(0.96) !important; }
+      #ai-chat-modal.open        { transform:scale(1)    !important; }
+      #ai-chat-modal.login-mode.open { transform:scale(1) !important; }
     }
   </style>
   <script>
