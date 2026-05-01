@@ -169,6 +169,15 @@
 	  this.load.image('speech_bubble', "{% static 'assets/speech_bubble/v3.png' %}");
 	  this.load.image('beach_tree',  "{% static 'assets/beach_tree.png' %}");
 	  this.load.image('beach_grass', "{% static 'assets/beach_grass.png' %}");
+
+	  // Exibe login assim que assets terminam de baixar (canvas já inicializado)
+	  // create() ainda vai rodar pesado, mas usuário já vê login no mobile
+	  this.load.on('complete', function() {
+	    if (window._pendingLogin) {
+	      var _m = document.getElementById('ai-chat-modal');
+	      if (_m) _m.classList.add('open');
+	    }
+	  });
 	}
 
 	function create() {
@@ -1397,16 +1406,6 @@
       ? (_sd.getHours() * 3600 + _sd.getMinutes() * 60 + _sd.getSeconds()) * 1000
       : 0;
     window._nightAccumMs = 0;
-  }
-
-  // Exibe login após o primeiro frame renderizado (tilemap já visível)
-  if (window._pendingLogin) {
-    requestAnimationFrame(function() {
-      requestAnimationFrame(function() {
-        var _m = document.getElementById('ai-chat-modal');
-        if (_m) _m.classList.add('open');
-      });
-    });
   }
 
 }
