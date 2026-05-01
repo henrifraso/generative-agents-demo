@@ -121,8 +121,11 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     (function() {
       var token = localStorage.getItem('mv_token');
       if (!token) {
-        // Sem token → aguarda o jogo carregar, depois exibe login
-        window._pendingLogin = true;
+        // Sem token → exibe login após 1.2s (canvas já apareceu)
+        setTimeout(function() {
+          var _m = document.getElementById('ai-chat-modal');
+          if (_m) _m.classList.add('open');
+        }, 1200);
         return;
       }
 
