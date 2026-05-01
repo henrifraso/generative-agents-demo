@@ -1115,6 +1115,14 @@ Author: Joon Sung Park (joonspk@stanford.edu)
         var pass = (document.getElementById('lc-pass') || {}).value || '';
         _lcShowError('');
 
+        if (!user.trim() && !pass.trim()) {
+          // Entrada sem cadastro — visitante anônimo
+          localStorage.setItem('mv_user', 'visitante' + Math.floor(Math.random()*9999));
+          localStorage.removeItem('mv_token');
+          _lcDone();
+          return;
+        }
+
         if (!user.trim() || !pass.trim()) {
           _lcShowError('Preencha usuário e senha.');
           return;
