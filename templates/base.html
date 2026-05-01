@@ -612,8 +612,8 @@ Author: Joon Sung Park (joonspk@stanford.edu)
           <input class="lc-input" id="lc-pass" type="password" placeholder="senha">
           <div id="lc-error"></div>
           <div id="lc-actions">
-            <button class="lc-btn lc-btn-primary"   id="lc-btn-login"    onclick="window._lcSubmit('login')"    ontouchstart="this.click()">ENTRAR</button>
-            <button class="lc-btn lc-btn-secondary" id="lc-btn-register" onclick="window._lcSubmit('register')" ontouchstart="this.click()">CADASTRAR</button>
+            <button class="lc-btn lc-btn-primary"   id="lc-btn-login"    onclick="window._lcSubmit('login')">ENTRAR</button>
+            <button class="lc-btn lc-btn-secondary" id="lc-btn-register" onclick="window._lcSubmit('register')">CADASTRAR</button>
           </div>
           <div id="lc-divider"><span>continuar com</span></div>
           <div id="lc-social">
@@ -1164,6 +1164,17 @@ Author: Joon Sung Park (joonspk@stanford.edu)
 
       // Compatibilidade com botões sociais (demo)
       window._loginEnter = function() { _lcDone(); };
+
+      // Touch mobile — bypass Phaser capture
+      ['lc-btn-login','lc-btn-register'].forEach(function(id) {
+        var btn = document.getElementById(id);
+        if (!btn) return;
+        btn.addEventListener('touchend', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          window._lcSubmit(id === 'lc-btn-login' ? 'login' : 'register');
+        }, { passive: false });
+      });
 
       window._aiTabSwitch = function(tab) {
         document.querySelectorAll('.ai-tab').forEach(function(b){ b.classList.remove('active'); });
