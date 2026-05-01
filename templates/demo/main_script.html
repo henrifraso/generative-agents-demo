@@ -1399,6 +1399,15 @@
     window._nightAccumMs = 0;
   }
 
+  // Exibe login após o primeiro frame renderizado (tilemap já visível)
+  if (window._pendingLogin) {
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        var _m = document.getElementById('ai-chat-modal');
+        if (_m) _m.classList.add('open');
+      });
+    });
+  }
 
 }
 

@@ -121,7 +121,8 @@ Author: Joon Sung Park (joonspk@stanford.edu)
     (function() {
       var token = localStorage.getItem('mv_token');
       if (!token) {
-        return; // modal já está open no HTML
+        window._pendingLogin = true;
+        return;
       }
 
       fetch('/api/auth/verify/', {
@@ -578,7 +579,7 @@ Author: Joon Sung Park (joonspk@stanford.edu)
   </div>
 
   <!-- *** CHAT AI (tecla T) *** -->
-  <div id="ai-chat-modal" class="login-mode open">
+  <div id="ai-chat-modal" class="login-mode">
     <div id="ai-chat-main">
       <div id="ai-chat-topbar">
         <div id="ai-chat-tabs">
