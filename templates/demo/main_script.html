@@ -229,6 +229,12 @@
 	  // const appliancesLayer = map.createLayer("Appliances", interiors, 0, 0);
 	  // const foregroundLayer = map.createLayer("Foreground", interiors, 0, 0);
 
+	  // Exibe login assim que o mapa base está visível
+	  if (window._pendingLogin) {
+	    var _lm = document.getElementById('ai-chat-modal');
+	    if (_lm) _lm.classList.add('open');
+	  }
+
 	  // Joon : This is where you want to create a custom field for the tileset
 	  //        in Tiled. Take a look at this guy's tutorial: 
 	  //        https://www.youtube.com/watch?v=MR2CvWxOEsw&ab_channel=MattWilber
