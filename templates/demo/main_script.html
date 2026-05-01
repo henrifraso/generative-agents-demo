@@ -1398,6 +1398,12 @@
     window._nightAccumMs = 0;
   }
 
+  // Jogo pronto — exibe login se pendente
+  if (window._pendingLogin) {
+    var _lModal = document.getElementById('ai-chat-modal');
+    if (_lModal) _lModal.classList.add('open');
+  }
+
 }
 
 
