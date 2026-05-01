@@ -138,6 +138,8 @@ Author: Joon Sung Park (joonspk@stanford.edu)
             modal.classList.remove('login-mode');
             modal.classList.remove('open');
           }
+          var fab = document.getElementById('fab-container');
+          if (fab) { fab.style.visibility = 'visible'; fab.style.opacity = '1'; }
           // Exibe nome do usuário no HUD se existir
           var user = localStorage.getItem('mv_user') || '';
           window._mvUser = user;
@@ -1100,6 +1102,9 @@ Author: Joon Sung Park (joonspk@stanford.edu)
         modal.classList.remove('login-mode');
         modal.classList.remove('open');
         window._aiTabSwitch('chat');
+        // Exibe FABs após login
+        var fab = document.getElementById('fab-container');
+        if (fab) { fab.style.visibility = 'visible'; fab.style.opacity = '1'; }
       }
 
       function _lcSetLoading(on) {
@@ -1247,7 +1252,7 @@ Author: Joon Sung Park (joonspk@stanford.edu)
   </script>
 
   <!-- *** BOTÕES FLUTUANTES (FAB) *** -->
-  <div id="fab-container">
+  <div id="fab-container" style="visibility:hidden;opacity:0;transition:opacity 0.4s">
     <button class="fab-btn" id="fab-home" onclick="window._fabOpen('home')" title="Tela Inicial">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
     </button>
